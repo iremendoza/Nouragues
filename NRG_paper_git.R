@@ -2,10 +2,10 @@
 load(".\\NRG.results2.Rdata")
 load(".\\tetpan2.Rdata")
 
-setwd("C:\\Irene\\Projects\\Nouragues")
+setwd("C:\\Projects\\Nouragues")
 #setwd("C:\\Brunoy\\hierarchical models\\working files hierarchical models\\")
 
-nrgresults=read.delim(file="nouragues results parameters per year.txt")
+nrgresults = read.delim(file = "nouragues results parameters per year.txt")
 
 source("C:\\Irene\\Brunoy\\hierarchical models\\working files hierarchical models\\hierarchical-enso-local climate.r")
 source("C:\\Irene\\Brunoy\\Base Datos Nouragues\\Metadata Joe Wright\\modeling max likelihood\\hierarchical models.r")
@@ -13,21 +13,14 @@ source("C:\\Irene\\Brunoy\\Base Datos Nouragues\\Metadata Joe Wright\\modeling m
 source("C:\\Irene\\Brunoy\\Base Datos Nouragues\\Metadata Joe Wright\\NRG\\Rcode_CV_PhenYr_20110509.r")
 source("C:\\Irene\\Brunoy\\Base Datos Nouragues\\Metadata Joe Wright\\modeling max likelihood\\BCI-max likelihood.r")
 
-#source("C:\\Brunoy\\hierarchical models\\working files hierarchical models\\hierarchical-enso-local climate.r")
-#source("C:\\Brunoy\\Base Datos Nouragues\\Metadata Joe Wright\\modeling max likelihood\\hierarchical models.r")
-#source("C:\\Brunoy\\Base Datos Nouragues\\Metadata Joe Wright\\modeling max likelihood\\hierarchicalModelsRepyear.r")
-#source("C:\\Brunoy\\Base Datos Nouragues\\Metadata Joe Wright\\NRG\\Rcode_CV_PhenYr_20110509.r")
-#source("C:\\Brunoy\\Base Datos Nouragues\\Metadata Joe Wright\\modeling max likelihood\\BCI-max likelihood.r")
 
-setwd("C:\\Irene\\Brunoy\\hierarchical models\\working files hierarchical models\\")
-#setwd("C:\\Brunoy\\hierarchical models\\working files hierarchical models\\")
 #attach('CTFSRPackage.rdata')
 
 library(date)
 library(ggplot2)
 
 ###DATASETS
-nourage<-"nouragues.txt" ## raw data with seed counts and density of seeds/m2 per census and species
+nourage <- "nouragues.txt" ## raw data with seed counts and density of seeds/m2 per census and species
 beginyearfile<-"beginyearseeds 2011 newfecha_NRG.txt"
 biomassraw=read.delim(file="biomass raw.txt")
 biomassraw$fecha=create.fulldate(biomassraw$date, format="%d/%m/%Y")
@@ -91,6 +84,1110 @@ runningmean=function(dataset,k=3) #this function calculates the running mean for
   return(val)
   
 }
+
+####FIGURES OF THE PAPER####
+
+####  FIGURE 1 OF THE PAPER   ######################################
+### beautiful graph of mean number of species  and climatogram ###
+
+#figure1(datfile="new",graphname="figure1.tif",est=est,biomass=biomass)
+figure1=function(datfile=c("new", "old"),graphname="figure1.tif",est=est,biomass=biomass)
+  #newman is the estimated dataset of local climate from the climatic station of Nouragues
+  #old datafile referes to "local climate data Nouragues.txt"
+{
+  #dat <- read.table("local climate data Nouragues.txt", header = T) #this was for the previous version of the paper
+  if (datfile == "old") {
+    dat=read.delim("local climate data Nouragues.txt")
+    means <- aggregate(dat[, 3:5], by = list(month = dat$month), mean)
+    sds  <- aggregate(dat[, 3:5], by = list(month = dat$month), sd)
+  }
+  
+  if (datfile == "new") {
+    dat=newman
+    dry=aggregate(data.frame(rain=dat$raine), by=list(Month=dat$Month,Year=dat$Year), sum,na.rm=T)
+    for (k in 1:dim(dry)[1]){   
+      dry$lack[k]=length(which(is.na(dat$raine[dat$Year==dry$Year[k]&dat$Month==dry$Month[k]])==T))
+    }
+    # we establish a threshold of 4 days for keeping rainfall data of that month
+    dry2=dry[-which(dry$lack>4),]
+    monthrain=aggregate(data.frame(rain=dry2$rain),by=list(month=dry2$Month),mean)
+    sdrain=aggregate(data.frame(rain=dry2$rain),by=list(month=dry2$Month),sd)
+    
+    means <- data.frame(aggregate(data.frame(tmin=dat[,16],tmax=dat[,17]), by = list(month = dat$Month), mean,na.rm=T),rain=monthrain$rain)
+    sds  <- data.frame(aggregate(data.frame(tmin=dat[,16],tmax=dat[,17]), by = list(month = dat$Month), sd,na.rm=T),rain=sdrain$rain)
+  }
+  
+  labels <- c("J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D")
+  
+  #est<-read.delim("number total spp per month estimated.txt",header=T)
+  sppmeans=aggregate( est$estnumbspp, by = list(month = est$month), mean)
+  names(sppmeans)=c("month","nbspp")
+  sppsds=aggregate( est$estnumbspp, by = list(month = est$month), sd)
+  names(sppsds)=c("month","nbspp")
+  
+  #biomass=read.delim(file="biomass all months.txt",as.is=T)
+  biomass=biomass[-1,]
+  meanbio=aggregate(data.frame(fruit=biomass$fruits,flower=biomass$flowers), by=list(month=biomass$month), mean)
+  sdbio=aggregate(data.frame(fruit=biomass$fruits,flower=biomass$flowers), by=list(month=biomass$month), sd)
+  
+  #x11(height=10,width=6) 
+  tiff(filename=graphname,width = 1900, height = 3000,pointsize=12, res=300)
+  par(las = 1, bty = "o", tcl = 0.2, mar = c(2, 5, 1, 5), mgp = c(0.25, 0.25, 0),cex.axis=1.5,lwd=1.5)
+  par(mfrow=c(3,1))
+  
+  plot(meanbio$fruit,type="o",axes=FALSE, xlab="",ylab="", col="black", ylim=c(0,15) )
+  segments(1:12, meanbio$fruit- sdbio$fruit, 1:12, meanbio$fruit + sdbio$fruit, lwd = 2, lend = 3, col = "black")
+  axis(1, at = 1:12, labels = NA)
+  axis(2) 
+  mtext(text=expression(paste("Biomass (g ",m^-2, ")", sep = " ")), 2, las = 3, line = 3) 
+  text(2,15,labels="A",pos=2, offset=2, cex=2)
+  par(new=TRUE)
+  ji12=jitter(c(1:12))
+  plot(ji12,flowermeans$flower, type="o",axes=FALSE, xlab="", ylab="", col="grey70", ylim=c(0,15) ,lwd=2)
+  segments(ji12, flowermeans$flower- flowersds$flower, ji12, flowermeans$flower + flowersds$flower, lwd = 2, lend = 3, col = "grey70")
+  legend(7,15,legend=c("fruits","flowers"), col=c("black","grey70"),lty=1,lwd=3,bty="n",cex=2)
+  
+  print(cor.test(means$rain, meanbio$flower))
+  print(cor.test(means$rain, meanbio$fruit))
+  
+  plot(sppmeans$nbspp,type="o",axes=FALSE, ylim=c(10,40), xlab="",ylab="",col="black")
+  text(2,40,labels="B",pos=2, offset=2, cex=2)
+  axis(1, at = 1:12, labels = NA)
+  axis(2)
+  segments(1:12, sppmeans$nbspp - sppsds$nbspp, 1:12, sppmeans$nbspp + sppsds$nbspp, lwd = 2, lend = 3, col = "black")
+  mtext("Number of fruiting species", 2, las = 3, line = 3)
+  
+  print(cor.test(means$rain,sppmeans$nbspp))
+  
+  #plot(1:12, means$rain, axes = F, type = "n", xlab = "", ylab = "", ylim = range(means$rain - sds$rain, means$rain+ sds$rain))
+  plot(1:12, means$rain, axes = F, type = "n", xlab = "", ylab = "", ylim = c(0,800))
+  text(2,800,labels="C",pos=2, offset=2, cex=2)
+  polygon(c(1:12, 12:1), c(means$tmin, rev(means$tmax))*20, col = "#FF000050", border = NA)
+  segments( 1:12, 0, 1:12, means$rain, lwd = 40, lend = 3, col = "blue",lend=3)
+  segments(1:12, means$rain - sds$rain, 1:12, means$rain+ sds$rain, lwd = 2, lend = 3, col = "black")
+  
+  
+  axis(1, at = 1:12, labels = labels)
+  axis(2, at = 100*1:5, col.axis = "blue")
+  axis(4, at = 200*1:4, labels = 10*1:4, col.axis = "red")
+  mtext("Temperature (?C)", 4, las = 3, line = 3, col = "red")
+  mtext("Precipitation (mm)", 2, las = 3, line = 3, col = "blue")
+  
+  
+  
+  
+  dev.off() 
+}
+
+
+####FIGURE 2 OF THE PAPER ###############
+
+#figure2 plots the hyperparameters for each species in Nouragues (in an exponential scale)
+#figure2(trfile="Nouragues results hyperparameters.txt",longnames="total number of seeds per species.txt",filename="figure2.tif")
+figure2=function(trfile="Nouragues results hyperparameters.txt",longnames="total number of seeds per species.txt",filename="figure2.tif")
+  
+{
+  
+  #x11(height=9,width=9)
+  tiff(filename=filename,height=1200,width=1900,res=300)
+  par(mar=c(3,3,3,1),oma=c(1,1,1,1))
+  tr=read.delim(file=trfile)
+  tr$mu2=tr$mu
+  tr$mu2[which(tr$mu<=0)]= tr$mu[which(tr$mu<=0)]+365.25
+  tr$mu2[which(tr$mu>365)]= tr$mu[which(tr$mu>365)]-365.25
+  negdate=which(tr$mu<=0)
+  
+  
+  totseed=read.delim(file=longnames)
+  names(totseed)=c("species","longname","totseed","form","disp","fruit")
+  spnames2=totseed$longname
+  dat<-merge(tr,totseed,by="species")
+  zoo=which(totseed$disp=="zoo")
+  bal=which(totseed$disp=="bal")
+  ane=which(totseed$disp=="ane")
+  
+  colores=1:45
+  colores[zoo]="red"
+  colores[ane]="blue"
+  colores[bal]="blue"
+  
+  
+  maxyr=which.max(tr$logmu)
+  
+  oneyrpred=14*exp(tr$logmu[maxyr])*dnorm(1:365,mean=tr$mu2[maxyr],sd=tr$bestSD[maxyr])
+  plot(1:365,oneyrpred,type='l',ylab='',xlab='',ylim=c(-0.5,max(oneyrpred+1)),lwd=1.25, cex=1, axes=F)
+  axis(side=2, las=2)
+  axis(side=1, at=c(1,32,60,92,122,152,183,214,245,275,306,336,366), labels=c("J", "F", "M", "A","M", "J", "J", "A", "S","O","N","D","J"))
+  #polygon(c(248,341,341,248),c(0,0,3,3),col = "#FF000020", border = NA)
+  #polygon(c(0,248,248,0),c(0,0,3,3),col = "#0000FF20", border = NA)
+  polygon(c(212,334,334,212),c(0,0,30,30),col = "grey80", border = NA)
+  #polygon(c(341,400,400,341),c(0,0,3,3),col = "#0000FF20", border = NA)
+  mtext(3, text="Nouragues (2001-2011)",line=2,cex=1.5)
+  mtext(2,text="biweekly seedfall",line=3,cex=1)
+  mtext(1,text="month of the year",line=3,cex=1)
+  for (i in 1:dim(tr)[1])
+  {
+    oneyrpred=14*exp(tr$logmu[i])*dnorm(1:365,mean=tr$mu2[i],sd=tr$bestSD[i])
+    lines(1:365,oneyrpred,col=colores[i], lwd=2) 
+  }
+  
+  lines(1:365, 14*mean(exp(tr$logmu))*dnorm(1:365,mean=mean(tr$mu2),sd=mean(tr$bestSD)),col="black",lwd=4)
+  legend(10,37,lty=c(1,1),col=c("black","red","blue"),legend=c("community","biotic","abiotic"),bty="n",cex=0.8,horiz=T,lwd=2)
+  
+  # contingency test associated with figure 2: we test the Ho that the peaks of fruit production were uniform through the year
+  # March-May is 25% of the year. Does 21 species differ significantly from 25% of 45 species?
+  
+  ## Species having peaks during the rainy peak (Mar-May)
+  dim(tr[which(tr$mu2>=60&tr$mu2<=151),])[1]
+  chisq.test(x=c(22,24),p=c(0.25,0.75))
+  
+  # contingency test associated with figure 2: we test the Ho that the peaks of fruit production were uniform through the year for all dispersal modes
+  biotic=which(totseed$disp=="zoo")
+  abiotic=which(totseed$disp=="bal"| totseed$disp=="ane")
+  
+  
+  ## Species having peaks during the rainy peak (Mar-May) 
+  rainypeak<-dat[which(dat$mu2>=60&dat$mu2<=151),]
+  dim(rainypeak)
+  length(which(rainypeak$disp=="zoo"))
+  rainy2<-dat[which(dat$mu2>=152&dat$mu2<=243),]
+  dim(rainy2)
+  length(which(rainy2$disp=="zoo"))
+  dry<-dat[which(dat$mu2>=244&dat$mu2<=334),]
+  dim(dry)
+  length(which(dry$disp=="zoo"))
+  rainy1<-dat[which(dat$mu2>=335|dat$mu2<=59),]
+  dim(rainy1)
+  length(which(rainy1$disp=="zoo"))
+  disptest=matrix(ncol=2,nrow=2)
+  colnames(disptest)=c("rainypeak","rest")
+  rownames(disptest)=c("biotic","abiotic")
+  disptest[1,]=c(11,13)
+  disptest[2,]=c(11,10)
+  biotic<-c(11,1,5,7)
+  abiotic<-c(11,3,3,4)
+  chisq.test(disptest) ## no signficant differences between dispersal mode of species
+  
+  dev.off()
+  
+}
+
+#figure2nodispersal plots the hyperparameters for each species in Nouragues (in an exponential scale) without dispersal modes (for ATBC presentation)
+#figure2nodispersal(trfile="Nouragues results hyperparameters.txt",longnames="total number of seeds per species.txt",filename="NRG for ATBC2016.tif")
+
+figure2nodispersal=function(trfile="Nouragues results hyperparameters.txt",longnames="total number of seeds per species.txt",filename="figure2.tif")
+  
+{
+  
+  #x11(height=9,width=9)
+  tiff(filename=filename,height=1200,width=1900,res=300)
+  par(mar=c(3,3,3,1),oma=c(1,1,1,1))
+  tr=read.delim(file=trfile)
+  tr$mu2=tr$mu
+  tr$mu2[which(tr$mu<=0)]= tr$mu[which(tr$mu<=0)]+365.25
+  tr$mu2[which(tr$mu>365)]= tr$mu[which(tr$mu>365)]-365.25
+  negdate=which(tr$mu<=0)
+  
+  
+  totseed=read.delim(file=longnames)
+  names(totseed)=c("species","longname","totseed","form","disp","fruit")
+  spnames2=totseed$longname
+  dat<-merge(tr,totseed,by="species")
+  zoo=which(totseed$disp=="zoo")
+  bal=which(totseed$disp=="bal")
+  ane=which(totseed$disp=="ane")
+  
+  colores=1:45
+  colores[zoo]="blue"
+  colores[ane]="blue"
+  colores[bal]="blue"
+  
+  
+  maxyr=which.max(tr$logmu)
+  
+  oneyrpred=14*exp(tr$logmu[maxyr])*dnorm(1:365,mean=tr$mu2[maxyr],sd=tr$bestSD[maxyr])
+  plot(1:365,oneyrpred,type='l',ylab='',xlab='',ylim=c(-0.5,max(oneyrpred+1)),lwd=1.25, cex=1, axes=F)
+  axis(side=2, las=2)
+  axis(side=1, at=c(1,32,60,92,122,152,183,214,245,275,306,336,366), labels=c("J", "F", "M", "A","M", "J", "J", "A", "S","O","N","D","J"))
+  #polygon(c(248,341,341,248),c(0,0,3,3),col = "#FF000020", border = NA)
+  #polygon(c(0,248,248,0),c(0,0,3,3),col = "#0000FF20", border = NA)
+  polygon(c(212,334,334,212),c(0,0,30,30),col = "#CCCCCC42", border = NA)
+  #polygon(c(341,400,400,341),c(0,0,3,3),col = "#0000FF20", border = NA)
+  mtext(3, text="Nouragues (2001-2011)",line=2,cex=1.5)
+  mtext(2,text="biweekly seedfall",line=3,cex=1)
+  mtext(1,text="month of the year",line=3,cex=1)
+  for (i in 1:dim(tr)[1])
+  {
+    oneyrpred=14*exp(tr$logmu[i])*dnorm(1:365,mean=tr$mu2[i],sd=tr$bestSD[i])
+    lines(1:365,oneyrpred,col=colores[i], lwd=2) 
+  }
+  
+  lines(1:365, 14*mean(exp(tr$logmu))*dnorm(1:365,mean=mean(tr$mu2),sd=mean(tr$bestSD)),col="black",lwd=4)
+  dev.off()
+  
+}
+
+
+###FIGURE 3 OF THE PAPER ###############
+##how many species had their peaks during the wet season?
+
+figure3=function(file="Nouragues results hyperparameters.txt",filename="figure3.tif"){
+  
+  tr=read.delim(file)
+  tr$mu2=tr$mu
+  tr$mu2[which(tr$mu<=0)]= tr$mu[which(tr$mu<=0)]+365.25
+  tr$mu2[which(tr$mu>365)]= tr$mu[which(tr$mu>365)]-365.25
+  
+  tiff(filename=filename,height=1000,width=2000,res=300)
+  par(mfrow=c(1,2),las=1,mar=c(3,3,1,0),oma=c(2,2,1,1),cex=0.6)
+  #tt=hist(tr$mu2, breaks=c(0,30,60,90,120,150,180,210,240,270,300,330,360,390), xlab="",ylab="",right=FALSE,  axes=F, main="", ylim=c(0,9))
+  tt=hist(tr$mu2, breaks=c(0,60,120,180,240,300,360,420), xlab="",ylab="",right=FALSE,  axes=F, main="",ylim=c(0,15),cex=0.5)
+  mtext(1,text="peakday (hypermean)",line=2.5,cex=1)
+  mtext(2,text="number of species",line=3,cex=1.5,las=0)
+  axis(side=1, at=c(0,60,120,180,240,300,360,420), labels=c("0","60","120","180","240","300","360","365"))
+  axis(side=2, at=c(seq(0,15,5)), labels=T,las=1)
+  data.frame(breaks=tt$breaks[1:length(tt$breaks)-1], counts=tt$counts)
+  tsd=hist(tr$SD,breaks=c(0,15,30,45,60,75,90,105,120,135),xlab="",ylab="",main="", axes=F, right=F)
+  mtext(1,text="variation of peakday (hyperSD)",line=2.5,cex=1)
+  
+  axis(side=2)
+  axis(side=1, at=c(0,15,30,45,60,75,90,105,120,135), labels=T)
+  #c("0","","","45","","","90","","","135")
+  data.frame(breaks=tsd$breaks[1:length(tsd$breaks)-1], counts=tsd$counts)
+  #hist(exp(t$logmu)+1,xlab="peak of seed production (number seeds/year)",ylab="number of species",main=site)
+  #hist(exp(t$logSD)+1,xlab="SD of peak of seed production (number seeds/year)",ylab="number of species",main=site)
+  # hist(tr$logmu,main="", ylab="number of species", xlab="hyperpeak")
+  
+  dev.off()
+}  
+
+CVspp=function (file = "nouragues results parameters per year.txt",cex.val=1.25) 
+{
+  par(mar = c(3, 3, 1, 1), cex = cex.val)
+  nrg = read.delim(file)
+  spnames = sort(unique(nrg$sp))
+  spmeans = aggregate(data.frame(peak = nrg$peak), by = list(species = nrg$species), 
+                      mean)
+  spsd = aggregate(data.frame(peak = nrg$peak), by = list(species = nrg$species), 
+                   sd)
+  condensed = merge(spmeans, spsd, by = "species")
+  names(condensed) = c("species", "mean", "sd")
+  condensed$CV = condensed$sd/condensed$mean
+  hist(condensed$CV, breaks = 8, xlab = "", main = "", ylab = "", 
+       lwd = 2, col = "grey", las = 1)
+}
+
+
+####FIGURE 4 OF THE PAPER ###############
+
+figure4=function(file="nouragues results parameters per year.txt",longnames="total number of seeds per species.txt",filename="figure4.tif") {
+  
+  nrg=read.delim(file)
+  #spnames=sort(unique(nrg$sp))
+  totseed=read.delim(file=longnames)
+  names(totseed)=c("species","longname","totseed","form","disp","fruit")
+  spnames2=totseed$longname
+  spmeans=aggregate(data.frame(peak=nrg$peak),by=list(species=nrg$species),mean)
+  spsd=aggregate(data.frame(peak=nrg$peak),by=list(species=nrg$species),sd)
+  condensed=merge(spmeans, spsd, by="species")
+  names(condensed)=c("species","mean","sd")
+  condensed2=merge(totseed, condensed, by="species")
+  condensed2$CV=condensed$sd/condensed$mean
+  orco=order(condensed2$CV)
+  
+  #split.screen(c(1,2))
+  tiff(filename=filename,height=1600,width=2500,pointsize=24) #
+  par(mar=c(20,5,12,1),cex=1)
+  zoo=which(condensed2$disp[orco]=="zoo")
+  bal=which(condensed2$disp[orco]=="bal")
+  ane=which(condensed2$disp[orco]=="ane")
+  colores=1:45
+  colores[zoo]="gray28"
+  colores[ane]="white"
+  colores[bal]="white"
+  barplot(condensed2$CV[orco], main="", space=0,las=2,axes=F, ylim=c(0,3),col=colores)
+  axis(side=2, at=c(0,1,2,3), labels=c("0","1","2","3") ,las=2, cex.axis=1.75)
+  mtext(side=2, "Coefficient of variation", line=3,cex=2, las=3)
+  #axis(side=1, at=seq(0.5,45,2), labels=condensed2$longname[orco][seq(1,45,2)],las=2,font=3, cex.axis=1.5)
+  axis(side=1, at=seq(0.5,45,1), labels=condensed2$longname[orco][seq(1,45,1)],las=2,font=3, cex.axis=1.5)
+  abline(h=1,lwd=2)
+  text(0,2.5, "A", cex=2)
+  legend(4,3,fill=c("gray28","white"),legend=c("biotic","abiotic"),bty="n",cex=2)
+  par(new=T)
+  m=matrix(ncol=3,nrow=4)
+  m[1,3]=2
+  m[2:4,]=1
+  m[1,c(1,2)]=1
+  layout(m, widths=c(1,1))
+  CVspp(file=file)
+  abline(v=1,lwd=2)
+  text(3,15, "B", cex=2)
+  mtext(side=1,"coefficient of variation",line=3,cex=1.3)
+  mtext(side=2, "number of species",line=3,cex=1.3)
+  dev.off()
+}
+
+
+###FIGURE 5 OF THE PAPER ###############
+
+figure5=function(file=nourage, fit=results, beginyearfile=beginyearfile)
+{
+  nrgdata=read.delim(file)
+  beginyr=read.delim(file=beginyearfile)
+  fulldata=merge(nrgdata,beginyr,by="sp", all.x=TRUE)
+  spnames=sort(unique(fulldata$sp))
+  jpeg(filename="Figure5.jpg",width = 900, height = 1050,quality=100)
+  par(mfrow=c(6,2),mar=c(2.5,1,2,5), oma=c(4,5,1,1),las=1, cex=1)
+  sprange=c(45,10,23,8,18,20)
+  for (i in 1:length(sprange)){
+    species=as.character(spnames[sprange][i])
+    bgy=beginyr$beginyr[beginyr$sp==species]
+    spdata<-extract.seedfall_onesp2(latin =species, file = file) 
+    spdata2<-create.rep.year(data=spdata,beginyear=bgy)
+    nyear= unique(spdata2$year)    
+    maxyday=numfiles=dif=numeric()
+    for (j in 1:length(nyear))
+    { 
+      oneyr=subset(spdata2,spdata2$year==nyear[j])
+      maxyday[j]<-max(oneyr$yday)
+      dif[j]<-max(oneyr$yday)-min(oneyr$yday)
+      numfiles[j]=dim(oneyr)[1]  
+    }
+    
+    yearselection=data.frame(maxyday,dif,numfiles)
+    numyear=dim(yearselection)[1]
+    startv=endv=numeric()
+    startv= ifelse(yearselection$maxyday[1]>=320&dif[1]>300,nyear[1],nyear[2])
+    endv=ifelse(yearselection$maxyday[numyear]>=320&dif[numyear]>300,nyear[numyear],nyear[numyear-1])     
+    inc2=which(spdata2$year>=startv&spdata2$year<=endv)
+    
+    spsh=spshort2(spname=species)
+    fitset=fit[[spsh]] 
+    fittrans= retranslate.seedfalldate(fit=fitset,beginyear=bgy)
+    
+    #plot(spdata$julian[inc],spdata$quantity[inc],pch=16,ylim=c(0,max(fittrans$bestpeak)))
+    
+    if (i ==1|i==5){
+      plot(spdata$julian,spdata$quantity,pch=16,ylim=c(0,max(fittrans$bestpeak)),axes=F,xlab="years",ylab="number of seeds")
+      jan=tojulian(pst('01/01/',min(unique(spdata$year)):(max(unique(spdata$year))+1)))
+      #axis(side=1, at=jan, labels= c(min(unique(spdata$year)):max(unique(spdata$year))))
+      axis(side=1, at=jan, labels= jan)
+      axis(2)
+      Dj=round(ifelse(bgy<182.5,bgy,bgy-366),0)
+      lines(spdata2$julian[inc2]+Dj,fitset$model)  
+      newdates=fromjulian(spdata$julian[inc2]+Dj,dateform="%Y-%m-%d")
+      fulldate=create.fulldate(newdates,format='%Y-%m-%d')
+      startyear=min(unique(fulldate$year))
+      endyear=max(unique(fulldate$year))
+      jan1=tojulian(pst('01/01/',startv:endv))
+      fitpeakjulian=jan1+fittrans$bestpeakday 
+      points(fitpeakjulian,fittrans$bestpeak,col='red',pch=16)
+      mtext(side=3, text=species, font=3,line=0.5, cex=1.5)
+      
+      maxyr=which.max(fittrans$bestpeak)
+      oneyrpred=14*fittrans$bestpeak[maxyr]*dnorm(-185:185,mean=fittrans$bestpeakday[maxyr],sd=fittrans$bestSD)
+      plot(-185:185,oneyrpred,type='l',ylab='biweekly seedfall',xlab='day of year',axes=FALSE,lwd=2, bty="l")
+      axis(side=1, at=c(-180,-120,-60,1,60,120,180),labels=c("185","245","305","0","60","120","180") )
+      axis(side=2)
+      for(k in 1:length(fittrans$bestpeak)) 
+      { 
+        oneyrpred=14*fittrans$bestpeak[k]*dnorm(-185:185,mean=fittrans$bestpeakday[k],sd=fittrans$bestSD)
+        lines(-185:185,oneyrpred,col=k,lwd=2) 
+      }
+      #mtext(side=3, text=species, font=3,line=0.75, cex=1.5)
+    }
+    if(i ==6){
+      plot(spdata$julian,spdata$quantity,pch=16,ylim=c(0,max(fittrans$bestpeak)),axes=F,xlab="years",ylab="number of seeds")
+      jan=tojulian(pst('01/01/',min(unique(spdata$year)):(max(unique(spdata$year))+1)))
+      #axis(side=1, at=jan, labels= c(min(unique(spdata$year)):max(unique(spdata$year))))
+      axis(side=1, at=jan, labels= jan)
+      axis(2)
+      Dj=round(ifelse(bgy<182.5,bgy,bgy-366),0)
+      lines(spdata2$julian[inc2]+Dj,fitset$model)  
+      newdates=fromjulian(spdata$julian[inc2]+Dj,dateform="%Y-%m-%d")
+      fulldate=create.fulldate(newdates,format='%Y-%m-%d')
+      startyear=min(unique(fulldate$year))
+      endyear=max(unique(fulldate$year))
+      jan1=tojulian(pst('01/01/',startv:endv))
+      fitpeakjulian=jan1+fittrans$bestpeakday 
+      points(fitpeakjulian,fittrans$bestpeak,col='red',pch=16)
+      mtext(side=3, text=species, font=3,line=0.5, cex=1.5)
+      mtext(side=1, text="years", font=1,line=3, cex=2) 
+      
+      maxyr=which.max(fittrans$bestpeak)
+      oneyrpred=14*fittrans$bestpeak[maxyr]*dnorm(1:400,mean=fittrans$bestpeakday[maxyr],sd=fittrans$bestSD)
+      plot(1:400,oneyrpred,type='l',ylab='',xlab='',lwd=2,ylim=c(0,max(oneyrpred+1)),bty="l")
+      for(k in 1:length(fittrans$bestpeak)) 
+      { 
+        oneyrpred=14*fittrans$bestpeak[k]*dnorm(1:400,mean=fittrans$bestpeakday[k],sd=fittrans$bestSD)
+        lines(1:400,oneyrpred,col=k,lwd=2) 
+      } 
+      mtext(side=1, text="day of year", font=1,line=3, cex=2)   
+    }  
+    
+    if(i == 2|i ==3){
+      plot(spdata$julian,spdata$quantity,pch=16,ylim=c(0,max(fittrans$bestpeak)),axes=F,xlab="years",ylab="number of seeds")
+      jan=tojulian(pst('01/01/',min(unique(spdata$year)):(max(unique(spdata$year))+1)))
+      #axis(side=1, at=jan, labels= c(min(unique(spdata$year)):max(unique(spdata$year))))
+      axis(side=1, at=jan, labels= jan)
+      axis(2)
+      Dj=round(ifelse(bgy<182.5,bgy,bgy-366),0)
+      lines(spdata2$julian[inc2]+Dj,fitset$model)  
+      newdates=fromjulian(spdata$julian[inc2]+Dj,dateform="%Y-%m-%d")
+      fulldate=create.fulldate(newdates,format='%Y-%m-%d')
+      startyear=min(unique(fulldate$year))
+      endyear=max(unique(fulldate$year))
+      jan1=tojulian(pst('01/01/',startv:endv))
+      fitpeakjulian=jan1+fittrans$bestpeakday 
+      points(fitpeakjulian,fittrans$bestpeak,col='red',pch=16)
+      mtext(side=3, text=species, font=3,line=0.5, cex=1.5)
+      maxyr=which.max(fittrans$bestpeak)
+      oneyrpred=14*fittrans$bestpeak[maxyr]*dnorm(1:400,mean=fittrans$bestpeakday[maxyr],sd=fittrans$bestSD)
+      plot(1:400,oneyrpred,type='l',ylab='',xlab='',lwd=2,ylim=c(0,max(oneyrpred+1)),bty="l")
+      for(k in 1:length(fittrans$bestpeak)) 
+      { 
+        oneyrpred=14*fittrans$bestpeak[k]*dnorm(1:400,mean=fittrans$bestpeakday[k],sd=fittrans$bestSD)
+        lines(1:400,oneyrpred,col=k,lwd=2) 
+      } 
+      #mtext(side=3, text=species, font=3,line=0.75, cex=1.5)   
+    }  
+    if(i == 4){
+      plot(spdata$julian,spdata$quantity,pch=16,ylim=c(0,max(fittrans$bestpeak)),axes=F,xlab="years",ylab="number of seeds")
+      jan=tojulian(pst('01/01/',min(unique(spdata$year)):(max(unique(spdata$year))+1)))
+      #axis(side=1, at=jan, labels= c(min(unique(spdata$year)):max(unique(spdata$year))))
+      axis(side=1, at=jan, labels= jan)
+      axis(2)
+      Dj=round(ifelse(bgy<182.5,bgy,bgy-366),0)
+      lines(spdata2$julian[inc2]+Dj,fitset$model)  
+      newdates=fromjulian(spdata$julian[inc2]+Dj,dateform="%Y-%m-%d")
+      fulldate=create.fulldate(newdates,format='%Y-%m-%d')
+      startyear=min(unique(fulldate$year))
+      endyear=max(unique(fulldate$year))
+      jan1=tojulian(pst('01/01/',startv:endv))
+      fitpeakjulian=jan1+fittrans$bestpeakday 
+      points(fitpeakjulian,fittrans$bestpeak,col='red',pch=16)
+      mtext(side=2, text="number of seeds", font=1,line=3,adj=0, las=0,cex=2)   
+      mtext(side=3, text=species, font=3,line=0.5, cex=1.5)
+      
+      maxyr=which.max(fittrans$bestpeak)
+      oneyrpred=14*fittrans$bestpeak[maxyr]*dnorm(1:400,mean=fittrans$bestpeakday[maxyr],sd=fittrans$bestSD)
+      plot(1:400,oneyrpred,type='l',ylab='',xlab='',lwd=2,ylim=c(0,max(oneyrpred+1)),bty="l")
+      mtext(side=2, text="biweekly seedfall", font=1,line=3,adj=0, las=0,cex=2)
+      for(k in 1:length(fittrans$bestpeak)) 
+      { 
+        oneyrpred=14*fittrans$bestpeak[k]*dnorm(1:400,mean=fittrans$bestpeakday[k],sd=fittrans$bestSD)
+        lines(1:400,oneyrpred,col=k,lwd=2) 
+      } 
+      
+    }  
+    
+  }  
+  
+  dev.off()  
+}
+
+
+
+########################################
+###FIGURE 5b OF THE PAPER ###############
+########################################
+
+## figure 5b is a short version of figure5 for the FAPESP relatorio cientifico
+
+figure5b=function(file=nourage, fit=results, beginyearfile=beginyearfile)
+{
+  nrgdata=read.delim(file)
+  beginyr=read.delim(file=beginyearfile)
+  fulldata=merge(nrgdata,beginyr,by="sp", all.x=TRUE)
+  spnames=sort(unique(fulldata$sp))
+  jpeg(filename="Figure5b.jpg",width = 900, height = 500,quality=100)
+  par(mfrow=c(2,2),mar=c(2.5,4,4,5), oma=c(4,5,1,1),las=1, cex=1)
+  sprange=c(45,20)
+  for (i in 1:length(sprange)){
+    species=as.character(spnames[sprange][i])
+    bgy=beginyr$beginyr[beginyr$sp==species]
+    spdata<-extract.seedfall_onesp2(latin =species, file = file) 
+    spdata2<-create.rep.year(data=spdata,beginyear=bgy)
+    nyear= unique(spdata2$year)    
+    maxyday=numfiles=dif=numeric()
+    for (j in 1:length(nyear))
+    { 
+      oneyr=subset(spdata2,spdata2$year==nyear[j])
+      maxyday[j]<-max(oneyr$yday)
+      dif[j]<-max(oneyr$yday)-min(oneyr$yday)
+      numfiles[j]=dim(oneyr)[1]  
+    }
+    
+    yearselection=data.frame(maxyday,dif,numfiles)
+    numyear=dim(yearselection)[1]
+    startv=endv=numeric()
+    startv= ifelse(yearselection$maxyday[1]>=320&dif[1]>300,nyear[1],nyear[2])
+    endv=ifelse(yearselection$maxyday[numyear]>=320&dif[numyear]>300,nyear[numyear],nyear[numyear-1])     
+    inc2=which(spdata2$year>=startv&spdata2$year<=endv)
+    
+    spsh=spshort2(spname=species)
+    fitset=fit[[spsh]] 
+    fittrans= retranslate.seedfalldate(fit=fitset,beginyear=bgy)
+    
+    #plot(spdata$julian[inc],spdata$quantity[inc],pch=16,ylim=c(0,max(fittrans$bestpeak)))
+    
+    if (i ==1){
+      plot(spdata$julian,spdata$quantity,pch=16,ylim=c(0,max(fittrans$bestpeak)),axes=F,xlab="",ylab="")
+      jan=tojulian(pst('01/01/',min(unique(spdata$year)):(max(unique(spdata$year))+1)))
+      #axis(side=1, at=jan, labels= c(min(unique(spdata$year)):max(unique(spdata$year))))
+      axis(side=1, at=jan, labels= jan)
+      axis(2)
+      Dj=round(ifelse(bgy<182.5,bgy,bgy-366),0)
+      lines(spdata2$julian[inc2]+Dj,fitset$model)  
+      newdates=fromjulian(spdata$julian[inc2]+Dj,dateform="%Y-%m-%d")
+      fulldate=create.fulldate(newdates,format='%Y-%m-%d')
+      startyear=min(unique(fulldate$year))
+      endyear=max(unique(fulldate$year))
+      jan1=tojulian(pst('01/01/',startv:endv))
+      fitpeakjulian=jan1+fittrans$bestpeakday 
+      points(fitpeakjulian,fittrans$bestpeak,col='red',pch=16)
+      mtext(side=3, text=species, font=3,line=0.5, cex=1.5)
+      mtext(side=2, text="number of seeds", font=1,line=3,adj=0, las=0,cex=1.5)
+      
+      
+      maxyr=which.max(fittrans$bestpeak)
+      oneyrpred=14*fittrans$bestpeak[maxyr]*dnorm(-185:185,mean=fittrans$bestpeakday[maxyr],sd=fittrans$bestSD)
+      plot(-185:185,oneyrpred,type='l',ylab='',xlab='',axes=FALSE,lwd=2, bty="l")
+      axis(side=1, at=c(-180,-120,-60,1,60,120,180),labels=c("185","245","305","0","60","120","180") )
+      axis(side=2)
+      for(k in 1:length(fittrans$bestpeak)) 
+      { 
+        oneyrpred=14*fittrans$bestpeak[k]*dnorm(-185:185,mean=fittrans$bestpeakday[k],sd=fittrans$bestSD)
+        lines(-185:185,oneyrpred,col=k,lwd=2) 
+      }
+      mtext(side=2, text="biweekly seedfall", font=1,line=3,adj=0, las=0,cex=1.5)
+    }
+    if(i ==2){
+      plot(spdata$julian,spdata$quantity,pch=16,ylim=c(0,max(fittrans$bestpeak)),axes=F,xlab="",ylab="")
+      jan=tojulian(pst('01/01/',min(unique(spdata$year)):(max(unique(spdata$year))+1)))
+      #axis(side=1, at=jan, labels= c(min(unique(spdata$year)):max(unique(spdata$year))))
+      axis(side=1, at=jan, labels= jan)
+      axis(2)
+      Dj=round(ifelse(bgy<182.5,bgy,bgy-366),0)
+      lines(spdata2$julian[inc2]+Dj,fitset$model)  
+      newdates=fromjulian(spdata$julian[inc2]+Dj,dateform="%Y-%m-%d")
+      fulldate=create.fulldate(newdates,format='%Y-%m-%d')
+      startyear=min(unique(fulldate$year))
+      endyear=max(unique(fulldate$year))
+      jan1=tojulian(pst('01/01/',startv:endv))
+      fitpeakjulian=jan1+fittrans$bestpeakday 
+      points(fitpeakjulian,fittrans$bestpeak,col='red',pch=16)
+      mtext(side=3, text=species, font=3,line=0.5, cex=1.5)
+      mtext(side=1, text="years", font=1,line=3, cex=2) 
+      mtext(side=2, text="number of seeds", font=1,line=3,adj=0, las=0,cex=1.5)
+      
+      maxyr=which.max(fittrans$bestpeak)
+      oneyrpred=14*fittrans$bestpeak[maxyr]*dnorm(1:400,mean=fittrans$bestpeakday[maxyr],sd=fittrans$bestSD)
+      plot(1:400,oneyrpred,type='l',ylab='',xlab='',lwd=2,ylim=c(0,max(oneyrpred+1)),bty="l")
+      for(k in 1:length(fittrans$bestpeak)) 
+      { 
+        oneyrpred=14*fittrans$bestpeak[k]*dnorm(1:400,mean=fittrans$bestpeakday[k],sd=fittrans$bestSD)
+        lines(1:400,oneyrpred,col=k,lwd=2) 
+      } 
+      mtext(side=1, text="day of year", font=1,line=3, cex=2)  
+      mtext(side=2, text="biweekly seedfall", font=1,line=3,adj=0, las=0,cex=1.5)
+    }  
+    
+    
+  }  
+  
+  dev.off()  
+}
+
+##############################################
+### FIGURE 6 ################################
+##############################################
+
+##figure6 plots the contribution of each species to the total amount of seed production per year
+
+#figure6(file="all parameters spp.txt",fileno="all parameters spp no Dj.txt", beginyearfile=beginyearfile, spstart=1, spend=45, graph=5,longnames="total number of seeds per species.txt",graphname="figure6.tif")
+figure6=function(file="all parameters spp.txt",fileno="all parameters spp no Dj.txt", beginyearfile=beginyearfile, spstart=1, spend=45,graph=5,longnames="total number of seeds per species.txt",graphname="figure6.tif")
+  
+{
+  data=monthlyvalues(file=file,fileno=fileno, beginyearfile=beginyearfile,spstart=spstart,spend=spend)
+  totseed=read.delim(file=longnames)
+  names(totseed)=c("species","longname","totseed","form","disp","fruit")
+  dispersal=data.frame(species=totseed$longname,disp=totseed$disp)
+  datayr<-merge(data,totseed, by="species",all.x=T)
+  sumyr=aggregate(data.frame(sumseed=datayr$model), by=list(species=datayr$longname, year=datayr$year), sum)
+  years=split(sumyr$sumseed, sumyr$year)
+  tiff(filename=graphname,width = 4000, height = 3100,res=300)
+  par(mfrow=c(5,2), mar=c(2,2,1,0),oma=c(3,5,3,3))  
+  for (i in c(1:10))
+  {
+    oneyr=sumyr[sumyr$year==unique(sumyr$year)[i],]
+    oneyr$perc=(oneyr$sumseed/sum(oneyr$sumseed))*100
+    orspp=order(oneyr$sumseed, decreasing=T)
+    spplist=as.vector(oneyr$species[orspp][1:15])
+    perc=as.vector(oneyr$perc[orspp][1:15])
+    spshort=strsplit(as.character(oneyr$species[orspp][1:graph]),' ')
+    genuscode=spcode=dispersalmode=character()
+    for(k in 1:length(spshort))
+    {
+      genuscode[k]=left(spshort[[k]][1],1)
+      #spcode[k]=left(spshort[[k]][2],3)
+      spcode[k]=spshort[[k]][2]
+      dispersalmode[k]=as.character(dispersal$disp[which(dispersal$species==spplist[k])])
+      
+    }
+    spnames=pst(genuscode,"."," ", spcode)
+    splist=data.frame(spnames,dispersalmode)
+    zoo=which(splist$dispersalmode=="zoo")
+    bal=which(splist$dispersalmode=="bal")
+    ane=which(splist$dispersalmode=="ane")
+    colores=1:graph
+    colores[zoo]="gray28"
+    colores[ane]="white"
+    colores[bal]="white"
+    if (i==1|i==9) barplot(oneyr$perc[orspp][1:graph],width=0.7,space=0.2,axes=F, las=1, col=colores,ylim=c(0,60)) else barplot(oneyr$perc[orspp][1:graph],width=0.7,space=0.2,axes=F, las=1, col=colores,ylim=c(0,40))
+    axis(side=1,at=c(0.5,1.35,2.2,3.05,3.90),labels=spnames, cex.axis=1.25,font=3)
+    if (i==1|i==9) axis(side=2,las=1,at=c(0,20,40,60),cex.axis=1.5) else axis(side=2,las=1,at=c(0,10,20,30,40),cex.axis=1.5)
+    if (i ==2) legend(3,43,fill=c("gray28","white"),legend=c("biotic","abiotic"),bty="n",cex=1.8,horiz=F)
+    mtext(side=3, text=unique(sumyr$year)[i], line=-2.5,cex=1.5)
+    results=data.frame( year=unique(sumyr$year)[i], species=spplist[1:graph], perc[1:graph],disp=splist$dispersalmode[1:graph])  
+    if (i==1) allresults=results else allresults=rbind(allresults,results)
+    if (i==5) mtext(side=2, text="number of seeds (%)", line=3.5, las=3,cex=2)
+    
+  }
+  ## chi-squared analyses of biotic vs abiotic dispersal dominance
+  abiotic<-c(4,4,3,5,5,4,3,4,4,4)
+  biotic<-c(1,1,2,0,0,1,2,1,1,1)
+  chisq.test(c(40,10),p=c(0.47,0.53))
+  dev.off()
+  return(allresults)
+  
+}
+
+#barplot(oneyr$perc[orspp][1:5],names.arg=oneyr$species[orspp][1:5], las=2, main=unique(sumyr$year)[i])
+
+
+#### FIGURE 7 ################################
+## NOT INCLUDED IN THE LAST VERSION OF THE PAPER
+
+#figure 7 includes three graphs: 1) values of fruit biomass; 2) number of fruiting species; 
+#3)summed values of our model of seed production vs. MEI 
+#figure7(biomass=biomass,estfile="number total spp per month estimated.txt",k=3,file="all parameters spp.txt",fileno="all parameters spp no Dj.txt", beginyearfile=beginyearfile, spstart=1, spend=45)
+figure7=function(biomass=biomass,estfile="number total spp per month estimated.txt",k=3,file="Nouragues model all spp.txt",fileno="NRG model all spp without Dj.txt", beginyearfile=beginyearfile, spstart=1, spend=45)
+  
+{
+  par(mfrow=c(3,1),las=1,mar=c(2,3,2,3),oma=c(2,2,2,2),cex=1)
+  
+  biomass$fecha=strptime(paste(biomass$Year2,"-",biomass$month,"-",1), format="%Y - %m - %d")
+  start=which(biomass$Year2==2001 & biomass$month==2)
+  end=which(biomass$Year2==2011 & biomass$month==2)
+  N=length(biomass$fruitsb[start:end])
+  biomass=biomass[start:end,]
+  comienzo<-as.integer((k/2)+1)     
+  final<-as.integer(N-(k/2))
+  
+  plot(biomass$fruitsb,type="n", xlab="time", ylab="", ylim=c(0,6),bty="l", axes=F, las=1)
+  axis(side=2, las=1,col="black")
+  jan1=which(biomass$month==1)
+  #axis(side=1, ,at=c(jan1[1]-12,jan1), labels=as.character(c("2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012")))
+  axis(side=1, at=c(jan1[1]-12,jan1), labels=F)
+  mtext(side=2, "fruit biomass (g/m?)", line=3, cex=1.1,las=0)
+  lines(c(start:(end-2)),runningmean(biomass$fruitsb,k), col="blue3", lwd=3)
+  legend(end-125,8, lty=c(1,1,1,2), c("fruit biomass","# fruiting species","# seeds","MEI"), bty="n",col=c("blue3", "purple","black" ,"red"), horiz=T,lwd=2,xpd=T)
+  #lines(biomass$fecha[start:(end-2)],runningmean(biomass$flowersb[start:end],k)/(160*0.5), lty=2)
+  
+  startmei=which(ensoanomalies$YEAR==2001 & ensoanomalies$MONTH==2)
+  endmei=which(ensoanomalies$YEAR==2011 & ensoanomalies$MONTH==2)
+  par(new=T)
+  plot(ensoanomalies$MEI[startmei:endmei],type="l", lty=2,ylab="",xlab="",axes=F, las=1, col="red", lwd=2)
+  polygon(c(16,25,25,16),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
+  polygon(c(42,48,48,42),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
+  polygon(c(68,71,71,68),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
+  polygon(c(102,111,111,102),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
+  polygon(c(59,62,62,59),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
+  polygon(c(79,89,89,79),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
+  polygon(c(94,98,98,94),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
+  polygon(c(114,120,120,114),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
+  abline(h=0, lty=2)
+  axis(side=4, las=1, col="red")
+  mtext(side=4, "MEI", line=3, cex=1.1, las=0)
+  
+  
+  est=read.delim(estfile)
+  est$fecha=strptime(paste(est$year,"-",est$month,"-",1), format="%Y - %m - %d")
+  start=which(est$year==2001 & est$month==2)
+  end=which(est$year==2011 & est$month==2)
+  N=length(biomass$fruitsb[start:end])
+  est=est[start:end,]
+  comienzo<-as.integer((k/2)+1)     
+  final<-as.integer(N-(k/2))  
+  
+  plot(est$estnumbspp,type="n", xlab="time", ylab="", ylim=c(0,45),bty="l", axes=F, las=1)
+  axis(side=2, las=1, col="black")
+  jan1=which(est$month==1)
+  #axis(side=1, at=c(jan1[1]-12,jan1), labels=as.character(c("2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011")))
+  axis(side=1, at=c(jan1[1]-12,jan1), labels=FALSE)
+  mtext(side=2, "number of fruiting species", line=3, cex=1.1,las=0)
+  lines(c(start:(end-2)),runningmean(est$estnumbspp,k), col="purple", lwd=3)
+  #legend(end-103,5, lty=c(1,2), c("number of fruiting species","MEI"), col=c("blue","red"),bty="n", cex=0.75, horiz=T,lwd=2)
+  #lines(biomass$fecha[start:(end-2)],runningmean(biomass$flowersb[start:end],k)/(160*0.5), lty=2)
+  
+  startmei=which(ensoanomalies$YEAR==2001 & ensoanomalies$MONTH==2)
+  endmei=which(ensoanomalies$YEAR==2011 & ensoanomalies$MONTH==2)
+  par(new=T)
+  plot(ensoanomalies$MEI[startmei:endmei],type="l", lty=2,ylab="",xlab="",axes=F, las=1, col="red", lwd=2)
+  polygon(c(16,25,25,16),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
+  polygon(c(42,48,48,42),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
+  polygon(c(68,71,71,68),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
+  polygon(c(102,111,111,102),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
+  polygon(c(59,62,62,59),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
+  polygon(c(79,89,89,79),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
+  polygon(c(94,98,98,94),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
+  polygon(c(114,120,120,114),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
+  abline(h=0, lty=2)
+  axis(side=4, las=1, col="red")
+  mtext(side=4, "MEI", line=3, cex=1.1,las=0)  
+  
+  nrg=monthlyvalues(file=file,fileno=fileno, beginyearfile=beginyearfile,spstart=spstart,spend=spend)
+  species=unique(nrg$species)
+  sphigh=unique(nrg$sp[which.max(nrg$model)])
+  onesphigh=nrg[nrg$species==sphigh,]
+  onesphigh=onesphigh[onesphigh$julian>=15355&onesphigh$julian<=18246,]
+  y2001=as.numeric(tojulian(c("01/01/2001","02/01/2001","03/01/2001","04/01/2001","05/01/2001","06/01/2001","07/01/2001","08/01/2001","09/01/2001","10/01/2001","11/01/2001","12/01/2001")))
+  y2010=as.numeric(tojulian(c("01/01/2010", "02/01/2010","03/01/2010","04/01/2010","05/01/2010","06/01/2010","07/01/2010","08/01/2010","09/01/2010","10/01/2010","11/01/2010","12/01/2010","01/01/2011","02/01/2011")))
+  tt=create.fulldate(fromjulian(c(y2001,onesphigh$julian, y2010), dateform="%Y-%m-%d"))
+  plot(c(y2001,onesphigh$julian, y2010), c(rep(0,12),onesphigh$model, rep(0,14)),type="n", las=1, ylab="",xlab="time",bty="l", ylim=c(0,2000), axes=FALSE)
+  #jan1=which(onesphigh$month==1)
+  jan1=which(tt$month==1)
+  axis(side=1,  at=c(y2001,onesphigh$julian, y2010)[jan1], labels=as.character(c("2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011")))
+  axis(side=2, las=1)
+  mtext(side=2, "total number of seeds",line=3, cex=1.1,las=0)
+  polygon(c(onesphigh$julian[5], onesphigh$julian[14], onesphigh$julian[14], onesphigh$julian[5]),c(0,0,2000,2000),col = "#FF000050", border = NA)
+  polygon(c(onesphigh$julian[31], onesphigh$julian[37], onesphigh$julian[37], onesphigh$julian[31]),c(0,0,2000,2000),col = "#FF000050", border = NA)
+  polygon(c(onesphigh$julian[57], onesphigh$julian[60], onesphigh$julian[60], onesphigh$julian[57]),c(0,0,2000,2000),col = "#FF000050", border = NA)  
+  #polygon(c(onesphigh$julian[91], onesphigh$julian[96], onesphigh$julian[96], onesphigh$julian[91]),c(0,0,2000,2000),col = "#FF000050", border = NA)
+  polygon(c(onesphigh$julian[48], onesphigh$julian[51], onesphigh$julian[51], onesphigh$julian[48]),c(0,0,2000,2000),col = "#0000FF50", border = NA)
+  polygon(c(onesphigh$julian[68], onesphigh$julian[78], onesphigh$julian[78], onesphigh$julian[68]),c(0,0,2000,2000),col = "#0000FF50", border = NA)
+  polygon(c(onesphigh$julian[83], onesphigh$julian[87], onesphigh$julian[87], onesphigh$julian[83]),c(0,0,2000,2000),col = "#0000FF50", border = NA)
+  polygon(c(c(y2001,onesphigh$julian, y2010)[115],c(y2001,onesphigh$julian, y2010)[121],c(y2001,onesphigh$julian, y2010)[121],c(y2001,onesphigh$julian, y2010)[115]),c(0,0,2000,2000),col = "#0000FF50", border = NA)
+  polygon(c(c(y2001,onesphigh$julian, y2010)[103],c(y2001,onesphigh$julian, y2010)[112],c(y2001,onesphigh$julian, y2010)[112],c(y2001,onesphigh$julian, y2010)[103]),c(0,0,2000,2000),col = "#FF000050", border = NA)
+  
+  for (i in 1:length(species)){
+    onesp=nrg[nrg$species==species[i],]
+    onesp=onesp[onesp$julian>=15355&onesp$julian<=18246,]
+    lines(onesp$julian, onesp$model, col=i, lwd=2)
+  }
+  sumseed=aggregate(data.frame(peak=nrg$model), by=list(month=nrg$month,year=nrg$year ), sum)
+  sumseed=sumseed[sumseed$year>=2002 & sumseed$year < 2010,]  
+  sumseed$julian=tojulian(paste("15/",sumseed$month,"/",sumseed$year), dateform="%d/ %m / %Y")
+  lines(sumseed$julian, sumseed$peak, col="black",lwd=3)
+  startmei=which(ensoanomalies$YEAR==2001 & ensoanomalies$MONTH==2)
+  endmei=which(ensoanomalies$YEAR==2011 & ensoanomalies$MONTH==2)
+  par(new=T)
+  plot(ensoanomalies$MEI[startmei:endmei],type="l", lty=2,ylab="",xlab="",axes=F,las=2, col="red", lwd=2)
+  abline(h=0, lty=2)
+  axis(side=4, las=2, col="red")
+  mtext(side=4, "MEI", line=3, las=0, cex=1.1)
+  
+}
+
+
+########################################
+###FIGURE 7b OF THE PAPER ###############
+########################################
+
+#figure7b function only includes the graph of biomass and estimated number of species against MEI
+figure7b=function(biomass=biomass,estfile="number total spp per month estimated.txt", k=3)
+  
+{
+  par(mfrow=c(2,1),las=1,mar=c(2,3,2,3),oma=c(2,2,2,2),cex=1)
+  
+  biomass$fecha=strptime(paste(biomass$Year2,"-",biomass$month,"-",1), format="%Y - %m - %d")
+  start=which(biomass$Year2==2001 & biomass$month==2)
+  end=which(biomass$Year2==2011 & biomass$month==2)
+  N=length(biomass$fruitsb[start:end])
+  biomass=biomass[start:end,]
+  comienzo<-as.integer((k/2)+1)     
+  final<-as.integer(N-(k/2))
+  
+  plot(biomass$fruitsb,type="n", xlab="time", ylab="", ylim=c(0,6),bty="l", axes=F, las=1)
+  axis(side=2, las=1,col="black")
+  jan1=which(biomass$month==1)
+  #axis(side=1, ,at=c(jan1[1]-12,jan1), labels=as.character(c("2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012")))
+  axis(side=1, at=c(jan1[1]-12,jan1), labels=F)
+  mtext(side=2, "fruit biomass (g/m?)", line=3, cex=1.1,las=0)
+  lines(c(start:(end-2)),runningmean(biomass$fruitsb,k), col="blue3", lwd=2)
+  legend(end-125,7.5, lty=c(1,1,2), c("fruit biomass","number of fruiting species","MEI"), bty="n",col=c("blue3", "black", "red"), horiz=T,lwd=2,xpd=T)
+  #lines(biomass$fecha[start:(end-2)],runningmean(biomass$flowersb[start:end],k)/(160*0.5), lty=2)
+  
+  startmei=which(ensoanomalies$YEAR==2001 & ensoanomalies$MONTH==2)
+  endmei=which(ensoanomalies$YEAR==2011 & ensoanomalies$MONTH==2)
+  par(new=T)
+  plot(ensoanomalies$MEI[startmei:endmei],type="l", lty=2,ylab="",xlab="",axes=F, las=1, col="red", lwd=2)
+  polygon(c(16,25,25,16),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
+  polygon(c(42,48,48,42),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
+  polygon(c(68,71,71,68),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
+  polygon(c(102,111,111,102),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
+  polygon(c(59,62,62,59),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
+  polygon(c(79,89,89,79),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
+  polygon(c(94,98,98,94),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
+  polygon(c(114,120,120,114),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
+  abline(h=0, lty=2)
+  axis(side=4, las=1, col="red")
+  mtext(side=4, "MEI", line=3, cex=1.1, las=0)
+  
+  
+  est=read.delim(estfile)
+  est$fecha=strptime(paste(est$year,"-",est$month,"-",1), format="%Y - %m - %d")
+  start=which(est$year==2001 & est$month==2)
+  end=which(est$year==2011 & est$month==2)
+  N=length(biomass$fruitsb[start:end])
+  est=est[start:end,]
+  comienzo<-as.integer((k/2)+1)     
+  final<-as.integer(N-(k/2))  
+  
+  plot(est$estnumbspp,type="n", xlab="time", ylab="", ylim=c(0,45),bty="l", axes=F, las=1)
+  axis(side=2, las=1, col="black")
+  jan1=which(est$month==1)
+  axis(side=1, at=c(jan1[1]-12,jan1), labels=as.character(c("2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011")))
+  mtext(side=2, "number of fruiting species", line=3, cex=1.1,las=0)
+  lines(c(start:(end-2)),runningmean(est$estnumbspp,k), col="black", lwd=2)
+  #legend(end-103,5, lty=c(1,2), c("number of fruiting species","MEI"), col=c("blue","red"),bty="n", cex=0.75, horiz=T,lwd=2)
+  #lines(biomass$fecha[start:(end-2)],runningmean(biomass$flowersb[start:end],k)/(160*0.5), lty=2)
+  
+  startmei=which(ensoanomalies$YEAR==2001 & ensoanomalies$MONTH==2)
+  endmei=which(ensoanomalies$YEAR==2011 & ensoanomalies$MONTH==2)
+  par(new=T)
+  plot(ensoanomalies$MEI[startmei:endmei],type="l", lty=2,ylab="",xlab="",axes=F, las=1, col="red", lwd=2)
+  polygon(c(16,25,25,16),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
+  polygon(c(42,48,48,42),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
+  polygon(c(68,71,71,68),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
+  polygon(c(102,111,111,102),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
+  polygon(c(59,62,62,59),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
+  polygon(c(79,89,89,79),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
+  polygon(c(94,98,98,94),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
+  polygon(c(114,120,120,114),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
+  abline(h=0, lty=2)
+  axis(side=4, las=1, col="red")
+  mtext(side=4, "MEI", line=3, cex=1.1,las=0)  
+  
+}
+
+###### FIGURE 7c ####################################################
+
+#figure7c(file="NRG model all spp without Dj.txt",fileno="NRG model all spp without Dj.txt", beginyearfile=beginyearfile, spstart=1, spend=45, k=3)
+#this function plots the summed number of seeds of the models vs. MEI 
+figure7c=function(file="NRG model all spp without Dj.txt",fileno="NRG model all spp without Dj.txt", beginyearfile=beginyearfile, spstart=1, spend=45, k=3)
+{
+  nrg=monthlyvalues(file=file,fileno=fileno, beginyearfile=beginyearfile,spstart=spstart,spend=spend)
+  species=unique(nrg$species)
+  
+  #go=which(NRGallspp$sp=="Gouania blanchetiana")#this removes Gouania blanchetiana because it is the most abundant spp and marks all the fruiting pattern
+  #NRGallspp=NRGallspp[-go,]
+  sumseed=aggregate(data.frame(peak=nrg$model), by=list(month=nrg$month,year=nrg$year ), sum)
+  sumseed=sumseed[sumseed$year>=2002 & sumseed$year < 2010,]  
+  sumseed$julian=tojulian(paste("15/",sumseed$month,"/",sumseed$year), dateform="%d/ %m / %Y")
+  N=length(sumseed$julian)
+  comienzo<-as.integer((k/2)+1)     
+  final<-as.integer(N-(k/2))
+  
+  par(mar=c(5,5,3,4), cex=1.5,las=1)
+  sphigh=unique(nrg$sp[which.max(nrg$model)])
+  onesphigh=nrg[nrg$species==sphigh,]
+  onesphigh=onesphigh[onesphigh$julian>=15355&onesphigh$julian<=18246,]
+  plot(onesphigh$julian, onesphigh$model, type="n", las=1, ylab="",axes=F,xlab="time",bty="l", ylim=c(0,2000))
+  jan1=which(sumseed$month==1)
+  axis(side=1, at=onesphigh$julian[c(jan1, jan1[length(jan1)]+11)], labels=as.character(c("2002","2003","2004","2005","2006","2007","2008","2009","2010")))
+  mtext(side=2, "monthly number of seeds", line=3, cex=1.5,las=0)
+  axis(side=2)
+  
+  polygon(c(onesphigh$julian[5], onesphigh$julian[14], onesphigh$julian[14], onesphigh$julian[5]),c(0,0,2000,2000),col = "#FF000050", border = NA)
+  polygon(c(onesphigh$julian[31], onesphigh$julian[37], onesphigh$julian[37], onesphigh$julian[31]),c(0,0,2000,2000),col = "#FF000050", border = NA)
+  polygon(c(onesphigh$julian[57], onesphigh$julian[60], onesphigh$julian[60], onesphigh$julian[57]),c(0,0,2000,2000),col = "#FF000050", border = NA)  
+  polygon(c(onesphigh$julian[91], onesphigh$julian[96], onesphigh$julian[96], onesphigh$julian[91]),c(0,0,2000,2000),col = "#FF000050", border = NA)
+  polygon(c(onesphigh$julian[48], onesphigh$julian[52], onesphigh$julian[52], onesphigh$julian[48]),c(0,0,2000,2000),col = "#0000FF50", border = NA)
+  polygon(c(onesphigh$julian[68], onesphigh$julian[78], onesphigh$julian[78], onesphigh$julian[68]),c(0,0,2000,2000),col = "#0000FF50", border = NA)
+  polygon(c(onesphigh$julian[83], onesphigh$julian[87], onesphigh$julian[87], onesphigh$julian[83]),c(0,0,2000,2000),col = "#0000FF50", border = NA)
+  
+  lines(sumseed$julian[comienzo:(final-2)],runningmean(sumseed$peak[comienzo:final],k),col="blue", lwd=2)
+  legend(sumseed$julian[final-90],2180, lty=c(1,2), col=c("blue", "red"),c("number of seeds","MEI"), bty="n", cex=1, horiz=T, lwd=2)
+  #lines(biomass$fecha[start:(end-2)],runningmean(biomass$flowersb[start:end],k)/(160*0.5), lty=2)
+  
+  startmei=which(ensoanomalies$YEAR==2002 & ensoanomalies$MONTH==1)
+  endmei=which(ensoanomalies$YEAR==2009 & ensoanomalies$MONTH==12)
+  par(new=T)
+  plot(ensoanomalies$MEI[startmei:endmei],type="l", lty=2,ylab="",xlab="",axes=F,las=2, col="red", lwd=2)
+  abline(h=0, lty=2)
+  axis(side=4, las=2)
+  mtext(side=4, "MEI", line=3, las=0, cex=1.5)
+  
+}
+
+
+#### FIGURE 7d ####################################################
+##Figure 7d includes a line per species for the monthly model of seed production
+
+#figure7d(file="NRG model all spp without Dj.txt",fileno="NRG model all spp without Dj.txt", beginyearfile=beginyearfile, spstart=1, spend=45)
+figure7d=function(file="Nouragues model all spp.txt",fileno="NRG model all spp without Dj.txt", beginyearfile=beginyearfile, spstart=1, spend=45)
+{
+  par(las=1,mar=c(2,3,2,3),oma=c(2,2,2,2),cex=1)
+  nrg=monthlyvalues(file=file,fileno=fileno, beginyearfile=beginyearfile,spstart=spstart,spend=spend)
+  species=unique(nrg$species)
+  sphigh=unique(nrg$sp[which.max(nrg$model)])
+  onesphigh=nrg[nrg$species==sphigh,]
+  onesphigh=onesphigh[onesphigh$julian>=15355&onesphigh$julian<=18246,]
+  plot(onesphigh$julian, onesphigh$model, type="n", las=1, ylab="",xlab="time",bty="l", ylim=c(0,2000), axes=FALSE)
+  jan1=which(onesphigh$month==1)
+  axis(side=1,  at=onesphigh$julian[c(jan1, jan1[length(jan1)]+11)], labels=as.character(c("2002","2003","2004","2005","2006","2007","2008","2009","2010")))
+  axis(side=2, las=1)
+  mtext(side=2, "total number of seeds",line=3, cex=1.1,las=0)
+  polygon(c(onesphigh$julian[5], onesphigh$julian[14], onesphigh$julian[14], onesphigh$julian[5]),c(0,0,2000,2000),col = "#FF000050", border = NA)
+  polygon(c(onesphigh$julian[31], onesphigh$julian[37], onesphigh$julian[37], onesphigh$julian[31]),c(0,0,2000,2000),col = "#FF000050", border = NA)
+  polygon(c(onesphigh$julian[57], onesphigh$julian[60], onesphigh$julian[60], onesphigh$julian[57]),c(0,0,2000,2000),col = "#FF000050", border = NA)  
+  polygon(c(onesphigh$julian[91], onesphigh$julian[96], onesphigh$julian[96], onesphigh$julian[91]),c(0,0,2000,2000),col = "#FF000050", border = NA)
+  polygon(c(onesphigh$julian[48], onesphigh$julian[52], onesphigh$julian[52], onesphigh$julian[48]),c(0,0,2000,2000),col = "#0000FF50", border = NA)
+  polygon(c(onesphigh$julian[68], onesphigh$julian[78], onesphigh$julian[78], onesphigh$julian[68]),c(0,0,2000,2000),col = "#0000FF50", border = NA)
+  polygon(c(onesphigh$julian[83], onesphigh$julian[87], onesphigh$julian[87], onesphigh$julian[83]),c(0,0,2000,2000),col = "#0000FF50", border = NA)
+  
+  
+  for (i in 1:length(species)){
+    onesp=nrg[nrg$species==species[i],]
+    onesp=onesp[onesp$julian>=15355&onesp$julian<=18246,]
+    lines(onesp$julian, onesp$model, col=i, lwd=2)
+  }
+  sumseed=aggregate(data.frame(peak=nrg$model), by=list(month=nrg$month,year=nrg$year ), sum)
+  sumseed=sumseed[sumseed$year>=2002 & sumseed$year < 2010,]  
+  sumseed$julian=tojulian(paste("15/",sumseed$month,"/",sumseed$year), dateform="%d/ %m / %Y")
+  lines(sumseed$julian, sumseed$peak, col="black",lwd=3)
+  startmei=which(ensoanomalies$YEAR==2002 & ensoanomalies$MONTH==1)
+  endmei=which(ensoanomalies$YEAR==2009 & ensoanomalies$MONTH==12)
+  par(new=T)
+  plot(ensoanomalies$MEI[startmei:endmei],type="l", lty=2,ylab="",xlab="",axes=F,las=2, col="red", lwd=2)
+  abline(h=0, lty=2)
+  axis(side=4, las=2, col="red")
+  mtext(side=4, "MEI", line=3, las=0, cex=1.1)
+  
+}
+
+
+###### FIGURE APPENDIX 1 ####################################################
+
+appendix1=function(file=nourage, fit=results, beginyearfile=beginyearfile)
+{
+  high=c(5,33,35,37)
+  low=c(4,11,18,19,23,25,26,28,32,34,40,45)
+  special=sort(c(high,low))
+  resto=c(1:45)[-special]
+  
+  nrg.graphierspp2(file=nourage, fit=results, beginyearfile=beginyearfile,spstart=1,spend=3, filename="appendix1_1.pdf",longnames="total number of seeds per species.txt")
+  nrg.graphsmoved.low(file=nourage, fit=results, beginyearfile=beginyearfile,spnumber=c(4), filename="appendix1-2b.pdf",longnames="total number of seeds per species.txt")
+  nrg.graphsmoved.high(file=nourage, fit=results, beginyearfile=beginyearfile,spnumber=c(5), filename="appendix1-3.pdf",longnames="total number of seeds per species.txt")
+  nrg.graphierspp2(file=nourage, fit=results, beginyearfile=beginyearfile,spstart=6,spend=17, filename="appendix1-4.pdf",longnames="total number of seeds per species.txt")  
+  nrg.graphsmoved.low(file=nourage, fit=results, beginyearfile=beginyearfile,spnumber=c(18,19), filename="appendix1-5.pdf",longnames="total number of seeds per species.txt")
+  nrg.graphierspp2(file=nourage, fit=results, beginyearfile=beginyearfile,spstart=20,spend=22, filename="appendix1-6.pdf",longnames="total number of seeds per species.txt")  
+  nrg.graphsmoved.low(file=nourage, fit=results, beginyearfile=beginyearfile,spnumber=c(23), filename="appendix1-7.pdf",longnames="total number of seeds per species.txt")
+  nrg.graphierspp2(file=nourage, fit=results, beginyearfile=beginyearfile,spstart=24,spend=24, filename="appendix1-8.pdf",longnames="total number of seeds per species.txt")
+  nrg.graphsmoved.low(file=nourage, fit=results, beginyearfile=beginyearfile,spnumber=c(25,26), filename="appendix1-9.pdf",longnames="total number of seeds per species.txt")
+  nrg.graphierspp2(file=nourage, fit=results, beginyearfile=beginyearfile,spstart=27,spend=27, filename="appendix1-10.pdf",longnames="total number of seeds per species.txt")
+  nrg.graphsmoved.low(file=nourage, fit=results, beginyearfile=beginyearfile,spnumber=c(28), filename="appendix1-11.pdf",longnames="total number of seeds per species.txt")
+  nrg.graphierspp2(file=nourage, fit=results, beginyearfile=beginyearfile,spstart=29,spend=31, filename="appendix1-12.pdf",longnames="total number of seeds per species.txt")
+  nrg.graphsmoved.low(file=nourage, fit=results, beginyearfile=beginyearfile,spnumber=c(32), filename="appendix1-13.pdf",longnames="total number of seeds per species.txt")
+  nrg.graphsmoved.high(file=nourage, fit=results, beginyearfile=beginyearfile,spnumber=c(33), filename="appendix1-14.pdf",longnames="total number of seeds per species.txt")
+  nrg.graphsmoved.low(file=nourage, fit=results, beginyearfile=beginyearfile,spnumber=c(34), filename="appendix1-15.pdf",longnames="total number of seeds per species.txt")
+  nrg.graphsmoved.high(file=nourage, fit=results, beginyearfile=beginyearfile,spnumber=c(35), filename="appendix1-16.pdf",longnames="total number of seeds per species.txt")
+  nrg.graphierspp2(file=nourage, fit=results, beginyearfile=beginyearfile,spstart=36,spend=36, filename="appendix1-17.pdf",longnames="total number of seeds per species.txt")
+  nrg.graphsmoved.high(file=nourage, fit=results, beginyearfile=beginyearfile,spnumber=c(37), filename="appendix1-18.pdf",longnames="total number of seeds per species.txt")
+  nrg.graphierspp2(file=nourage, fit=results, beginyearfile=beginyearfile,spstart=38,spend=39, filename="appendix1-19.pdf",longnames="total number of seeds per species.txt")
+  nrg.graphsmoved.low(file=nourage, fit=results, beginyearfile=beginyearfile,spnumber=c(40), filename="appendix1-20.pdf",longnames="total number of seeds per species.txt")
+  nrg.graphierspp2(file=nourage, fit=results, beginyearfile=beginyearfile,spstart=41,spend=44, filename="appendix1-21.pdf",longnames="total number of seeds per species.txt")
+  nrg.graphsmoved.low(file=nourage, fit=results, beginyearfile=beginyearfile,spnumber=c(45), filename="appendix1-22.pdf",longnames="total number of seeds per species.txt")
+}
+
+####APPENDIX 2 ###############  for the ATBC 2016 talk
+##What was the trend of peak parameter?
+
+appendix2=function(file="all parameters spp.txt",fileno="all parameters spp no Dj.txt", beginyearfile=beginyearfile, spstart=1, spend=45,graph=5,longnames="total number of seeds per species.txt",startyear=2001,endyear=2010,filename="appendix2.tiff"){
+  
+  data=monthlyvalues(file=file,fileno=fileno, beginyearfile=beginyearfile,spstart=spstart,spend=spend)
+  totseed=read.delim(file=longnames)
+  names(totseed)=c("species","longname","totseed","form","disp","fruit")
+  dispersal=data.frame(species=totseed$longname,disp=totseed$disp)
+  datayr<-merge(data,totseed, by="species",all.x=T)
+  sumyr=aggregate(data.frame(sumseed=datayr$model), by=list(species=datayr$longname, year=datayr$year), sum)
+  filno=read.delim(file=fileno)
+  uniquefilno<-aggregate(data.frame(peak=filno$peak), by=list(species=filno$sp, year=filno$year), unique)
+  sndmean=aggregate(data.frame(mean=uniquefilno$peak),by=list(species=uniquefilno$species),mean)
+  sndsd=aggregate(data.frame(sd=uniquefilno$peak),by=list(species=uniquefilno$species),sd)
+  
+  snd=numeric() 
+  for (i in 1:nrow(uniquefilno)){
+    uniquefilno$snd[i]= (log(uniquefilno$peak[i]+1,10)-log(sndmean$mean[sndmean$species==uniquefilno$species[i]]+1,10))/log(sndsd$sd[sndsd$species==uniquefilno$species[i]]+1,10)
+  }  
+  ds=data.frame(years=startyear:endyear,mean=aggregate(uniquefilno$snd,by=list(year=uniquefilno$year),mean)[,2],se=as.numeric(aggregate(uniquefilno$snd,by=list(year=uniquefilno$year),sd)[,2]/sqrt(lengthunique(uniquefilno$species))))
+  ggplot(ds, aes(x=years,y=mean))+
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), colour="black", width=.1,position = "identity")+
+    geom_line() +
+    geom_point(size=2, shape=21, fill="black")+
+    xlab("years") +
+    ylab("Seed production (SND)") +
+    #expand_limits(y=0) +                        # Expand y range
+    scale_y_continuous(breaks=seq(-0.5,0.5,0.1)) +         # Set tick every 4
+    scale_x_continuous(breaks=seq(startyear,endyear,1)) +
+    theme_classic()+
+    theme(text = element_text(size=20),axis.line = element_line(lineend="square"),axis.text.x = element_text(angle=90, vjust=1),axis.ticks.length = unit(.25, "cm"))
+  ggsave(filename,width=20, height=15, units="cm")
+  
+  
+  #tiff(filename=filename,height=1000,width=2000,res=300)
+  #par(mfrow=c(1,1),las=1,mar=c(3,3,1,0),oma=c(2,2,1,1),cex=0.6)
+  #meanyr=aggregate(data.frame(mean=uniquefilno$peak),by=list(year=uniquefilno$year),mean)
+  #plot(meanyr$year, meanyr$mean,type="o")
+  #plot(uniquefilno$year,uniquefilno$peak)  
+  #dev.off()
+}  
+
+
+
+#### SUPPLEMENTARY TABLE 1 ##################
+#file=nourage; beginyearfile=beginyearfile; spstart=1; spend=45; fit=results; dj=FALSE
+stable1=function(file=nourage, beginyearfile=beginyearfile, spstart=1, spend=45, fit=results, dj=TRUE)
+{
+  
+  parameters=parametersyr(file=file, beginyearfile=beginyearfile, spstart=spstart, spend=spend, fit=results, dj=TRUE)
+  pp=aggregate(data.frame(peakday=parameters$peakday,  CI2peakday=parameters$CI2peakday,  CI97peakday=parameters$CI97peakday,peak=parameters$peak,  CI2peak=parameters$CI2peak,  CI97peak=parameters$CI97peak), by=list(year=parameters$cycle,sp=parameters$sp),mean)
+  yrmin=aggregate(data.frame(min=parameters$year), by=list(year=parameters$cycle,sp=parameters$sp),min)
+  yrmax=aggregate(data.frame(max=parameters$year), by=list(year=parameters$cycle,sp=parameters$sp),max)
+  months=list(jan=1:31,feb=32:59,mar=60:90,apr=91:120,
+              may=121:151,jun=152:181,jul=182:212,aug=213:243,sep=244:273,oct=274:304,nov=305:334,dec=335:365)
+  rmonths=unlist(months)
+  
+  peak=ifelse(pp$peakday<0,pp$peakday+365,pp$peakday)
+  peak2=ifelse(peak>365,peak-365,peak)
+  month=names(rmonths[trunc(peak2)]) 
+  
+  pp2=data.frame(sp=pp$sp, cycle=pp$year,years=paste(yrmin$min,"-",yrmax$max), peakdays=paste(round(pp$peakday,2)," (",month,")",sep=""), CIpeakday= paste(round(pp$CI2peakday,2),"-" ,round(pp$CI97peakday,2)), peak=round(pp$peak,2), CIpeak=paste(round(pp$CI2peak,2),"-", round(pp$CI97peak,2)))
+  pp3=data.frame(sp=pp$sp, cycle=pp$year,year1=yrmin$min, year2=yrmax$max, peakdays=pp$peakday, CI2peakday= pp$CI2peakday, CI97peakday=pp$CI97peakday, peak=pp$peak, CI2peak=pp$CI2peak, CI97peak=pp$CI97peak)
+  
+  return(pp2)
+  
+}
+
+#### SUPPLEMENTARY FIGURE 2 ################
+
+supplementary2=function(file="Nouragues results hyperparameters.txt",graphname="SFig2.tif"){
+  
+  tr<-read.delim(file)
+  tiff(filename=graphname,width = 1500, height = 1000,pointsize=12, res=300)
+  par(las = 1, bty = "o", tcl = 0.2, mar = c(5, 5, 2,2), mgp = c(0.25, 0.25, 0),cex.axis=1.2,lwd=1.5)
+  plot(tr$logSD,tr$SD,xlab="",ylab="",las=1,bty="l",pch=19)
+  mtext(side=2,text="SD of peakday",line=2.5,las=0,cex=1.2)
+  mtext(side=1,text="SD of peak (log)",line=2.5,las=0,cex=1.2)
+  abline(lm(tr$SD~tr$logSD))
+  summary(lm(tr$SD~tr$logSD))
+  cor.test(tr$SD,tr$logSD,method="pearson")
+  
+  dev.off()
+}
+
 
 #this function plots fruit biomass for Nouragues in relation to MEI (it doesn't work well)
 biomasstime=function(biomass=biomass, k=3) {
@@ -1069,1064 +2166,6 @@ pnormmod=function(infile=NRGallspp, soifile="ENSO anomalies - 2012.txt",index, L
 
 ####FIGURES OF THE PAPER####
 
-####  FIGURE 1 OF THE PAPER   ######################################
-### beautiful graph of mean number of species  and climatogram ###
-
-#figure1(datfile="new",graphname="figure1.tif",est=est,biomass=biomass)
-figure1=function(datfile=c("new", "old"),graphname="figure1.tif",est=est,biomass=biomass)
-  #newman is the estimated dataset of local climate from the climatic station of Nouragues
-  #old datafile referes to "local climate data Nouragues.txt"
-{
-  #dat <- read.table("local climate data Nouragues.txt", header = T) #this was for the previous version of the paper
-  if (datfile == "old") {
-  dat=read.delim("local climate data Nouragues.txt")
-  means <- aggregate(dat[, 3:5], by = list(month = dat$month), mean)
-  sds  <- aggregate(dat[, 3:5], by = list(month = dat$month), sd)
-  }
-
-  if (datfile == "new") {
-    dat=newman
-    dry=aggregate(data.frame(rain=dat$raine), by=list(Month=dat$Month,Year=dat$Year), sum,na.rm=T)
-    for (k in 1:dim(dry)[1]){   
-      dry$lack[k]=length(which(is.na(dat$raine[dat$Year==dry$Year[k]&dat$Month==dry$Month[k]])==T))
-    }
-    # we establish a threshold of 4 days for keeping rainfall data of that month
-    dry2=dry[-which(dry$lack>4),]
-    monthrain=aggregate(data.frame(rain=dry2$rain),by=list(month=dry2$Month),mean)
-    sdrain=aggregate(data.frame(rain=dry2$rain),by=list(month=dry2$Month),sd)
-    
-    means <- data.frame(aggregate(data.frame(tmin=dat[,16],tmax=dat[,17]), by = list(month = dat$Month), mean,na.rm=T),rain=monthrain$rain)
-    sds  <- data.frame(aggregate(data.frame(tmin=dat[,16],tmax=dat[,17]), by = list(month = dat$Month), sd,na.rm=T),rain=sdrain$rain)
-  }
-  
-  labels <- c("J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D")
-  
-  #est<-read.delim("number total spp per month estimated.txt",header=T)
-  sppmeans=aggregate( est$estnumbspp, by = list(month = est$month), mean)
-  names(sppmeans)=c("month","nbspp")
-  sppsds=aggregate( est$estnumbspp, by = list(month = est$month), sd)
-  names(sppsds)=c("month","nbspp")
-  
-  #biomass=read.delim(file="biomass all months.txt",as.is=T)
-  biomass=biomass[-1,]
-  meanbio=aggregate(data.frame(fruit=biomass$fruits,flower=biomass$flowers), by=list(month=biomass$month), mean)
-  sdbio=aggregate(data.frame(fruit=biomass$fruits,flower=biomass$flowers), by=list(month=biomass$month), sd)
-  
-  #x11(height=10,width=6) 
-  tiff(filename=graphname,width = 1900, height = 3000,pointsize=12, res=300)
-  par(las = 1, bty = "o", tcl = 0.2, mar = c(2, 5, 1, 5), mgp = c(0.25, 0.25, 0),cex.axis=1.5,lwd=1.5)
-  par(mfrow=c(3,1))
-  
-  plot(meanbio$fruit,type="o",axes=FALSE, xlab="",ylab="", col="black", ylim=c(0,15) )
-  segments(1:12, meanbio$fruit- sdbio$fruit, 1:12, meanbio$fruit + sdbio$fruit, lwd = 2, lend = 3, col = "black")
-  axis(1, at = 1:12, labels = NA)
-  axis(2) 
-  mtext(text=expression(paste("Biomass (g ",m^-2, ")", sep = " ")), 2, las = 3, line = 3) 
-  text(2,15,labels="A",pos=2, offset=2, cex=2)
-  par(new=TRUE)
-  ji12=jitter(c(1:12))
-  plot(ji12,flowermeans$flower, type="o",axes=FALSE, xlab="", ylab="", col="grey70", ylim=c(0,15) ,lwd=2)
-  segments(ji12, flowermeans$flower- flowersds$flower, ji12, flowermeans$flower + flowersds$flower, lwd = 2, lend = 3, col = "grey70")
-  legend(7,15,legend=c("fruits","flowers"), col=c("black","grey70"),lty=1,lwd=3,bty="n",cex=2)
-
-  print(cor.test(means$rain, meanbio$flower))
-  print(cor.test(means$rain, meanbio$fruit))
-  
-  plot(sppmeans$nbspp,type="o",axes=FALSE, ylim=c(10,40), xlab="",ylab="",col="black")
-  text(2,40,labels="B",pos=2, offset=2, cex=2)
-  axis(1, at = 1:12, labels = NA)
-  axis(2)
-  segments(1:12, sppmeans$nbspp - sppsds$nbspp, 1:12, sppmeans$nbspp + sppsds$nbspp, lwd = 2, lend = 3, col = "black")
-  mtext("Number of fruiting species", 2, las = 3, line = 3)
-  
-  print(cor.test(means$rain,sppmeans$nbspp))
-  
-  #plot(1:12, means$rain, axes = F, type = "n", xlab = "", ylab = "", ylim = range(means$rain - sds$rain, means$rain+ sds$rain))
-  plot(1:12, means$rain, axes = F, type = "n", xlab = "", ylab = "", ylim = c(0,800))
-  text(2,800,labels="C",pos=2, offset=2, cex=2)
-  polygon(c(1:12, 12:1), c(means$tmin, rev(means$tmax))*20, col = "#FF000050", border = NA)
-  segments( 1:12, 0, 1:12, means$rain, lwd = 40, lend = 3, col = "blue",lend=3)
-  segments(1:12, means$rain - sds$rain, 1:12, means$rain+ sds$rain, lwd = 2, lend = 3, col = "black")
-  
-  
-  axis(1, at = 1:12, labels = labels)
-  axis(2, at = 100*1:5, col.axis = "blue")
-  axis(4, at = 200*1:4, labels = 10*1:4, col.axis = "red")
-  mtext("Temperature (?C)", 4, las = 3, line = 3, col = "red")
-  mtext("Precipitation (mm)", 2, las = 3, line = 3, col = "blue")
-  
-  
-  
-  
- dev.off() 
-}
-
-
-####FIGURE 2 OF THE PAPER ###############
-
-#figure2 plots the hyperparameters for each species in Nouragues (in an exponential scale)
-#figure2(trfile="Nouragues results hyperparameters.txt",longnames="total number of seeds per species.txt",filename="figure2.tif")
-figure2=function(trfile="Nouragues results hyperparameters.txt",longnames="total number of seeds per species.txt",filename="figure2.tif")
-  
-{
-  
-  #x11(height=9,width=9)
-  tiff(filename=filename,height=1200,width=1900,res=300)
-  par(mar=c(3,3,3,1),oma=c(1,1,1,1))
-  tr=read.delim(file=trfile)
-  tr$mu2=tr$mu
-  tr$mu2[which(tr$mu<=0)]= tr$mu[which(tr$mu<=0)]+365.25
-  tr$mu2[which(tr$mu>365)]= tr$mu[which(tr$mu>365)]-365.25
-  negdate=which(tr$mu<=0)
- 
-  
-  totseed=read.delim(file=longnames)
-  names(totseed)=c("species","longname","totseed","form","disp","fruit")
-  spnames2=totseed$longname
-  dat<-merge(tr,totseed,by="species")
-  zoo=which(totseed$disp=="zoo")
-  bal=which(totseed$disp=="bal")
-  ane=which(totseed$disp=="ane")
-  
-  colores=1:45
-  colores[zoo]="red"
-  colores[ane]="blue"
-  colores[bal]="blue"
-  
-  
-  maxyr=which.max(tr$logmu)
-  
-  oneyrpred=14*exp(tr$logmu[maxyr])*dnorm(1:365,mean=tr$mu2[maxyr],sd=tr$bestSD[maxyr])
-  plot(1:365,oneyrpred,type='l',ylab='',xlab='',ylim=c(-0.5,max(oneyrpred+1)),lwd=1.25, cex=1, axes=F)
-  axis(side=2, las=2)
-  axis(side=1, at=c(1,32,60,92,122,152,183,214,245,275,306,336,366), labels=c("J", "F", "M", "A","M", "J", "J", "A", "S","O","N","D","J"))
-  #polygon(c(248,341,341,248),c(0,0,3,3),col = "#FF000020", border = NA)
-  #polygon(c(0,248,248,0),c(0,0,3,3),col = "#0000FF20", border = NA)
-  polygon(c(212,334,334,212),c(0,0,30,30),col = "grey80", border = NA)
-  #polygon(c(341,400,400,341),c(0,0,3,3),col = "#0000FF20", border = NA)
-  mtext(3, text="Nouragues (2001-2011)",line=2,cex=1.5)
-  mtext(2,text="biweekly seedfall",line=3,cex=1)
-  mtext(1,text="month of the year",line=3,cex=1)
-  for (i in 1:dim(tr)[1])
-  {
-    oneyrpred=14*exp(tr$logmu[i])*dnorm(1:365,mean=tr$mu2[i],sd=tr$bestSD[i])
-    lines(1:365,oneyrpred,col=colores[i], lwd=2) 
-  }
-  
-  lines(1:365, 14*mean(exp(tr$logmu))*dnorm(1:365,mean=mean(tr$mu2),sd=mean(tr$bestSD)),col="black",lwd=4)
-  legend(10,37,lty=c(1,1),col=c("black","red","blue"),legend=c("community","biotic","abiotic"),bty="n",cex=0.8,horiz=T,lwd=2)
-  
-  # contingency test associated with figure 2: we test the Ho that the peaks of fruit production were uniform through the year
-  # March-May is 25% of the year. Does 21 species differ significantly from 25% of 45 species?
-  
-  ## Species having peaks during the rainy peak (Mar-May)
-  dim(tr[which(tr$mu2>=60&tr$mu2<=151),])[1]
-  chisq.test(x=c(22,24),p=c(0.25,0.75))
-   
-  # contingency test associated with figure 2: we test the Ho that the peaks of fruit production were uniform through the year for all dispersal modes
-  biotic=which(totseed$disp=="zoo")
-  abiotic=which(totseed$disp=="bal"| totseed$disp=="ane")
- 
-  
-  ## Species having peaks during the rainy peak (Mar-May) 
-  rainypeak<-dat[which(dat$mu2>=60&dat$mu2<=151),]
-  dim(rainypeak)
-  length(which(rainypeak$disp=="zoo"))
-  rainy2<-dat[which(dat$mu2>=152&dat$mu2<=243),]
-  dim(rainy2)
-  length(which(rainy2$disp=="zoo"))
-  dry<-dat[which(dat$mu2>=244&dat$mu2<=334),]
-  dim(dry)
-  length(which(dry$disp=="zoo"))
-  rainy1<-dat[which(dat$mu2>=335|dat$mu2<=59),]
-  dim(rainy1)
-  length(which(rainy1$disp=="zoo"))
-  disptest=matrix(ncol=2,nrow=2)
-  colnames(disptest)=c("rainypeak","rest")
-  rownames(disptest)=c("biotic","abiotic")
-  disptest[1,]=c(11,13)
-  disptest[2,]=c(11,10)
-  biotic<-c(11,1,5,7)
-  abiotic<-c(11,3,3,4)
-  chisq.test(disptest) ## no signficant differences between dispersal mode of species
-   
-  dev.off()
-   
-}
-
-#figure2nodispersal plots the hyperparameters for each species in Nouragues (in an exponential scale) without dispersal modes (for ATBC presentation)
-#figure2nodispersal(trfile="Nouragues results hyperparameters.txt",longnames="total number of seeds per species.txt",filename="NRG for ATBC2016.tif")
-
-figure2nodispersal=function(trfile="Nouragues results hyperparameters.txt",longnames="total number of seeds per species.txt",filename="figure2.tif")
-  
-{
-  
-  #x11(height=9,width=9)
-  tiff(filename=filename,height=1200,width=1900,res=300)
-  par(mar=c(3,3,3,1),oma=c(1,1,1,1))
-  tr=read.delim(file=trfile)
-  tr$mu2=tr$mu
-  tr$mu2[which(tr$mu<=0)]= tr$mu[which(tr$mu<=0)]+365.25
-  tr$mu2[which(tr$mu>365)]= tr$mu[which(tr$mu>365)]-365.25
-  negdate=which(tr$mu<=0)
-  
-  
-  totseed=read.delim(file=longnames)
-  names(totseed)=c("species","longname","totseed","form","disp","fruit")
-  spnames2=totseed$longname
-  dat<-merge(tr,totseed,by="species")
-  zoo=which(totseed$disp=="zoo")
-  bal=which(totseed$disp=="bal")
-  ane=which(totseed$disp=="ane")
-  
-  colores=1:45
-  colores[zoo]="blue"
-  colores[ane]="blue"
-  colores[bal]="blue"
-  
-  
-  maxyr=which.max(tr$logmu)
-  
-  oneyrpred=14*exp(tr$logmu[maxyr])*dnorm(1:365,mean=tr$mu2[maxyr],sd=tr$bestSD[maxyr])
-  plot(1:365,oneyrpred,type='l',ylab='',xlab='',ylim=c(-0.5,max(oneyrpred+1)),lwd=1.25, cex=1, axes=F)
-  axis(side=2, las=2)
-  axis(side=1, at=c(1,32,60,92,122,152,183,214,245,275,306,336,366), labels=c("J", "F", "M", "A","M", "J", "J", "A", "S","O","N","D","J"))
-  #polygon(c(248,341,341,248),c(0,0,3,3),col = "#FF000020", border = NA)
-  #polygon(c(0,248,248,0),c(0,0,3,3),col = "#0000FF20", border = NA)
-  polygon(c(212,334,334,212),c(0,0,30,30),col = "#CCCCCC42", border = NA)
-  #polygon(c(341,400,400,341),c(0,0,3,3),col = "#0000FF20", border = NA)
-  mtext(3, text="Nouragues (2001-2011)",line=2,cex=1.5)
-  mtext(2,text="biweekly seedfall",line=3,cex=1)
-  mtext(1,text="month of the year",line=3,cex=1)
-  for (i in 1:dim(tr)[1])
-  {
-    oneyrpred=14*exp(tr$logmu[i])*dnorm(1:365,mean=tr$mu2[i],sd=tr$bestSD[i])
-    lines(1:365,oneyrpred,col=colores[i], lwd=2) 
-  }
-  
-  lines(1:365, 14*mean(exp(tr$logmu))*dnorm(1:365,mean=mean(tr$mu2),sd=mean(tr$bestSD)),col="black",lwd=4)
-      dev.off()
-  
-}
-
-
-###FIGURE 3 OF THE PAPER ###############
-##how many species had their peaks during the wet season?
-
-figure3=function(file="Nouragues results hyperparameters.txt",filename="figure3.tif"){
-  
-  tr=read.delim(file)
-  tr$mu2=tr$mu
-  tr$mu2[which(tr$mu<=0)]= tr$mu[which(tr$mu<=0)]+365.25
-  tr$mu2[which(tr$mu>365)]= tr$mu[which(tr$mu>365)]-365.25
-  
-  tiff(filename=filename,height=1000,width=2000,res=300)
-  par(mfrow=c(1,2),las=1,mar=c(3,3,1,0),oma=c(2,2,1,1),cex=0.6)
-  #tt=hist(tr$mu2, breaks=c(0,30,60,90,120,150,180,210,240,270,300,330,360,390), xlab="",ylab="",right=FALSE,  axes=F, main="", ylim=c(0,9))
-  tt=hist(tr$mu2, breaks=c(0,60,120,180,240,300,360,420), xlab="",ylab="",right=FALSE,  axes=F, main="",ylim=c(0,15),cex=0.5)
-  mtext(1,text="peakday (hypermean)",line=2.5,cex=1)
-  mtext(2,text="number of species",line=3,cex=1.5,las=0)
-  axis(side=1, at=c(0,60,120,180,240,300,360,420), labels=c("0","60","120","180","240","300","360","365"))
-  axis(side=2, at=c(seq(0,15,5)), labels=T,las=1)
-  data.frame(breaks=tt$breaks[1:length(tt$breaks)-1], counts=tt$counts)
-  tsd=hist(tr$SD,breaks=c(0,15,30,45,60,75,90,105,120,135),xlab="",ylab="",main="", axes=F, right=F)
-  mtext(1,text="variation of peakday (hyperSD)",line=2.5,cex=1)
-  
-  axis(side=2)
-  axis(side=1, at=c(0,15,30,45,60,75,90,105,120,135), labels=T)
-  #c("0","","","45","","","90","","","135")
-  data.frame(breaks=tsd$breaks[1:length(tsd$breaks)-1], counts=tsd$counts)
-  #hist(exp(t$logmu)+1,xlab="peak of seed production (number seeds/year)",ylab="number of species",main=site)
-  #hist(exp(t$logSD)+1,xlab="SD of peak of seed production (number seeds/year)",ylab="number of species",main=site)
-  # hist(tr$logmu,main="", ylab="number of species", xlab="hyperpeak")
-  
-  dev.off()
-}  
-
-CVspp=function (file = "nouragues results parameters per year.txt",cex.val=1.25) 
-{
-  par(mar = c(3, 3, 1, 1), cex = cex.val)
-  nrg = read.delim(file)
-  spnames = sort(unique(nrg$sp))
-  spmeans = aggregate(data.frame(peak = nrg$peak), by = list(species = nrg$species), 
-                      mean)
-  spsd = aggregate(data.frame(peak = nrg$peak), by = list(species = nrg$species), 
-                   sd)
-  condensed = merge(spmeans, spsd, by = "species")
-  names(condensed) = c("species", "mean", "sd")
-  condensed$CV = condensed$sd/condensed$mean
-  hist(condensed$CV, breaks = 8, xlab = "", main = "", ylab = "", 
-       lwd = 2, col = "grey", las = 1)
-}
-
-
-####FIGURE 4 OF THE PAPER ###############
-
-figure4=function(file="nouragues results parameters per year.txt",longnames="total number of seeds per species.txt",filename="figure4.tif") {
- 
-  nrg=read.delim(file)
-  #spnames=sort(unique(nrg$sp))
-  totseed=read.delim(file=longnames)
-  names(totseed)=c("species","longname","totseed","form","disp","fruit")
-  spnames2=totseed$longname
-  spmeans=aggregate(data.frame(peak=nrg$peak),by=list(species=nrg$species),mean)
-  spsd=aggregate(data.frame(peak=nrg$peak),by=list(species=nrg$species),sd)
-  condensed=merge(spmeans, spsd, by="species")
-  names(condensed)=c("species","mean","sd")
-  condensed2=merge(totseed, condensed, by="species")
-  condensed2$CV=condensed$sd/condensed$mean
-  orco=order(condensed2$CV)
-  
-  #split.screen(c(1,2))
-  tiff(filename=filename,height=1600,width=2500,pointsize=24) #
-  par(mar=c(20,5,12,1),cex=1)
-  zoo=which(condensed2$disp[orco]=="zoo")
-  bal=which(condensed2$disp[orco]=="bal")
-  ane=which(condensed2$disp[orco]=="ane")
-  colores=1:45
-  colores[zoo]="gray28"
-  colores[ane]="white"
-  colores[bal]="white"
-  barplot(condensed2$CV[orco], main="", space=0,las=2,axes=F, ylim=c(0,3),col=colores)
-  axis(side=2, at=c(0,1,2,3), labels=c("0","1","2","3") ,las=2, cex.axis=1.75)
-  mtext(side=2, "Coefficient of variation", line=3,cex=2, las=3)
-  #axis(side=1, at=seq(0.5,45,2), labels=condensed2$longname[orco][seq(1,45,2)],las=2,font=3, cex.axis=1.5)
-  axis(side=1, at=seq(0.5,45,1), labels=condensed2$longname[orco][seq(1,45,1)],las=2,font=3, cex.axis=1.5)
-  abline(h=1,lwd=2)
-  text(0,2.5, "A", cex=2)
-  legend(4,3,fill=c("gray28","white"),legend=c("biotic","abiotic"),bty="n",cex=2)
-  par(new=T)
-  m=matrix(ncol=3,nrow=4)
-  m[1,3]=2
-  m[2:4,]=1
-  m[1,c(1,2)]=1
-  layout(m, widths=c(1,1))
-  CVspp(file=file)
-  abline(v=1,lwd=2)
-  text(3,15, "B", cex=2)
-  mtext(side=1,"coefficient of variation",line=3,cex=1.3)
-  mtext(side=2, "number of species",line=3,cex=1.3)
-  dev.off()
-}
-
-  
-###FIGURE 5 OF THE PAPER ###############
-
-figure5=function(file=nourage, fit=results, beginyearfile=beginyearfile)
-{
-  nrgdata=read.delim(file)
-  beginyr=read.delim(file=beginyearfile)
-  fulldata=merge(nrgdata,beginyr,by="sp", all.x=TRUE)
-  spnames=sort(unique(fulldata$sp))
-  jpeg(filename="Figure5.jpg",width = 900, height = 1050,quality=100)
-  par(mfrow=c(6,2),mar=c(2.5,1,2,5), oma=c(4,5,1,1),las=1, cex=1)
-  sprange=c(45,10,23,8,18,20)
-  for (i in 1:length(sprange)){
-    species=as.character(spnames[sprange][i])
-    bgy=beginyr$beginyr[beginyr$sp==species]
-    spdata<-extract.seedfall_onesp2(latin =species, file = file) 
-    spdata2<-create.rep.year(data=spdata,beginyear=bgy)
-    nyear= unique(spdata2$year)    
-    maxyday=numfiles=dif=numeric()
-    for (j in 1:length(nyear))
-    { 
-      oneyr=subset(spdata2,spdata2$year==nyear[j])
-      maxyday[j]<-max(oneyr$yday)
-      dif[j]<-max(oneyr$yday)-min(oneyr$yday)
-      numfiles[j]=dim(oneyr)[1]  
-    }
-    
-    yearselection=data.frame(maxyday,dif,numfiles)
-    numyear=dim(yearselection)[1]
-    startv=endv=numeric()
-    startv= ifelse(yearselection$maxyday[1]>=320&dif[1]>300,nyear[1],nyear[2])
-    endv=ifelse(yearselection$maxyday[numyear]>=320&dif[numyear]>300,nyear[numyear],nyear[numyear-1])     
-    inc2=which(spdata2$year>=startv&spdata2$year<=endv)
-    
-    spsh=spshort2(spname=species)
-    fitset=fit[[spsh]] 
-    fittrans= retranslate.seedfalldate(fit=fitset,beginyear=bgy)
-    
-    #plot(spdata$julian[inc],spdata$quantity[inc],pch=16,ylim=c(0,max(fittrans$bestpeak)))
-    
-    if (i ==1|i==5){
-      plot(spdata$julian,spdata$quantity,pch=16,ylim=c(0,max(fittrans$bestpeak)),axes=F,xlab="years",ylab="number of seeds")
-      jan=tojulian(pst('01/01/',min(unique(spdata$year)):(max(unique(spdata$year))+1)))
-      #axis(side=1, at=jan, labels= c(min(unique(spdata$year)):max(unique(spdata$year))))
-      axis(side=1, at=jan, labels= jan)
-      axis(2)
-      Dj=round(ifelse(bgy<182.5,bgy,bgy-366),0)
-      lines(spdata2$julian[inc2]+Dj,fitset$model)  
-      newdates=fromjulian(spdata$julian[inc2]+Dj,dateform="%Y-%m-%d")
-      fulldate=create.fulldate(newdates,format='%Y-%m-%d')
-      startyear=min(unique(fulldate$year))
-      endyear=max(unique(fulldate$year))
-      jan1=tojulian(pst('01/01/',startv:endv))
-      fitpeakjulian=jan1+fittrans$bestpeakday 
-      points(fitpeakjulian,fittrans$bestpeak,col='red',pch=16)
-      mtext(side=3, text=species, font=3,line=0.5, cex=1.5)
-      
-      maxyr=which.max(fittrans$bestpeak)
-    oneyrpred=14*fittrans$bestpeak[maxyr]*dnorm(-185:185,mean=fittrans$bestpeakday[maxyr],sd=fittrans$bestSD)
-      plot(-185:185,oneyrpred,type='l',ylab='biweekly seedfall',xlab='day of year',axes=FALSE,lwd=2, bty="l")
-    axis(side=1, at=c(-180,-120,-60,1,60,120,180),labels=c("185","245","305","0","60","120","180") )
-    axis(side=2)
-    for(k in 1:length(fittrans$bestpeak)) 
-    { 
-      oneyrpred=14*fittrans$bestpeak[k]*dnorm(-185:185,mean=fittrans$bestpeakday[k],sd=fittrans$bestSD)
-      lines(-185:185,oneyrpred,col=k,lwd=2) 
-    }
-    #mtext(side=3, text=species, font=3,line=0.75, cex=1.5)
-    }
-    if(i ==6){
-      plot(spdata$julian,spdata$quantity,pch=16,ylim=c(0,max(fittrans$bestpeak)),axes=F,xlab="years",ylab="number of seeds")
-      jan=tojulian(pst('01/01/',min(unique(spdata$year)):(max(unique(spdata$year))+1)))
-      #axis(side=1, at=jan, labels= c(min(unique(spdata$year)):max(unique(spdata$year))))
-      axis(side=1, at=jan, labels= jan)
-      axis(2)
-      Dj=round(ifelse(bgy<182.5,bgy,bgy-366),0)
-      lines(spdata2$julian[inc2]+Dj,fitset$model)  
-      newdates=fromjulian(spdata$julian[inc2]+Dj,dateform="%Y-%m-%d")
-      fulldate=create.fulldate(newdates,format='%Y-%m-%d')
-      startyear=min(unique(fulldate$year))
-      endyear=max(unique(fulldate$year))
-      jan1=tojulian(pst('01/01/',startv:endv))
-      fitpeakjulian=jan1+fittrans$bestpeakday 
-      points(fitpeakjulian,fittrans$bestpeak,col='red',pch=16)
-      mtext(side=3, text=species, font=3,line=0.5, cex=1.5)
-      mtext(side=1, text="years", font=1,line=3, cex=2) 
-      
-      maxyr=which.max(fittrans$bestpeak)
-      oneyrpred=14*fittrans$bestpeak[maxyr]*dnorm(1:400,mean=fittrans$bestpeakday[maxyr],sd=fittrans$bestSD)
-      plot(1:400,oneyrpred,type='l',ylab='',xlab='',lwd=2,ylim=c(0,max(oneyrpred+1)),bty="l")
-      for(k in 1:length(fittrans$bestpeak)) 
-      { 
-        oneyrpred=14*fittrans$bestpeak[k]*dnorm(1:400,mean=fittrans$bestpeakday[k],sd=fittrans$bestSD)
-        lines(1:400,oneyrpred,col=k,lwd=2) 
-      } 
-      mtext(side=1, text="day of year", font=1,line=3, cex=2)   
-    }  
-  
-    if(i == 2|i ==3){
-      plot(spdata$julian,spdata$quantity,pch=16,ylim=c(0,max(fittrans$bestpeak)),axes=F,xlab="years",ylab="number of seeds")
-      jan=tojulian(pst('01/01/',min(unique(spdata$year)):(max(unique(spdata$year))+1)))
-      #axis(side=1, at=jan, labels= c(min(unique(spdata$year)):max(unique(spdata$year))))
-      axis(side=1, at=jan, labels= jan)
-      axis(2)
-      Dj=round(ifelse(bgy<182.5,bgy,bgy-366),0)
-      lines(spdata2$julian[inc2]+Dj,fitset$model)  
-      newdates=fromjulian(spdata$julian[inc2]+Dj,dateform="%Y-%m-%d")
-      fulldate=create.fulldate(newdates,format='%Y-%m-%d')
-      startyear=min(unique(fulldate$year))
-      endyear=max(unique(fulldate$year))
-      jan1=tojulian(pst('01/01/',startv:endv))
-      fitpeakjulian=jan1+fittrans$bestpeakday 
-      points(fitpeakjulian,fittrans$bestpeak,col='red',pch=16)
-      mtext(side=3, text=species, font=3,line=0.5, cex=1.5)
-      maxyr=which.max(fittrans$bestpeak)
-      oneyrpred=14*fittrans$bestpeak[maxyr]*dnorm(1:400,mean=fittrans$bestpeakday[maxyr],sd=fittrans$bestSD)
-      plot(1:400,oneyrpred,type='l',ylab='',xlab='',lwd=2,ylim=c(0,max(oneyrpred+1)),bty="l")
-      for(k in 1:length(fittrans$bestpeak)) 
-      { 
-        oneyrpred=14*fittrans$bestpeak[k]*dnorm(1:400,mean=fittrans$bestpeakday[k],sd=fittrans$bestSD)
-        lines(1:400,oneyrpred,col=k,lwd=2) 
-      } 
-      #mtext(side=3, text=species, font=3,line=0.75, cex=1.5)   
-    }  
-    if(i == 4){
-      plot(spdata$julian,spdata$quantity,pch=16,ylim=c(0,max(fittrans$bestpeak)),axes=F,xlab="years",ylab="number of seeds")
-      jan=tojulian(pst('01/01/',min(unique(spdata$year)):(max(unique(spdata$year))+1)))
-      #axis(side=1, at=jan, labels= c(min(unique(spdata$year)):max(unique(spdata$year))))
-      axis(side=1, at=jan, labels= jan)
-      axis(2)
-      Dj=round(ifelse(bgy<182.5,bgy,bgy-366),0)
-      lines(spdata2$julian[inc2]+Dj,fitset$model)  
-      newdates=fromjulian(spdata$julian[inc2]+Dj,dateform="%Y-%m-%d")
-      fulldate=create.fulldate(newdates,format='%Y-%m-%d')
-      startyear=min(unique(fulldate$year))
-      endyear=max(unique(fulldate$year))
-      jan1=tojulian(pst('01/01/',startv:endv))
-      fitpeakjulian=jan1+fittrans$bestpeakday 
-      points(fitpeakjulian,fittrans$bestpeak,col='red',pch=16)
-      mtext(side=2, text="number of seeds", font=1,line=3,adj=0, las=0,cex=2)   
-      mtext(side=3, text=species, font=3,line=0.5, cex=1.5)
-      
-      maxyr=which.max(fittrans$bestpeak)
-      oneyrpred=14*fittrans$bestpeak[maxyr]*dnorm(1:400,mean=fittrans$bestpeakday[maxyr],sd=fittrans$bestSD)
-      plot(1:400,oneyrpred,type='l',ylab='',xlab='',lwd=2,ylim=c(0,max(oneyrpred+1)),bty="l")
-      mtext(side=2, text="biweekly seedfall", font=1,line=3,adj=0, las=0,cex=2)
-      for(k in 1:length(fittrans$bestpeak)) 
-      { 
-        oneyrpred=14*fittrans$bestpeak[k]*dnorm(1:400,mean=fittrans$bestpeakday[k],sd=fittrans$bestSD)
-        lines(1:400,oneyrpred,col=k,lwd=2) 
-      } 
-     
-    }  
-  
-  }  
-
-dev.off()  
-}
-
-
-
-########################################
-###FIGURE 5b OF THE PAPER ###############
-########################################
-
-## figure 5b is a short version of figure5 for the FAPESP relatorio cientifico
-
-figure5b=function(file=nourage, fit=results, beginyearfile=beginyearfile)
-{
-  nrgdata=read.delim(file)
-  beginyr=read.delim(file=beginyearfile)
-  fulldata=merge(nrgdata,beginyr,by="sp", all.x=TRUE)
-  spnames=sort(unique(fulldata$sp))
-  jpeg(filename="Figure5b.jpg",width = 900, height = 500,quality=100)
-  par(mfrow=c(2,2),mar=c(2.5,4,4,5), oma=c(4,5,1,1),las=1, cex=1)
-  sprange=c(45,20)
-  for (i in 1:length(sprange)){
-    species=as.character(spnames[sprange][i])
-    bgy=beginyr$beginyr[beginyr$sp==species]
-    spdata<-extract.seedfall_onesp2(latin =species, file = file) 
-    spdata2<-create.rep.year(data=spdata,beginyear=bgy)
-    nyear= unique(spdata2$year)    
-    maxyday=numfiles=dif=numeric()
-    for (j in 1:length(nyear))
-    { 
-      oneyr=subset(spdata2,spdata2$year==nyear[j])
-      maxyday[j]<-max(oneyr$yday)
-      dif[j]<-max(oneyr$yday)-min(oneyr$yday)
-      numfiles[j]=dim(oneyr)[1]  
-    }
-    
-    yearselection=data.frame(maxyday,dif,numfiles)
-    numyear=dim(yearselection)[1]
-    startv=endv=numeric()
-    startv= ifelse(yearselection$maxyday[1]>=320&dif[1]>300,nyear[1],nyear[2])
-    endv=ifelse(yearselection$maxyday[numyear]>=320&dif[numyear]>300,nyear[numyear],nyear[numyear-1])     
-    inc2=which(spdata2$year>=startv&spdata2$year<=endv)
-    
-    spsh=spshort2(spname=species)
-    fitset=fit[[spsh]] 
-    fittrans= retranslate.seedfalldate(fit=fitset,beginyear=bgy)
-    
-    #plot(spdata$julian[inc],spdata$quantity[inc],pch=16,ylim=c(0,max(fittrans$bestpeak)))
-    
-    if (i ==1){
-      plot(spdata$julian,spdata$quantity,pch=16,ylim=c(0,max(fittrans$bestpeak)),axes=F,xlab="",ylab="")
-      jan=tojulian(pst('01/01/',min(unique(spdata$year)):(max(unique(spdata$year))+1)))
-      #axis(side=1, at=jan, labels= c(min(unique(spdata$year)):max(unique(spdata$year))))
-      axis(side=1, at=jan, labels= jan)
-      axis(2)
-      Dj=round(ifelse(bgy<182.5,bgy,bgy-366),0)
-      lines(spdata2$julian[inc2]+Dj,fitset$model)  
-      newdates=fromjulian(spdata$julian[inc2]+Dj,dateform="%Y-%m-%d")
-      fulldate=create.fulldate(newdates,format='%Y-%m-%d')
-      startyear=min(unique(fulldate$year))
-      endyear=max(unique(fulldate$year))
-      jan1=tojulian(pst('01/01/',startv:endv))
-      fitpeakjulian=jan1+fittrans$bestpeakday 
-      points(fitpeakjulian,fittrans$bestpeak,col='red',pch=16)
-      mtext(side=3, text=species, font=3,line=0.5, cex=1.5)
-      mtext(side=2, text="number of seeds", font=1,line=3,adj=0, las=0,cex=1.5)
-        
-      
-      maxyr=which.max(fittrans$bestpeak)
-      oneyrpred=14*fittrans$bestpeak[maxyr]*dnorm(-185:185,mean=fittrans$bestpeakday[maxyr],sd=fittrans$bestSD)
-      plot(-185:185,oneyrpred,type='l',ylab='',xlab='',axes=FALSE,lwd=2, bty="l")
-      axis(side=1, at=c(-180,-120,-60,1,60,120,180),labels=c("185","245","305","0","60","120","180") )
-      axis(side=2)
-      for(k in 1:length(fittrans$bestpeak)) 
-      { 
-        oneyrpred=14*fittrans$bestpeak[k]*dnorm(-185:185,mean=fittrans$bestpeakday[k],sd=fittrans$bestSD)
-        lines(-185:185,oneyrpred,col=k,lwd=2) 
-      }
-      mtext(side=2, text="biweekly seedfall", font=1,line=3,adj=0, las=0,cex=1.5)
-    }
-    if(i ==2){
-      plot(spdata$julian,spdata$quantity,pch=16,ylim=c(0,max(fittrans$bestpeak)),axes=F,xlab="",ylab="")
-      jan=tojulian(pst('01/01/',min(unique(spdata$year)):(max(unique(spdata$year))+1)))
-      #axis(side=1, at=jan, labels= c(min(unique(spdata$year)):max(unique(spdata$year))))
-      axis(side=1, at=jan, labels= jan)
-      axis(2)
-      Dj=round(ifelse(bgy<182.5,bgy,bgy-366),0)
-      lines(spdata2$julian[inc2]+Dj,fitset$model)  
-      newdates=fromjulian(spdata$julian[inc2]+Dj,dateform="%Y-%m-%d")
-      fulldate=create.fulldate(newdates,format='%Y-%m-%d')
-      startyear=min(unique(fulldate$year))
-      endyear=max(unique(fulldate$year))
-      jan1=tojulian(pst('01/01/',startv:endv))
-      fitpeakjulian=jan1+fittrans$bestpeakday 
-      points(fitpeakjulian,fittrans$bestpeak,col='red',pch=16)
-      mtext(side=3, text=species, font=3,line=0.5, cex=1.5)
-      mtext(side=1, text="years", font=1,line=3, cex=2) 
-      mtext(side=2, text="number of seeds", font=1,line=3,adj=0, las=0,cex=1.5)
-      
-      maxyr=which.max(fittrans$bestpeak)
-      oneyrpred=14*fittrans$bestpeak[maxyr]*dnorm(1:400,mean=fittrans$bestpeakday[maxyr],sd=fittrans$bestSD)
-      plot(1:400,oneyrpred,type='l',ylab='',xlab='',lwd=2,ylim=c(0,max(oneyrpred+1)),bty="l")
-      for(k in 1:length(fittrans$bestpeak)) 
-      { 
-        oneyrpred=14*fittrans$bestpeak[k]*dnorm(1:400,mean=fittrans$bestpeakday[k],sd=fittrans$bestSD)
-        lines(1:400,oneyrpred,col=k,lwd=2) 
-      } 
-      mtext(side=1, text="day of year", font=1,line=3, cex=2)  
-      mtext(side=2, text="biweekly seedfall", font=1,line=3,adj=0, las=0,cex=1.5)
-    }  
-    
- 
-  }  
-  
-  dev.off()  
-}
-
-##############################################
-### FIGURE 6 ################################
-##############################################
-
-##figure6 plots the contribution of each species to the total amount of seed production per year
-
-#figure6(file="all parameters spp.txt",fileno="all parameters spp no Dj.txt", beginyearfile=beginyearfile, spstart=1, spend=45, graph=5,longnames="total number of seeds per species.txt",graphname="figure6.tif")
-figure6=function(file="all parameters spp.txt",fileno="all parameters spp no Dj.txt", beginyearfile=beginyearfile, spstart=1, spend=45,graph=5,longnames="total number of seeds per species.txt",graphname="figure6.tif")
-  
-{
-  data=monthlyvalues(file=file,fileno=fileno, beginyearfile=beginyearfile,spstart=spstart,spend=spend)
-  totseed=read.delim(file=longnames)
-  names(totseed)=c("species","longname","totseed","form","disp","fruit")
-  dispersal=data.frame(species=totseed$longname,disp=totseed$disp)
-  datayr<-merge(data,totseed, by="species",all.x=T)
-  sumyr=aggregate(data.frame(sumseed=datayr$model), by=list(species=datayr$longname, year=datayr$year), sum)
-  years=split(sumyr$sumseed, sumyr$year)
-  tiff(filename=graphname,width = 4000, height = 3100,res=300)
-  par(mfrow=c(5,2), mar=c(2,2,1,0),oma=c(3,5,3,3))  
-  for (i in c(1:10))
-  {
-    oneyr=sumyr[sumyr$year==unique(sumyr$year)[i],]
-    oneyr$perc=(oneyr$sumseed/sum(oneyr$sumseed))*100
-    orspp=order(oneyr$sumseed, decreasing=T)
-    spplist=as.vector(oneyr$species[orspp][1:15])
-    perc=as.vector(oneyr$perc[orspp][1:15])
-    spshort=strsplit(as.character(oneyr$species[orspp][1:graph]),' ')
-    genuscode=spcode=dispersalmode=character()
-    for(k in 1:length(spshort))
-    {
-      genuscode[k]=left(spshort[[k]][1],1)
-      #spcode[k]=left(spshort[[k]][2],3)
-      spcode[k]=spshort[[k]][2]
-      dispersalmode[k]=as.character(dispersal$disp[which(dispersal$species==spplist[k])])
-    
-      }
-    spnames=pst(genuscode,"."," ", spcode)
-    splist=data.frame(spnames,dispersalmode)
-    zoo=which(splist$dispersalmode=="zoo")
-    bal=which(splist$dispersalmode=="bal")
-    ane=which(splist$dispersalmode=="ane")
-    colores=1:graph
-    colores[zoo]="gray28"
-    colores[ane]="white"
-    colores[bal]="white"
-    if (i==1|i==9) barplot(oneyr$perc[orspp][1:graph],width=0.7,space=0.2,axes=F, las=1, col=colores,ylim=c(0,60)) else barplot(oneyr$perc[orspp][1:graph],width=0.7,space=0.2,axes=F, las=1, col=colores,ylim=c(0,40))
-    axis(side=1,at=c(0.5,1.35,2.2,3.05,3.90),labels=spnames, cex.axis=1.25,font=3)
-    if (i==1|i==9) axis(side=2,las=1,at=c(0,20,40,60),cex.axis=1.5) else axis(side=2,las=1,at=c(0,10,20,30,40),cex.axis=1.5)
-    if (i ==2) legend(3,43,fill=c("gray28","white"),legend=c("biotic","abiotic"),bty="n",cex=1.8,horiz=F)
-    mtext(side=3, text=unique(sumyr$year)[i], line=-2.5,cex=1.5)
-    results=data.frame( year=unique(sumyr$year)[i], species=spplist[1:graph], perc[1:graph],disp=splist$dispersalmode[1:graph])  
-    if (i==1) allresults=results else allresults=rbind(allresults,results)
-    if (i==5) mtext(side=2, text="number of seeds (%)", line=3.5, las=3,cex=2)
-    
-  }
-  ## chi-squared analyses of biotic vs abiotic dispersal dominance
-  abiotic<-c(4,4,3,5,5,4,3,4,4,4)
-  biotic<-c(1,1,2,0,0,1,2,1,1,1)
-  chisq.test(c(40,10),p=c(0.47,0.53))
-  dev.off()
-  return(allresults)
-  
-}
-
-#barplot(oneyr$perc[orspp][1:5],names.arg=oneyr$species[orspp][1:5], las=2, main=unique(sumyr$year)[i])
-
-
-#### FIGURE 7 ################################
-## NOT INCLUDED IN THE LAST VERSION OF THE PAPER
-
-#figure 7 includes three graphs: 1) values of fruit biomass; 2) number of fruiting species; 
-#3)summed values of our model of seed production vs. MEI 
-#figure7(biomass=biomass,estfile="number total spp per month estimated.txt",k=3,file="all parameters spp.txt",fileno="all parameters spp no Dj.txt", beginyearfile=beginyearfile, spstart=1, spend=45)
-figure7=function(biomass=biomass,estfile="number total spp per month estimated.txt",k=3,file="Nouragues model all spp.txt",fileno="NRG model all spp without Dj.txt", beginyearfile=beginyearfile, spstart=1, spend=45)
-  
-{
-  par(mfrow=c(3,1),las=1,mar=c(2,3,2,3),oma=c(2,2,2,2),cex=1)
-  
-  biomass$fecha=strptime(paste(biomass$Year2,"-",biomass$month,"-",1), format="%Y - %m - %d")
-  start=which(biomass$Year2==2001 & biomass$month==2)
-  end=which(biomass$Year2==2011 & biomass$month==2)
-  N=length(biomass$fruitsb[start:end])
-  biomass=biomass[start:end,]
-  comienzo<-as.integer((k/2)+1)     
-  final<-as.integer(N-(k/2))
-  
-  plot(biomass$fruitsb,type="n", xlab="time", ylab="", ylim=c(0,6),bty="l", axes=F, las=1)
-  axis(side=2, las=1,col="black")
-  jan1=which(biomass$month==1)
-  #axis(side=1, ,at=c(jan1[1]-12,jan1), labels=as.character(c("2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012")))
-  axis(side=1, at=c(jan1[1]-12,jan1), labels=F)
-  mtext(side=2, "fruit biomass (g/m?)", line=3, cex=1.1,las=0)
-  lines(c(start:(end-2)),runningmean(biomass$fruitsb,k), col="blue3", lwd=3)
-  legend(end-125,8, lty=c(1,1,1,2), c("fruit biomass","# fruiting species","# seeds","MEI"), bty="n",col=c("blue3", "purple","black" ,"red"), horiz=T,lwd=2,xpd=T)
-  #lines(biomass$fecha[start:(end-2)],runningmean(biomass$flowersb[start:end],k)/(160*0.5), lty=2)
-  
-  startmei=which(ensoanomalies$YEAR==2001 & ensoanomalies$MONTH==2)
-  endmei=which(ensoanomalies$YEAR==2011 & ensoanomalies$MONTH==2)
-  par(new=T)
-  plot(ensoanomalies$MEI[startmei:endmei],type="l", lty=2,ylab="",xlab="",axes=F, las=1, col="red", lwd=2)
-  polygon(c(16,25,25,16),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
-  polygon(c(42,48,48,42),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
-  polygon(c(68,71,71,68),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
-  polygon(c(102,111,111,102),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
-  polygon(c(59,62,62,59),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
-  polygon(c(79,89,89,79),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
-  polygon(c(94,98,98,94),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
-  polygon(c(114,120,120,114),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
-  abline(h=0, lty=2)
-  axis(side=4, las=1, col="red")
-  mtext(side=4, "MEI", line=3, cex=1.1, las=0)
-  
-  
-  est=read.delim(estfile)
-  est$fecha=strptime(paste(est$year,"-",est$month,"-",1), format="%Y - %m - %d")
-  start=which(est$year==2001 & est$month==2)
-  end=which(est$year==2011 & est$month==2)
-  N=length(biomass$fruitsb[start:end])
-  est=est[start:end,]
-  comienzo<-as.integer((k/2)+1)     
-  final<-as.integer(N-(k/2))  
-  
-  plot(est$estnumbspp,type="n", xlab="time", ylab="", ylim=c(0,45),bty="l", axes=F, las=1)
-  axis(side=2, las=1, col="black")
-  jan1=which(est$month==1)
-  #axis(side=1, at=c(jan1[1]-12,jan1), labels=as.character(c("2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011")))
-  axis(side=1, at=c(jan1[1]-12,jan1), labels=FALSE)
-  mtext(side=2, "number of fruiting species", line=3, cex=1.1,las=0)
-  lines(c(start:(end-2)),runningmean(est$estnumbspp,k), col="purple", lwd=3)
-  #legend(end-103,5, lty=c(1,2), c("number of fruiting species","MEI"), col=c("blue","red"),bty="n", cex=0.75, horiz=T,lwd=2)
-  #lines(biomass$fecha[start:(end-2)],runningmean(biomass$flowersb[start:end],k)/(160*0.5), lty=2)
-  
-  startmei=which(ensoanomalies$YEAR==2001 & ensoanomalies$MONTH==2)
-  endmei=which(ensoanomalies$YEAR==2011 & ensoanomalies$MONTH==2)
-  par(new=T)
-  plot(ensoanomalies$MEI[startmei:endmei],type="l", lty=2,ylab="",xlab="",axes=F, las=1, col="red", lwd=2)
-  polygon(c(16,25,25,16),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
-  polygon(c(42,48,48,42),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
-  polygon(c(68,71,71,68),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
-  polygon(c(102,111,111,102),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
-  polygon(c(59,62,62,59),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
-  polygon(c(79,89,89,79),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
-  polygon(c(94,98,98,94),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
-  polygon(c(114,120,120,114),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
-  abline(h=0, lty=2)
-  axis(side=4, las=1, col="red")
-  mtext(side=4, "MEI", line=3, cex=1.1,las=0)  
-  
-  nrg=monthlyvalues(file=file,fileno=fileno, beginyearfile=beginyearfile,spstart=spstart,spend=spend)
-  species=unique(nrg$species)
-  sphigh=unique(nrg$sp[which.max(nrg$model)])
-  onesphigh=nrg[nrg$species==sphigh,]
-  onesphigh=onesphigh[onesphigh$julian>=15355&onesphigh$julian<=18246,]
-  y2001=as.numeric(tojulian(c("01/01/2001","02/01/2001","03/01/2001","04/01/2001","05/01/2001","06/01/2001","07/01/2001","08/01/2001","09/01/2001","10/01/2001","11/01/2001","12/01/2001")))
-  y2010=as.numeric(tojulian(c("01/01/2010", "02/01/2010","03/01/2010","04/01/2010","05/01/2010","06/01/2010","07/01/2010","08/01/2010","09/01/2010","10/01/2010","11/01/2010","12/01/2010","01/01/2011","02/01/2011")))
-  tt=create.fulldate(fromjulian(c(y2001,onesphigh$julian, y2010), dateform="%Y-%m-%d"))
-  plot(c(y2001,onesphigh$julian, y2010), c(rep(0,12),onesphigh$model, rep(0,14)),type="n", las=1, ylab="",xlab="time",bty="l", ylim=c(0,2000), axes=FALSE)
-  #jan1=which(onesphigh$month==1)
-  jan1=which(tt$month==1)
-  axis(side=1,  at=c(y2001,onesphigh$julian, y2010)[jan1], labels=as.character(c("2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011")))
-  axis(side=2, las=1)
-  mtext(side=2, "total number of seeds",line=3, cex=1.1,las=0)
-  polygon(c(onesphigh$julian[5], onesphigh$julian[14], onesphigh$julian[14], onesphigh$julian[5]),c(0,0,2000,2000),col = "#FF000050", border = NA)
-  polygon(c(onesphigh$julian[31], onesphigh$julian[37], onesphigh$julian[37], onesphigh$julian[31]),c(0,0,2000,2000),col = "#FF000050", border = NA)
-  polygon(c(onesphigh$julian[57], onesphigh$julian[60], onesphigh$julian[60], onesphigh$julian[57]),c(0,0,2000,2000),col = "#FF000050", border = NA)  
-  #polygon(c(onesphigh$julian[91], onesphigh$julian[96], onesphigh$julian[96], onesphigh$julian[91]),c(0,0,2000,2000),col = "#FF000050", border = NA)
-  polygon(c(onesphigh$julian[48], onesphigh$julian[51], onesphigh$julian[51], onesphigh$julian[48]),c(0,0,2000,2000),col = "#0000FF50", border = NA)
-  polygon(c(onesphigh$julian[68], onesphigh$julian[78], onesphigh$julian[78], onesphigh$julian[68]),c(0,0,2000,2000),col = "#0000FF50", border = NA)
-  polygon(c(onesphigh$julian[83], onesphigh$julian[87], onesphigh$julian[87], onesphigh$julian[83]),c(0,0,2000,2000),col = "#0000FF50", border = NA)
-  polygon(c(c(y2001,onesphigh$julian, y2010)[115],c(y2001,onesphigh$julian, y2010)[121],c(y2001,onesphigh$julian, y2010)[121],c(y2001,onesphigh$julian, y2010)[115]),c(0,0,2000,2000),col = "#0000FF50", border = NA)
-  polygon(c(c(y2001,onesphigh$julian, y2010)[103],c(y2001,onesphigh$julian, y2010)[112],c(y2001,onesphigh$julian, y2010)[112],c(y2001,onesphigh$julian, y2010)[103]),c(0,0,2000,2000),col = "#FF000050", border = NA)
-  
-  for (i in 1:length(species)){
-    onesp=nrg[nrg$species==species[i],]
-    onesp=onesp[onesp$julian>=15355&onesp$julian<=18246,]
-    lines(onesp$julian, onesp$model, col=i, lwd=2)
-  }
-  sumseed=aggregate(data.frame(peak=nrg$model), by=list(month=nrg$month,year=nrg$year ), sum)
-  sumseed=sumseed[sumseed$year>=2002 & sumseed$year < 2010,]  
-  sumseed$julian=tojulian(paste("15/",sumseed$month,"/",sumseed$year), dateform="%d/ %m / %Y")
-  lines(sumseed$julian, sumseed$peak, col="black",lwd=3)
-  startmei=which(ensoanomalies$YEAR==2001 & ensoanomalies$MONTH==2)
-  endmei=which(ensoanomalies$YEAR==2011 & ensoanomalies$MONTH==2)
-  par(new=T)
-  plot(ensoanomalies$MEI[startmei:endmei],type="l", lty=2,ylab="",xlab="",axes=F,las=2, col="red", lwd=2)
-  abline(h=0, lty=2)
-  axis(side=4, las=2, col="red")
-  mtext(side=4, "MEI", line=3, las=0, cex=1.1)
-  
-}
-
-
-########################################
-###FIGURE 7b OF THE PAPER ###############
-########################################
-
-#figure7b function only includes the graph of biomass and estimated number of species against MEI
-figure7b=function(biomass=biomass,estfile="number total spp per month estimated.txt", k=3)
-
-{
-  par(mfrow=c(2,1),las=1,mar=c(2,3,2,3),oma=c(2,2,2,2),cex=1)
-  
-  biomass$fecha=strptime(paste(biomass$Year2,"-",biomass$month,"-",1), format="%Y - %m - %d")
-  start=which(biomass$Year2==2001 & biomass$month==2)
-  end=which(biomass$Year2==2011 & biomass$month==2)
-  N=length(biomass$fruitsb[start:end])
-  biomass=biomass[start:end,]
-  comienzo<-as.integer((k/2)+1)     
-  final<-as.integer(N-(k/2))
-   
-  plot(biomass$fruitsb,type="n", xlab="time", ylab="", ylim=c(0,6),bty="l", axes=F, las=1)
-  axis(side=2, las=1,col="black")
-  jan1=which(biomass$month==1)
-  #axis(side=1, ,at=c(jan1[1]-12,jan1), labels=as.character(c("2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012")))
-  axis(side=1, at=c(jan1[1]-12,jan1), labels=F)
-  mtext(side=2, "fruit biomass (g/m?)", line=3, cex=1.1,las=0)
-  lines(c(start:(end-2)),runningmean(biomass$fruitsb,k), col="blue3", lwd=2)
-  legend(end-125,7.5, lty=c(1,1,2), c("fruit biomass","number of fruiting species","MEI"), bty="n",col=c("blue3", "black", "red"), horiz=T,lwd=2,xpd=T)
-  #lines(biomass$fecha[start:(end-2)],runningmean(biomass$flowersb[start:end],k)/(160*0.5), lty=2)
-  
-  startmei=which(ensoanomalies$YEAR==2001 & ensoanomalies$MONTH==2)
-  endmei=which(ensoanomalies$YEAR==2011 & ensoanomalies$MONTH==2)
-  par(new=T)
-  plot(ensoanomalies$MEI[startmei:endmei],type="l", lty=2,ylab="",xlab="",axes=F, las=1, col="red", lwd=2)
-  polygon(c(16,25,25,16),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
-  polygon(c(42,48,48,42),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
-  polygon(c(68,71,71,68),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
-  polygon(c(102,111,111,102),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
-  polygon(c(59,62,62,59),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
-  polygon(c(79,89,89,79),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
-  polygon(c(94,98,98,94),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
-  polygon(c(114,120,120,114),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
-  abline(h=0, lty=2)
-  axis(side=4, las=1, col="red")
-  mtext(side=4, "MEI", line=3, cex=1.1, las=0)
-  
-  
-  est=read.delim(estfile)
-  est$fecha=strptime(paste(est$year,"-",est$month,"-",1), format="%Y - %m - %d")
-  start=which(est$year==2001 & est$month==2)
-  end=which(est$year==2011 & est$month==2)
-  N=length(biomass$fruitsb[start:end])
-  est=est[start:end,]
-  comienzo<-as.integer((k/2)+1)     
-  final<-as.integer(N-(k/2))  
- 
-  plot(est$estnumbspp,type="n", xlab="time", ylab="", ylim=c(0,45),bty="l", axes=F, las=1)
-  axis(side=2, las=1, col="black")
-  jan1=which(est$month==1)
-  axis(side=1, at=c(jan1[1]-12,jan1), labels=as.character(c("2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011")))
-  mtext(side=2, "number of fruiting species", line=3, cex=1.1,las=0)
-  lines(c(start:(end-2)),runningmean(est$estnumbspp,k), col="black", lwd=2)
-  #legend(end-103,5, lty=c(1,2), c("number of fruiting species","MEI"), col=c("blue","red"),bty="n", cex=0.75, horiz=T,lwd=2)
-  #lines(biomass$fecha[start:(end-2)],runningmean(biomass$flowersb[start:end],k)/(160*0.5), lty=2)
-  
-  startmei=which(ensoanomalies$YEAR==2001 & ensoanomalies$MONTH==2)
-  endmei=which(ensoanomalies$YEAR==2011 & ensoanomalies$MONTH==2)
-  par(new=T)
-  plot(ensoanomalies$MEI[startmei:endmei],type="l", lty=2,ylab="",xlab="",axes=F, las=1, col="red", lwd=2)
-  polygon(c(16,25,25,16),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
-  polygon(c(42,48,48,42),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
-  polygon(c(68,71,71,68),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
-  polygon(c(102,111,111,102),c(-2.5,-2.5,6,6),col = "#FF000050", border = NA)
-  polygon(c(59,62,62,59),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
-  polygon(c(79,89,89,79),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
-  polygon(c(94,98,98,94),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
-  polygon(c(114,120,120,114),c(-2.5,-2.5,6,6),col = "#0000FF50", border = NA)
-  abline(h=0, lty=2)
-  axis(side=4, las=1, col="red")
-  mtext(side=4, "MEI", line=3, cex=1.1,las=0)  
-  
-}
-
-###### FIGURE 7c ####################################################
-
-#figure7c(file="NRG model all spp without Dj.txt",fileno="NRG model all spp without Dj.txt", beginyearfile=beginyearfile, spstart=1, spend=45, k=3)
-#this function plots the summed number of seeds of the models vs. MEI 
-figure7c=function(file="NRG model all spp without Dj.txt",fileno="NRG model all spp without Dj.txt", beginyearfile=beginyearfile, spstart=1, spend=45, k=3)
-  {
-    nrg=monthlyvalues(file=file,fileno=fileno, beginyearfile=beginyearfile,spstart=spstart,spend=spend)
-    species=unique(nrg$species)
-    
-  #go=which(NRGallspp$sp=="Gouania blanchetiana")#this removes Gouania blanchetiana because it is the most abundant spp and marks all the fruiting pattern
-  #NRGallspp=NRGallspp[-go,]
-    sumseed=aggregate(data.frame(peak=nrg$model), by=list(month=nrg$month,year=nrg$year ), sum)
-    sumseed=sumseed[sumseed$year>=2002 & sumseed$year < 2010,]  
-    sumseed$julian=tojulian(paste("15/",sumseed$month,"/",sumseed$year), dateform="%d/ %m / %Y")
-    N=length(sumseed$julian)
-  comienzo<-as.integer((k/2)+1)     
-  final<-as.integer(N-(k/2))
-  
-   par(mar=c(5,5,3,4), cex=1.5,las=1)
-    sphigh=unique(nrg$sp[which.max(nrg$model)])
-    onesphigh=nrg[nrg$species==sphigh,]
-    onesphigh=onesphigh[onesphigh$julian>=15355&onesphigh$julian<=18246,]
-    plot(onesphigh$julian, onesphigh$model, type="n", las=1, ylab="",axes=F,xlab="time",bty="l", ylim=c(0,2000))
-    jan1=which(sumseed$month==1)
-    axis(side=1, at=onesphigh$julian[c(jan1, jan1[length(jan1)]+11)], labels=as.character(c("2002","2003","2004","2005","2006","2007","2008","2009","2010")))
-    mtext(side=2, "monthly number of seeds", line=3, cex=1.5,las=0)
-    axis(side=2)
-    
-    polygon(c(onesphigh$julian[5], onesphigh$julian[14], onesphigh$julian[14], onesphigh$julian[5]),c(0,0,2000,2000),col = "#FF000050", border = NA)
-    polygon(c(onesphigh$julian[31], onesphigh$julian[37], onesphigh$julian[37], onesphigh$julian[31]),c(0,0,2000,2000),col = "#FF000050", border = NA)
-    polygon(c(onesphigh$julian[57], onesphigh$julian[60], onesphigh$julian[60], onesphigh$julian[57]),c(0,0,2000,2000),col = "#FF000050", border = NA)  
-    polygon(c(onesphigh$julian[91], onesphigh$julian[96], onesphigh$julian[96], onesphigh$julian[91]),c(0,0,2000,2000),col = "#FF000050", border = NA)
-    polygon(c(onesphigh$julian[48], onesphigh$julian[52], onesphigh$julian[52], onesphigh$julian[48]),c(0,0,2000,2000),col = "#0000FF50", border = NA)
-    polygon(c(onesphigh$julian[68], onesphigh$julian[78], onesphigh$julian[78], onesphigh$julian[68]),c(0,0,2000,2000),col = "#0000FF50", border = NA)
-    polygon(c(onesphigh$julian[83], onesphigh$julian[87], onesphigh$julian[87], onesphigh$julian[83]),c(0,0,2000,2000),col = "#0000FF50", border = NA)
-    
-  lines(sumseed$julian[comienzo:(final-2)],runningmean(sumseed$peak[comienzo:final],k),col="blue", lwd=2)
-  legend(sumseed$julian[final-90],2180, lty=c(1,2), col=c("blue", "red"),c("number of seeds","MEI"), bty="n", cex=1, horiz=T, lwd=2)
-  #lines(biomass$fecha[start:(end-2)],runningmean(biomass$flowersb[start:end],k)/(160*0.5), lty=2)
-  
-  startmei=which(ensoanomalies$YEAR==2002 & ensoanomalies$MONTH==1)
-  endmei=which(ensoanomalies$YEAR==2009 & ensoanomalies$MONTH==12)
-  par(new=T)
-  plot(ensoanomalies$MEI[startmei:endmei],type="l", lty=2,ylab="",xlab="",axes=F,las=2, col="red", lwd=2)
-  abline(h=0, lty=2)
-  axis(side=4, las=2)
-  mtext(side=4, "MEI", line=3, las=0, cex=1.5)
-  
-}
-
-
-#### FIGURE 7d ####################################################
-##Figure 7d includes a line per species for the monthly model of seed production
-
-#figure7d(file="NRG model all spp without Dj.txt",fileno="NRG model all spp without Dj.txt", beginyearfile=beginyearfile, spstart=1, spend=45)
-figure7d=function(file="Nouragues model all spp.txt",fileno="NRG model all spp without Dj.txt", beginyearfile=beginyearfile, spstart=1, spend=45)
-{
-  par(las=1,mar=c(2,3,2,3),oma=c(2,2,2,2),cex=1)
-  nrg=monthlyvalues(file=file,fileno=fileno, beginyearfile=beginyearfile,spstart=spstart,spend=spend)
-  species=unique(nrg$species)
-  sphigh=unique(nrg$sp[which.max(nrg$model)])
-  onesphigh=nrg[nrg$species==sphigh,]
-  onesphigh=onesphigh[onesphigh$julian>=15355&onesphigh$julian<=18246,]
-  plot(onesphigh$julian, onesphigh$model, type="n", las=1, ylab="",xlab="time",bty="l", ylim=c(0,2000), axes=FALSE)
-  jan1=which(onesphigh$month==1)
-  axis(side=1,  at=onesphigh$julian[c(jan1, jan1[length(jan1)]+11)], labels=as.character(c("2002","2003","2004","2005","2006","2007","2008","2009","2010")))
-  axis(side=2, las=1)
-  mtext(side=2, "total number of seeds",line=3, cex=1.1,las=0)
-  polygon(c(onesphigh$julian[5], onesphigh$julian[14], onesphigh$julian[14], onesphigh$julian[5]),c(0,0,2000,2000),col = "#FF000050", border = NA)
-  polygon(c(onesphigh$julian[31], onesphigh$julian[37], onesphigh$julian[37], onesphigh$julian[31]),c(0,0,2000,2000),col = "#FF000050", border = NA)
-  polygon(c(onesphigh$julian[57], onesphigh$julian[60], onesphigh$julian[60], onesphigh$julian[57]),c(0,0,2000,2000),col = "#FF000050", border = NA)  
-  polygon(c(onesphigh$julian[91], onesphigh$julian[96], onesphigh$julian[96], onesphigh$julian[91]),c(0,0,2000,2000),col = "#FF000050", border = NA)
-  polygon(c(onesphigh$julian[48], onesphigh$julian[52], onesphigh$julian[52], onesphigh$julian[48]),c(0,0,2000,2000),col = "#0000FF50", border = NA)
-  polygon(c(onesphigh$julian[68], onesphigh$julian[78], onesphigh$julian[78], onesphigh$julian[68]),c(0,0,2000,2000),col = "#0000FF50", border = NA)
-  polygon(c(onesphigh$julian[83], onesphigh$julian[87], onesphigh$julian[87], onesphigh$julian[83]),c(0,0,2000,2000),col = "#0000FF50", border = NA)
-  
-  
-  for (i in 1:length(species)){
-    onesp=nrg[nrg$species==species[i],]
-    onesp=onesp[onesp$julian>=15355&onesp$julian<=18246,]
-    lines(onesp$julian, onesp$model, col=i, lwd=2)
-  }
-  sumseed=aggregate(data.frame(peak=nrg$model), by=list(month=nrg$month,year=nrg$year ), sum)
-  sumseed=sumseed[sumseed$year>=2002 & sumseed$year < 2010,]  
-  sumseed$julian=tojulian(paste("15/",sumseed$month,"/",sumseed$year), dateform="%d/ %m / %Y")
-  lines(sumseed$julian, sumseed$peak, col="black",lwd=3)
-  startmei=which(ensoanomalies$YEAR==2002 & ensoanomalies$MONTH==1)
-  endmei=which(ensoanomalies$YEAR==2009 & ensoanomalies$MONTH==12)
-  par(new=T)
-  plot(ensoanomalies$MEI[startmei:endmei],type="l", lty=2,ylab="",xlab="",axes=F,las=2, col="red", lwd=2)
-  abline(h=0, lty=2)
-  axis(side=4, las=2, col="red")
-  mtext(side=4, "MEI", line=3, las=0, cex=1.1)
-
-}
-
-
-###### FIGURE APPENDIX 1 ####################################################
-
-appendix1=function(file=nourage, fit=results, beginyearfile=beginyearfile)
-{
-  high=c(5,33,35,37)
-  low=c(4,11,18,19,23,25,26,28,32,34,40,45)
-  special=sort(c(high,low))
-  resto=c(1:45)[-special]
-  
-  nrg.graphierspp2(file=nourage, fit=results, beginyearfile=beginyearfile,spstart=1,spend=3, filename="appendix1_1.pdf",longnames="total number of seeds per species.txt")
-  nrg.graphsmoved.low(file=nourage, fit=results, beginyearfile=beginyearfile,spnumber=c(4), filename="appendix1-2b.pdf",longnames="total number of seeds per species.txt")
-  nrg.graphsmoved.high(file=nourage, fit=results, beginyearfile=beginyearfile,spnumber=c(5), filename="appendix1-3.pdf",longnames="total number of seeds per species.txt")
-  nrg.graphierspp2(file=nourage, fit=results, beginyearfile=beginyearfile,spstart=6,spend=17, filename="appendix1-4.pdf",longnames="total number of seeds per species.txt")  
-  nrg.graphsmoved.low(file=nourage, fit=results, beginyearfile=beginyearfile,spnumber=c(18,19), filename="appendix1-5.pdf",longnames="total number of seeds per species.txt")
-  nrg.graphierspp2(file=nourage, fit=results, beginyearfile=beginyearfile,spstart=20,spend=22, filename="appendix1-6.pdf",longnames="total number of seeds per species.txt")  
-  nrg.graphsmoved.low(file=nourage, fit=results, beginyearfile=beginyearfile,spnumber=c(23), filename="appendix1-7.pdf",longnames="total number of seeds per species.txt")
-  nrg.graphierspp2(file=nourage, fit=results, beginyearfile=beginyearfile,spstart=24,spend=24, filename="appendix1-8.pdf",longnames="total number of seeds per species.txt")
-  nrg.graphsmoved.low(file=nourage, fit=results, beginyearfile=beginyearfile,spnumber=c(25,26), filename="appendix1-9.pdf",longnames="total number of seeds per species.txt")
-  nrg.graphierspp2(file=nourage, fit=results, beginyearfile=beginyearfile,spstart=27,spend=27, filename="appendix1-10.pdf",longnames="total number of seeds per species.txt")
-  nrg.graphsmoved.low(file=nourage, fit=results, beginyearfile=beginyearfile,spnumber=c(28), filename="appendix1-11.pdf",longnames="total number of seeds per species.txt")
-  nrg.graphierspp2(file=nourage, fit=results, beginyearfile=beginyearfile,spstart=29,spend=31, filename="appendix1-12.pdf",longnames="total number of seeds per species.txt")
-  nrg.graphsmoved.low(file=nourage, fit=results, beginyearfile=beginyearfile,spnumber=c(32), filename="appendix1-13.pdf",longnames="total number of seeds per species.txt")
-  nrg.graphsmoved.high(file=nourage, fit=results, beginyearfile=beginyearfile,spnumber=c(33), filename="appendix1-14.pdf",longnames="total number of seeds per species.txt")
-  nrg.graphsmoved.low(file=nourage, fit=results, beginyearfile=beginyearfile,spnumber=c(34), filename="appendix1-15.pdf",longnames="total number of seeds per species.txt")
-  nrg.graphsmoved.high(file=nourage, fit=results, beginyearfile=beginyearfile,spnumber=c(35), filename="appendix1-16.pdf",longnames="total number of seeds per species.txt")
-  nrg.graphierspp2(file=nourage, fit=results, beginyearfile=beginyearfile,spstart=36,spend=36, filename="appendix1-17.pdf",longnames="total number of seeds per species.txt")
-  nrg.graphsmoved.high(file=nourage, fit=results, beginyearfile=beginyearfile,spnumber=c(37), filename="appendix1-18.pdf",longnames="total number of seeds per species.txt")
-  nrg.graphierspp2(file=nourage, fit=results, beginyearfile=beginyearfile,spstart=38,spend=39, filename="appendix1-19.pdf",longnames="total number of seeds per species.txt")
-  nrg.graphsmoved.low(file=nourage, fit=results, beginyearfile=beginyearfile,spnumber=c(40), filename="appendix1-20.pdf",longnames="total number of seeds per species.txt")
-  nrg.graphierspp2(file=nourage, fit=results, beginyearfile=beginyearfile,spstart=41,spend=44, filename="appendix1-21.pdf",longnames="total number of seeds per species.txt")
-  nrg.graphsmoved.low(file=nourage, fit=results, beginyearfile=beginyearfile,spnumber=c(45), filename="appendix1-22.pdf",longnames="total number of seeds per species.txt")
-}
-
-####APPENDIX 2 ###############  for the ATBC 2016 talk
-##What was the trend of peak parameter?
-
-appendix2=function(file="all parameters spp.txt",fileno="all parameters spp no Dj.txt", beginyearfile=beginyearfile, spstart=1, spend=45,graph=5,longnames="total number of seeds per species.txt",startyear=2001,endyear=2010,filename="appendix2.tiff"){
-  
-  data=monthlyvalues(file=file,fileno=fileno, beginyearfile=beginyearfile,spstart=spstart,spend=spend)
-  totseed=read.delim(file=longnames)
-  names(totseed)=c("species","longname","totseed","form","disp","fruit")
-  dispersal=data.frame(species=totseed$longname,disp=totseed$disp)
-  datayr<-merge(data,totseed, by="species",all.x=T)
-  sumyr=aggregate(data.frame(sumseed=datayr$model), by=list(species=datayr$longname, year=datayr$year), sum)
-  filno=read.delim(file=fileno)
-  uniquefilno<-aggregate(data.frame(peak=filno$peak), by=list(species=filno$sp, year=filno$year), unique)
-  sndmean=aggregate(data.frame(mean=uniquefilno$peak),by=list(species=uniquefilno$species),mean)
-  sndsd=aggregate(data.frame(sd=uniquefilno$peak),by=list(species=uniquefilno$species),sd)
-  
-  snd=numeric() 
-  for (i in 1:nrow(uniquefilno)){
-    uniquefilno$snd[i]= (log(uniquefilno$peak[i]+1,10)-log(sndmean$mean[sndmean$species==uniquefilno$species[i]]+1,10))/log(sndsd$sd[sndsd$species==uniquefilno$species[i]]+1,10)
-  }  
-  ds=data.frame(years=startyear:endyear,mean=aggregate(uniquefilno$snd,by=list(year=uniquefilno$year),mean)[,2],se=as.numeric(aggregate(uniquefilno$snd,by=list(year=uniquefilno$year),sd)[,2]/sqrt(lengthunique(uniquefilno$species))))
-  ggplot(ds, aes(x=years,y=mean))+
-    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), colour="black", width=.1,position = "identity")+
-    geom_line() +
-    geom_point(size=2, shape=21, fill="black")+
-    xlab("years") +
-    ylab("Seed production (SND)") +
-    #expand_limits(y=0) +                        # Expand y range
-    scale_y_continuous(breaks=seq(-0.5,0.5,0.1)) +         # Set tick every 4
-    scale_x_continuous(breaks=seq(startyear,endyear,1)) +
-    theme_classic()+
-    theme(text = element_text(size=20),axis.line = element_line(lineend="square"),axis.text.x = element_text(angle=90, vjust=1),axis.ticks.length = unit(.25, "cm"))
-    ggsave(filename,width=20, height=15, units="cm")
-  
-  
-  #tiff(filename=filename,height=1000,width=2000,res=300)
-  #par(mfrow=c(1,1),las=1,mar=c(3,3,1,0),oma=c(2,2,1,1),cex=0.6)
-  #meanyr=aggregate(data.frame(mean=uniquefilno$peak),by=list(year=uniquefilno$year),mean)
-  #plot(meanyr$year, meanyr$mean,type="o")
-  #plot(uniquefilno$year,uniquefilno$peak)  
-  #dev.off()
-}  
-
 
 
 ####################################################################################
@@ -2726,49 +2765,7 @@ summaryspmodels=function(data=allsppMEI){
 
 
 
-###########################################
-## SUPPLEMENTARY TABLE 1 ##################
-##########################################
-#file=nourage; beginyearfile=beginyearfile; spstart=1; spend=45; fit=results; dj=FALSE
-stable1=function(file=nourage, beginyearfile=beginyearfile, spstart=1, spend=45, fit=results, dj=TRUE)
-  {
-  
-  parameters=parametersyr(file=file, beginyearfile=beginyearfile, spstart=spstart, spend=spend, fit=results, dj=TRUE)
-  pp=aggregate(data.frame(peakday=parameters$peakday,  CI2peakday=parameters$CI2peakday,  CI97peakday=parameters$CI97peakday,peak=parameters$peak,  CI2peak=parameters$CI2peak,  CI97peak=parameters$CI97peak), by=list(year=parameters$cycle,sp=parameters$sp),mean)
-  yrmin=aggregate(data.frame(min=parameters$year), by=list(year=parameters$cycle,sp=parameters$sp),min)
-  yrmax=aggregate(data.frame(max=parameters$year), by=list(year=parameters$cycle,sp=parameters$sp),max)
-  months=list(jan=1:31,feb=32:59,mar=60:90,apr=91:120,
-              may=121:151,jun=152:181,jul=182:212,aug=213:243,sep=244:273,oct=274:304,nov=305:334,dec=335:365)
-  rmonths=unlist(months)
-  
-  peak=ifelse(pp$peakday<0,pp$peakday+365,pp$peakday)
-  peak2=ifelse(peak>365,peak-365,peak)
-  month=names(rmonths[trunc(peak2)]) 
-  
-  pp2=data.frame(sp=pp$sp, cycle=pp$year,years=paste(yrmin$min,"-",yrmax$max), peakdays=paste(round(pp$peakday,2)," (",month,")",sep=""), CIpeakday= paste(round(pp$CI2peakday,2),"-" ,round(pp$CI97peakday,2)), peak=round(pp$peak,2), CIpeak=paste(round(pp$CI2peak,2),"-", round(pp$CI97peak,2)))
-  pp3=data.frame(sp=pp$sp, cycle=pp$year,year1=yrmin$min, year2=yrmax$max, peakdays=pp$peakday, CI2peakday= pp$CI2peakday, CI97peakday=pp$CI97peakday, peak=pp$peak, CI2peak=pp$CI2peak, CI97peak=pp$CI97peak)
-  
-  return(pp2)
-  
-}
 
-###########################################
-## SUPPLEMENTARY FIGURE 2 ################
-##########################################
-supplementary2=function(file="Nouragues results hyperparameters.txt",graphname="SFig2.tif"){
-  
-  tr<-read.delim(file)
-  tiff(filename=graphname,width = 1500, height = 1000,pointsize=12, res=300)
-  par(las = 1, bty = "o", tcl = 0.2, mar = c(5, 5, 2,2), mgp = c(0.25, 0.25, 0),cex.axis=1.2,lwd=1.5)
-  plot(tr$logSD,tr$SD,xlab="",ylab="",las=1,bty="l",pch=19)
-  mtext(side=2,text="SD of peakday",line=2.5,las=0,cex=1.2)
-  mtext(side=1,text="SD of peak (log)",line=2.5,las=0,cex=1.2)
-  abline(lm(tr$SD~tr$logSD))
-  summary(lm(tr$SD~tr$logSD))
-  cor.test(tr$SD,tr$logSD,method="pearson")
-  
-  dev.off()
-}
 
 
 ### STANDARD NORMAL DEVIATE #####
@@ -2852,7 +2849,7 @@ plot(rochambeau$insolat,type="n",ylab="",xlab="",las=1,bty="l",axes=F)
 lines(rochambeau$insolat, lwd=2)
 axis(side=2, las=1,col="black",cex.axis=0.55)
 jan1=which(rochambeau$Month==1)
-axis(side=1, ,at=c(jan1[1]-12,jan1,jan1[length(jan1)]+12),labels=as.character(c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012")))
+axis(side=1, at=c(jan1[1]-12,jan1,jan1[length(jan1)]+12),labels=as.character(c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012")))
 mtext(side=2, "monthly insolation (minutes)", line=3, cex=1,las=0)
 legend(2,18500, lty=c(1,1,1), c("insolation","mean temperature","rainfall"), bty="n",col=c("black", "red","blue"), horiz=T,lwd=2,xpd=T)
 par(new=T)
@@ -2866,7 +2863,7 @@ plot(rochambeau$insolat,type="n",ylab="",xlab="",las=1,bty="l",axes=F)
 lines(rochambeau$insolat, lwd=2)
 axis(side=2, las=1,col="black",cex.axis=0.55)
 jan1=which(rochambeau$Month==1)
-axis(side=1, ,at=c(jan1[1]-12,jan1,jan1[length(jan1)]+12), labels=as.character(c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012")),cex=1)
+axis(side=1, at=c(jan1[1]-12,jan1,jan1[length(jan1)]+12), labels=as.character(c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012")),cex=1)
 mtext(side=2, "monthly insolation (minutes)", line=3, cex=1,las=0)
 par(new=T)
 plot(rochambeau$rainfall,type="l", lty=1,ylab="",xlab="",axes=F, las=1, col="blue", lwd=2)
@@ -2909,7 +2906,7 @@ plot(rochambeau$insolat,type="n",ylab="",xlab="",las=1,bty="l",axes=F)
 lines(rochambeau$insolat, lwd=2)
 axis(side=2, las=1,col="black",cex.axis=0.55)
 jan1=which(rochambeau$Month==1)
-axis(side=1, ,at=c(jan1[1]-12,jan1,jan1[length(jan1)]+12),labels=as.character(c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012")))
+axis(side=1, at=c(jan1[1]-12,jan1,jan1[length(jan1)]+12),labels=as.character(c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012")))
 mtext(side=2, "monthly insolation (minutes)", line=3, cex=1,las=0)
 legend(2,18500, lty=c(1,1,1), c("insolation","mean temperature","rainfall"), bty="n",col=c("black", "red","blue"), horiz=T,lwd=2,xpd=T)
 par(new=T)
@@ -2922,7 +2919,7 @@ plot(anomal$anomal,type="n",ylab="",xlab="",las=1,bty="l",axes=F)
 lines(anomal$anomal, lwd=2)
 axis(side=2, las=1,col="black",cex.axis=0.55)
 jan1=which(rochambeau$Month==1)
-axis(side=1, ,at=c(jan1[1]-12,jan1,jan1[length(jan1)]+12),labels=as.character(c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012")))
+axis(side=1, at=c(jan1[1]-12,jan1,jan1[length(jan1)]+12),labels=as.character(c("2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012")))
 }
 
 sumanomalies=function(dataset,k=3) #this function sums k number of observations; 
