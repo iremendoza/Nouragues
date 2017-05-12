@@ -1,0 +1,76 @@
+sp	family	length	width	D3	comments
+Acacia tenuifolia (L.) Willd.	Leguminosae (Mimosoideae)	5.4	4.4	1.8	
+Acacia tenuifolia (L.) Willd.	Leguminosae (Mimosoideae)	7.5	5.03		
+Acacia tenuifolia (L.) Willd.	Leguminosae (Mimosoideae)	7.9	4.8		
+Acacia tenuifolia (L.) Willd.	Leguminosae (Mimosoideae)	7.9	4.8		
+Bombacaceae sp1	Malvaceae	2.3	2.1		
+Bombacaceae sp1	Malvaceae	2.3	2.1		
+Coccoloba excelsa Benth. (= Coccoloba parimensis)	Polygonaceae	9.8	8		
+Coccoloba excelsa Benth. (= Coccoloba parimensis)	Polygonaceae	8.3	7.7		
+Coccoloba excelsa Benth. (= Coccoloba parimensis)	Polygonaceae	10.5	8.1		
+Coccoloba excelsa Benth. (= Coccoloba parimensis)	Polygonaceae	9.6	7.6		
+Coccoloba excelsa Benth. (= Coccoloba parimensis)	Polygonaceae	18	8.7		
+Couratari multiflora (J.E. Smith) Eyma	Lecythidaceae	40	10	0.5	Sabatier (1983)
+Dicorynia guianensis Amsh.	Leguminosae (Caesalpinioideae)	14.1	10.9	3.6	Forget (1988), dry seeds, dormant
+Diplotropis purpurea (Rich.) Amsh.	Leguminosae (Faboideae)	25	7	2	TVS 17 : Stratification of a tropical forest as seen in dispersal types Par Ingrid Roth
+Eperua falcata Aubl.	Leguminosae (Caesalpinioideae)	41	27	9	Forget (1989)
+Fridericia chica (Bonpl.) L.G. Lohmann (=Arrabidaea chica)	Bignoniaceae	36.5	9.1		
+Gouania blanchetiana Miq.	Rhamnaceae	14.7	10		
+Hippocratea volubilis L.	Hippocrateaceae	44.8	14		
+Hippocratea volubilis L.	Hippocrateaceae	43.7	14.8		
+Hippocratea volubilis L.	Hippocrateaceae	45.2	14.2		
+Hippocratea volubilis L.	Hippocrateaceae	47.7	14.7		
+Hymenolobium pulcherrimum Ducke	Leguminosae	15	3	0.2	Hymenolobium flavum Kleinh. Van Roosmalen (1985) 
+Machaerium microphyllum (E.Mey.) Standl (= Machaerium altiscandens)	Leguminosae (Faboideae)	45	12.5		p310 Mori et al. 2002
+Mimosa guilandinae (DC.) Barneby var. guilandinae	Leguminosae (Mimosoideae)	25	8	1	
+Mimosa guilandinae (DC.) Barneby var. guilandinae	Leguminosae (Mimosoideae)	25.3	5.6	1	
+Mimosa guilandinae (DC.) Barneby var. guilandinae	Leguminosae (Mimosoideae)	24.3	6.9	1	
+Mimosa guilandinae (DC.) Barneby var. guilandinae	Leguminosae (Mimosoideae)	25.5	5.8	1	
+Neea floribunda Poepp. & Endl.	Nyctaginaceae	8.7	6.3		
+Neea floribunda Poepp. & Endl.	Nyctaginaceae	10.5	4.7		
+Neea floribunda Poepp. & Endl.	Nyctaginaceae	12	5.1		
+Pseudopiptadenia suaveolens (Miq.) J.W. Grimes	Leguminosae (Mimosoideae)	44.2	21.2	1	
+Pseudopiptadenia suaveolens (Miq.) J.W. Grimes	Leguminosae (Mimosoideae)	46.4	19.8	1	
+Pseudopiptadenia suaveolens (Miq.) J.W. Grimes	Leguminosae (Mimosoideae)	47.8	15.5	1	
+Pseudopiptadenia suaveolens (Miq.) J.W. Grimes	Leguminosae (Mimosoideae)	43.8	14.6		
+Pseudopiptadenia suaveolens (Miq.) J.W. Grimes	Leguminosae (Mimosoideae)				
+Vochysia guianensis Aubl.	Vochysiaceae	48	12	4	"plutôt Vochysia guianensis (48 x 12 x 4 mm, van Roosmalen 1985)? (cf. Larpin dans Belbenoit et al.; Nouragues book) Q. dinizii est sur savanna forest sur cuirasse latéritique (PMF orget, au Suriname, cf Van Roosmalen 1985)"
+Qualea rosea Aubl.	Vochysiaceae	46	12	4	Van Roosmalen 1985
+Rhodostemonodaphne kunthiana (Nees) Rohwer (= Nectandra kunthiana)	Lauraceae	12.3	7.7		
+Rhodostemonodaphne kunthiana (Nees) Rohwer (= Nectandra kunthiana)	Lauraceae	12.4	7.3		
+Rourea frutescens Aubl.	Connaraceae	10	4.5		
+Rourea frutescens Aubl.	Connaraceae	11.5	4.6		
+Rourea frutescens Aubl.	Connaraceae	10	5.4		
+Rourea frutescens Aubl.	Connaraceae	10.5	5.9		
+Serjania paucidentata DC	Sapindaceae	27.2	12.5		
+Serjania paucidentata DC	Sapindaceae	26.8	18		
+Serjania paucidentata DC	Sapindaceae	21.5	9.3		
+Stigmaphyllon sinuatum (DC.) A. Juss.	Malpighiaceae	45	15		Syn. S. fulgens (van Roosmalen 1985)
+Tachigali melinonii (Harms) Zarucchi & Herend.	Leguminosae (Caesalpinioideae)	25	12.5		Scherolobium melinonii van Roosmalen 1985
+Terminalia guyanensis Eichler	Combretaceae	60	2		Mori et al. P. 227, 2002
+Trattinnickia sp1	Burseraceae	9.7	6.3		
+Trattinnickia sp1	Burseraceae	11.6	8.9		
+Trattinnickia sp1	Burseraceae	12.8	9.5		
+Trattinnickia sp1	Burseraceae	8.5	7.6		
+Trattinnickia sp1	Burseraceae	11.8	8.7		
+Bauhinia guianensis Aubl	Leguminosae (Caesalpinioideae)	16.0	12.5		
+Cordia fulva I.M. Johnston	Boraginaceae	10.2	6.4		
+Eschweilera sagotiana Miers	Lecythidaceae	18.0	15.0		
+Forsteronia guyanensis Müll. Arg.	Apocynaceae	15.0	2.0		
+Licania majuscula Sagot	Chrysobalanaceae	35.0	32.0		
+Licania membranacea Sagot ex Laness.	Chrysobalanaceae	17.0	8.0		
+Manilkara bidentata (A. DC.) A. Chevalier	Sapotaceae	25.0	13.0		
+Manilkara huberi (Ducke) Standl.	Sapotaceae	24.0	13.0		
+Mendoncia hoffmannseggiana Nees	Acanthaceae	16.0	6.0		
+Micropholis guyanensis (A. DC.) Pierre	Sapotaceae	15.0	9.0		
+Ocotea floribunda (Swartz) Mez	Lauraceae	14.0	10.0		
+Pourouma melinonii Benoist	Urticaceae	16.0	9.0		
+Protium sagotianum Marchand	Burseraceae	16.0	8.0		
+Quararibea duckei Huber	Malvaceae	15.0	9.0		
+Stenostomum acreanum (K.Krause) Achille & Delprete (= Guettarda acreana)	Rubiaceae	8.0	5.0		
+Sterculia pruriens (Aubl.) K. Schum.	Malvaceae	19.0	14.0		
+Strychnos erichsonii M.R. Schomb. ex Progel	Loganiaceae	18.0	14.0		
+Tetragastris altissima (Aubl.) Swart	Burseraceae	22.0	12.0		
+Tetragastris panamensis (Engl.) Kuntze	Burseraceae	16.0	11.0		
+Unonopsis stipitata Diels	Annonaceae	11.0	7.0		
+Virola michelii Heckel	Myristicaceae	20.5	14.2		
