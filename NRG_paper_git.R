@@ -18,6 +18,7 @@ source("C:\\Irene\\Brunoy\\Base Datos Nouragues\\Metadata Joe Wright\\modeling m
 
 library(date)
 library(ggplot2)
+library(dplyr)
 
 ###DATASETS
 nourage <- "nouragues.txt" ## raw data with seed counts and density of seeds/m2 per census and species
@@ -2765,13 +2766,17 @@ summaryspmodels=function(data=allsppMEI){
 
 
 
+####SEED SIZE####
+
+ss = read.delim(file = "seed size.txt")
+ss_df = group_by(tbl_df(ss), sp, family)
+dimensions = summarize(ss_df, length = mean(length), width = mean(width))
+tipeI <- dimensions$sp[which(dimensions$length > 15)]
 
 
+#### STANDARD NORMAL DEVIATE #####
 
-### STANDARD NORMAL DEVIATE #####
-#################################
-
-SND=function (NRGmonthly=NRGmonthly){
+SND = function (NRGmonthly=NRGmonthly){
   
   nrgyear=aggregate(data.frame(model=NRGmonthly$model),by=list(year=NRGmonthly$year,sp=NRGmonthly$species),sum)
   #peaksummary=aggregate(data.frame(peak=dat$peak), by=list(cyle=dat$cycle),unique)
@@ -2793,7 +2798,7 @@ SND=function (NRGmonthly=NRGmonthly){
 #SNDmodel calculates the Standard Normal Deviate of the model of seed production of each species
 # and then plots the sum per month of the values of all spp
 
-SNDmodel=function (nrgyear=NRGmonthly){
+SNDmodel = function (nrgyear=NRGmonthly){
   spp=unique(nrgyear$sp)
   for (i in 1:length(spp)){    
     onesp=nrgyear[nrgyear$sp==spp[i],]
@@ -2817,7 +2822,6 @@ SNDmodel=function (nrgyear=NRGmonthly){
 
 
 ##### CLIMATIC DATA#################
-####################################
 
 meteo<-read.delim(file="MeteoFrance-Nouragues.txt")
 meteo$dates=strptime(paste("1-",meteo$Month,"-",meteo$Year), format="%d - %m - %Y")
