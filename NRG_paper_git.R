@@ -1144,11 +1144,24 @@ appendix2 = function(file="all parameters spp.txt",fileno="all parameters spp no
   #dev.off()
 }  
 
+#### SUPPLEMENTARY TABLE 1 ####
 
+stable1 = function(seed.data = "seed size.txt"){
+ss = read.delim(file = seed.data)
+ss_df = group_by(tbl_df(ss), Taxa, Family)
+
+Smythe <- character(length = dim(ss)[1])
+Smythe[which(ss$ave.L > 15)] <- "TypeI"
+Smythe[which(ss$ave.L <= 15 & ss$Dispersal.syndrome == "zoo")] <- "TypeII"
+
+ss = data.frame(ss, Smythe)
+write.table(ss, file = "supplementary table 1.txt", row.names = F, sep = "\t")
+return(ss)
+}
 
 #### SUPPLEMENTARY TABLE 3 ##################
 #file = nourage; beginyearfile = beginyearfile; spstart = 1; spend = 45; fit = results; dj=FALSE
-stable1 = function(file = nourage, beginyearfile = beginyearfile, spstart=1, spend=45, fit=results, dj=TRUE)
+stable3 = function(file = nourage, beginyearfile = beginyearfile, spstart=1, spend=45, fit=results, dj=TRUE)
 {
   
   parameters = parametersyr(file=file, beginyearfile=beginyearfile, spstart=spstart, spend=spend, fit=results, dj=TRUE)
@@ -1624,7 +1637,7 @@ ENSObiomassreg=function(biomass=biomass, climseries=ensoanomalies,variable="MEI"
   plot(biomass$franomal,type="n", xlab="time", ylab="fruit biomass anomalies (g/m?)", bty="l", axes=F, las=1, ylim=c(-2,1.5)*factor)
   axis(side=2, las=1,col="blue3")
   jan1=which(biomass$month==1)
-  axis(side=1, ,at=c(jan1[1]-12,jan1), labels=as.character(c("2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012")))
+  axis(side=1, at=c(jan1[1]-12,jan1), labels=as.character(c("2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012")))
   lines(c(comienzo:(final+1)),runningmean(biomass$franomal,k), col="blue3", lwd=2)
   legend(end-130,-3, lty=c(1,2), c("fruit biomass",variable), bty="n",col=c("blue3", "red"), horiz=T,lwd=2)
   #lines(biomass$fecha[start:(end-2)],runningmean(biomass$flowersb[start:end],k)/(160*0.5), lty=2)
@@ -1707,7 +1720,7 @@ reglag4=function(biomass=biomass, climseries=ensoanomalies,variable="MEI", month
   plot(biomass$franomal,type="n", xlab="time", ylab="fruit biomass anomalies (g/m?)", bty="l", axes=F, las=1, ylim=c(-2,1.5)*factor)
   axis(side=2, las=1,col="blue3")
   jan1=which(biomass$month==1)
-  axis(side=1, ,at=c(jan1[1]-12,jan1), labels=as.character(c("2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012")))
+  axis(side=1, at=c(jan1[1]-12,jan1), labels=as.character(c("2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012")))
   lines(c(comienzo:(final+1)),runningmean(biomass$franomal,k), col="blue3", lwd=2)
   legend(end-130,-3, lty=c(1,2), c("fruit biomass",variable), bty="n",col=c("blue3", "red"), horiz=T,lwd=2)
   #lines(biomass$fecha[start:(end-2)],runningmean(biomass$flowersb[start:end],k)/(160*0.5), lty=2)
@@ -1981,9 +1994,9 @@ ensovslocal=function(local=anomalieslocal, ensoanomalies=ensoanomalies,varlocal=
   
 }
 
-###########################################################
-###REGRESSION BETWEEN THE MODEL OF SEED PRODUCTION AND MEI
-###########################################################
+
+####REGRESSION BETWEEN THE MODEL OF SEED PRODUCTION AND MEI####
+
 
 ENSOmodreg=function(infile="nouragues results parameters per year.txt", soifile="ENSO anomalies - 2012.txt",index, Linit=1, Lfinal=12)    #L is the number of months used to calculate the mean of ENSO,
   
@@ -2167,9 +2180,8 @@ pnormmod=function(infile=NRGallspp, soifile="ENSO anomalies - 2012.txt",index, L
 
 
 
-####################################################################################
-###REGRESSION BETWEEN THE MONTHLY VALUES WITH THE MODEL OF SEED PRODUCTION AND MEI
-###################################################################################
+####REGRESSION BETWEEN THE MONTHLY VALUES WITH THE MODEL OF SEED PRODUCTION AND MEI####
+
 
 ## I am using for this regression the monthly values of the seed model
 
@@ -2498,14 +2510,6 @@ summaryspmodels=function(data=allsppMEI){
 ##sums per spp of the total number of produced seeds and contribution of the total community per species
 ##file="all parameters spp.txt";fileno="all parameters spp no Dj.txt"; beginyearfile=beginyearfile; spstart=1; spend=45
 
-
-
-####SEED SIZE####
-
-ss = read.delim(file = "seed size.txt")
-ss_df = group_by(tbl_df(ss), sp, family)
-dimensions = summarize(ss_df, length = mean(length), width = mean(width))
-tipeI <- dimensions$sp[which(dimensions$length > 15)]
 
 
 #### STANDARD NORMAL DEVIATE #####
