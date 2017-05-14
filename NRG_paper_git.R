@@ -16,7 +16,6 @@ source(".\\hierarchicalModelsRepyear_git.r")
 
 #attach('CTFSRPackage.rdata')
 
-library(date)
 library(ggplot2)
 library(dplyr)
 
@@ -1147,13 +1146,13 @@ appendix2 = function(file="all parameters spp.txt",fileno="all parameters spp no
 
 
 
-#### SUPPLEMENTARY TABLE 1 ##################
+#### SUPPLEMENTARY TABLE 3 ##################
 #file = nourage; beginyearfile = beginyearfile; spstart = 1; spend = 45; fit = results; dj=FALSE
 stable1 = function(file = nourage, beginyearfile = beginyearfile, spstart=1, spend=45, fit=results, dj=TRUE)
 {
   
   parameters = parametersyr(file=file, beginyearfile=beginyearfile, spstart=spstart, spend=spend, fit=results, dj=TRUE)
-  pp=aggregate(data.frame(peakday=parameters$peakday,  CI2peakday=parameters$CI2peakday,  CI97peakday=parameters$CI97peakday,peak=parameters$peak,  CI2peak=parameters$CI2peak,  CI97peak=parameters$CI97peak), by=list(year=parameters$cycle,sp=parameters$sp),mean)
+  pp = aggregate(data.frame(peakday = parameters$peakday,  CI2peakday=parameters$CI2peakday,  CI97peakday=parameters$CI97peakday,peak=parameters$peak,  CI2peak=parameters$CI2peak,  CI97peak=parameters$CI97peak), by=list(year=parameters$cycle,sp=parameters$sp),mean)
   yrmin=aggregate(data.frame(min=parameters$year), by=list(year=parameters$cycle,sp=parameters$sp),min)
   yrmax=aggregate(data.frame(max=parameters$year), by=list(year=parameters$cycle,sp=parameters$sp),max)
   months=list(jan=1:31,feb=32:59,mar=60:90,apr=91:120,
@@ -1204,7 +1203,7 @@ biomasstime=function(biomass=biomass, k=3) {
   plot(biomass$fruitsb,type="n", xlab="time", ylab="fruit biomass (g/m?)", ylim=c(0,6),bty="l", axes=F, las=1)
   axis(side=2, las=1,col="blue3")
   jan1=which(biomass$month==1)
-  axis(side=1, ,at=c(jan1[1]-12,jan1), labels=as.character(c("2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012")))
+  axis(side=1, at=c(jan1[1]-12,jan1), labels=as.character(c("2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012")))
   lines(c(start:(end-2)),runningmean(biomass$fruitsb,k), col="blue3", lwd=2)
   legend(end-113,0.8, lty=c(1,2), c("fruit biomass","MEI"), bty="n",col=c("blue3", "red"), horiz=T,lwd=2)
   #lines(biomass$fecha[start:(end-2)],runningmean(biomass$flowersb[start:end],k)/(160*0.5), lty=2)
