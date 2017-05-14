@@ -46,7 +46,7 @@ rmonths=unlist(months)
 #peak2=ifelse(peak>365,peak-365,peak)
 #pp2$month=names(rmonths[trunc(peak2)])  
 
-parametersyr = function(file=nourage, beginyearfile=beginyearfile,spstart=1,spend=45,fit=results, dj=FALSE)
+parametersyr = function(file = nourage, beginyearfile = beginyearfile, spstart = 1, spend = 45, fit = results, dj = FALSE)
   
 {
   
