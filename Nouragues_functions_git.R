@@ -1,3 +1,30 @@
+lengthunique=function(x) return(length(unique(x)))
+lengthisna=function(x) return(length(which(is.na(x))))
+
+
+runningmean=function(dataset,k=3) #this function calculates the running mean for a k number of observations; 
+  #dataset must be a vector including the variable of interest  
+{
+  N<-length(dataset)
+  total<-N-k+1
+  comienzo<-as.integer((k/2)+1)     
+  final<-as.integer(N-(k/2))
+  
+  counter=1
+  val=vector()
+  
+  for (i in 1:total)
+  {
+    val[i]<-mean(dataset[i:(k+i-1)])
+    counter=counter+1
+  }  
+  return(val)
+  
+}
+
+
+
+
 ###Getting the correct number of estimated number of seeds per month ###############
 
 ####1- First, extract the original parameters of peak, peakday, and SD for each species.#### 
@@ -23,45 +50,45 @@ parametersyr = function(file=nourage, beginyearfile=beginyearfile,spstart=1,spen
   
 {
   
-  sprange=spstart:spend
-  nrgdata=read.delim(file)
-  beginyr=read.delim(file=beginyearfile)
-  fulldata=merge(nrgdata,beginyr,by="sp", all.x=TRUE)
+  sprange = spstart:spend
+  nrgdata = read.delim(file)
+  beginyr = read.delim(file = beginyearfile)
+  fulldata = merge(nrgdata,beginyr,by="sp", all.x=TRUE)
   spnames=sort(unique(fulldata$sp))
   results=list()
-  spshort=spshort()
+  spshort = spshort()
   
   for (i in 1:length(sprange))
     
   {  
-    species=as.character(spnames[sprange][i])
-    bgy=beginyr$beginyr[beginyr$sp==species]
-    spdata<-extract.seedfall_onesp2(latin =species, file = file)
-    spdata2<-create.rep.year(data=spdata,beginyear=bgy)
+    species = as.character(spnames[sprange][i])
+    bgy = beginyr$beginyr[beginyr$sp==species]
+    spdata <- extract.seedfall_onesp2(latin = species, file = file)
+    spdata2 <- create.rep.year(data = spdata, beginyear = bgy)
     
     #this is for the selection of the years for model running
-    nyear= unique(spdata2$year)    
-    maxyday=numfiles=dif=numeric()
+    nyear = unique(spdata2$year)    
+    maxyday = numfiles = dif = numeric()
     for (j in 1:length(nyear))
     { 
-      oneyr=subset(spdata2,spdata2$year==nyear[j])
-      maxyday[j]<-max(oneyr$yday)
-      dif[j]<-max(oneyr$yday)-min(oneyr$yday)
-      numfiles[j]=dim(oneyr)[1]  
+      oneyr = subset(spdata2,spdata2$year == nyear[j])
+      maxyday[j] <- max(oneyr$yday)
+      dif[j] <- max(oneyr$yday)-min(oneyr$yday)
+      numfiles[j] = dim(oneyr)[1]  
     }
     
-    yearselection=data.frame(maxyday,dif,numfiles)
-    numyear=dim(yearselection)[1]
-    startv=endv=numeric()
-    startv= ifelse(yearselection$maxyday[1]>=320&dif[1]>300,nyear[1],nyear[2])
-    endv=ifelse(yearselection$maxyday[numyear]>=320&dif[numyear]>300,nyear[numyear],nyear[numyear-1])
-    inc2=which(spdata2$year>=startv&spdata2$year<=endv)
+    yearselection = data.frame(maxyday,dif,numfiles)
+    numyear = dim(yearselection)[1]
+    startv = endv = numeric()
+    startv = ifelse(yearselection$maxyday[1] >= 320 & dif[1]>300, nyear[1], nyear[2])
+    endv = ifelse(yearselection$maxyday[numyear] >= 320 & dif[numyear] > 300, nyear[numyear], nyear[numyear-1])
+    inc2 = which(spdata2$year>= startv & spdata2$year <= endv)
     
-    spsh=spshort2(spname=species)
-    fitset=fit[[spsh]] 
+    spsh = spshort2(spname=species)
+    fitset = fit[[spsh]] 
     #fittrans= retranslate.seedfalldate2(data=spdata,fit=fitset,beginyear=bgy,startyear=startyear,endyear=endyear)
-    spdata3=data.frame(spdata2[inc2,], model=fitset$model)
-    Dj=round(ifelse(bgy<182.5,bgy,bgy-366),0)
+    spdata3 = data.frame(spdata2[inc2,], model = fitset$model)
+    Dj = round(ifelse(bgy<182.5, bgy, bgy-366), 0)
     cycle=numeric()
     
     for (k in 1:nrow(spdata3))
@@ -69,10 +96,10 @@ parametersyr = function(file=nourage, beginyearfile=beginyearfile,spstart=1,spen
       cycle[k]=as.numeric(which(spdata3$year[k]==unique(spdata3$year)))
       
     }
-    spdata3$cycle=cycle
-    if (dj==TRUE) spdata3$julianew=spdata3$julian+Dj 
+    spdata3$cycle = cycle
+    if (dj==TRUE) spdata3$julianew = spdata3$julian+Dj 
     if(dj==FALSE) spdata3$julianew=spdata3$julian    #### I have included this for corrections
-    fulldate=create.fulldate(fromjulian(spdata3$julianew,dateform='%Y-%m-%d'),format='%Y-%m-%d')
+    fulldate = create.fulldate(fromjulian(spdata3$julianew,dateform='%Y-%m-%d'),format='%Y-%m-%d')
     spdata3$yearn=fulldate$year
     spdata3$monthn=fulldate$month
     spdata3$ydayn=fulldate$yday
@@ -99,7 +126,7 @@ parametersyr = function(file=nourage, beginyearfile=beginyearfile,spstart=1,spen
     }                
     
     if (dj==FALSE) {results=data.frame(newmod, peakday, CI2peakday,CI97peakday, peak, CI2peak, CI97peak, sd=fitset$bestSD, peakdaymu=fitset$besthyper[[1]],CI2hypermu=fitset$CIhyper[[1]],CI97hypermu=fitset$CIhyper[[2]],peakdaysd=fitset$besthyper[[2]], CI2hyperSD=fitset$CIhyper[[3]],CI97hyperSD=fitset$CIhyper[[4]],
-                                       peaklogmu=exp(fitset$besthyper[[3]]),CI2hyperlogmu=exp(fitset$CIhyper[[5]]),CI97hyperlogmu=exp(fitset$CIhyper[[6]]),peaklogsd=exp(fitset$besthyper[[4]]),CI2hyperlogSD=exp(fitset$CIhyper[[7]]),CI97hyperlogSD=exp(fitset$CIhyper[[8]]) )
+                                       peaklogmu= exp(fitset$besthyper[[3]]),CI2hyperlogmu=exp(fitset$CIhyper[[5]]),CI97hyperlogmu=exp(fitset$CIhyper[[6]]),peaklogsd=exp(fitset$besthyper[[4]]),CI2hyperlogSD=exp(fitset$CIhyper[[7]]),CI97hyperlogSD=exp(fitset$CIhyper[[8]]) )
     }                
     
     
