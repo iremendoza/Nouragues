@@ -1,7 +1,7 @@
 
-setwd("C:/Irene/Brunoy/Base Datos Nouragues/Metadata Joe Wright/modeling max likelihood/hierarchical models")
-load("C:\\Irene\\Brunoy\\Base Datos Nouragues\\Metadata Joe Wright\\modeling max likelihood\\CTFSRPackage.rdata")
-load("C:\\Irene\\Brunoy\\hierarchical models\\working files hierarchical models\\NRG-results.Rdata")
+#setwd("C:/Irene/Brunoy/Base Datos Nouragues/Metadata Joe Wright/modeling max likelihood/hierarchical models")
+
+#load("C:\\Irene\\Brunoy\\hierarchical models\\working files hierarchical models\\NRG-results.Rdata")
 #source("C:\\Brunoy\\Base Datos Nouragues\\Metadata Joe Wright\\modeling max likelihood\\BCI-max likelihood.r")
 #attach('CTFSRPackage.rdata')
 
