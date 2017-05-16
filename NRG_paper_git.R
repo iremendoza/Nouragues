@@ -336,7 +336,8 @@ figure3 = function(file = "Nouragues results hyperparameters.txt", longnames="to
   long[long$longname == "Tetragastris panamensis", 2:4] = long[long$longname == "Tetragastris panamensis", 2:4] + 365.25
   long[long$longname == "Licania membranacea", 2:4] = long[long$longname == "Licania membranacea", 2:4] + 365.25
   
-  dat <- data.frame(sp = factor(long$longname[order(long$mu)], levels = long$longname[order(long$mu)]), mu = long$mu[order(long$mu)], CImu2 = long$CImu2[order(long$mu)], CImu97 = long$CImu97[order(long$mu)], Smythe = long$Smythe[order(long$mu)], disp = long$disp[order(long$mu)])
+  dat <- data.frame(sp = factor(long$longname[order(long$mu)], levels = long$longname[order(long$mu)]), mu = long$mu[order(long$mu)], CImu2 = long$CImu2[order(long$mu)], CImu97 = long$CImu97[order(long$mu)], 
+                    SD = long$SD[order(long$mu)], Smythe = long$Smythe[order(long$mu)], disp = long$disp[order(long$mu)])
   
   zoo = which(dat$disp == "zoo")
   bal = which(dat$disp == "bal")
@@ -350,10 +351,14 @@ figure3 = function(file = "Nouragues results hyperparameters.txt", longnames="to
   tiff(filename = filename, height = 2000, width = 3000, res = 300)
   par(las = 1, mar = c(3,13,1,1), oma = c(2,4,1,1), cex = 0.6)
   
-  plot(dat$mu, 1:45, ylim = c(0, 50), xlim = c(-50, 400), pch = 21, bg = colores, cex = 1.5, ylab = "", xlab = "", axes = F)
+  plot(dat$mu, 1:45, ylim = c(0, 50), xlim = c(-80, 450), pch = 21, bg = colores, cex = 1.5, ylab = "", xlab = "", axes = F)
   axis(side=1, at=c(1,32,60,92,122,152,183,214,245,275,306,336,366), labels = c("J", "F", "M", "A","M", "J", "J", "A", "S","O","N","D","J"), cex.axis = 1.5)
-  segments(x0 = dat$mu, x1 = dat$CImu2, y0 = 1:45, y1 = 1:45)
-  segments(x0 = dat$mu, x1 = dat$CImu97, y0 = 1:45, y1 = 1:45)
+  #segments(x0 = dat$mu, x1 = dat$CImu2, y0 = 1:45, y1 = 1:45)
+  #segments(x0 = dat$mu, x1 = dat$CImu97, y0 = 1:45, y1 = 1:45)
+  segments(x0 = dat$mu-dat$SD, x1 = dat$mu+dat$SD, y0 = 1:45, y1 = 1:45)
+  #segments(x0 = dat$mu, x1 = dat$CImu97, y0 = 1:45, y1 = 1:45)
+  
+  
   polygon(c(212, 334, 334, 212),c(0, 0,50,50),col = "#CCCCCC42", border = NA)
   axis(side = 2, at = 1:45, labels = dat$sp[seq(1,45,1)],las = 2, font = 3, cex.axis = 1.2)
   legend(10, 44, lty = c(1,1), pch = 21, legend = c("biotic","abiotic"), pt.bg = c("red", "blue"), bty = "n", cex = 1.5, horiz = T, lwd = 2)
@@ -394,12 +399,12 @@ figure3.old = function(file = "Nouragues results hyperparameters.txt", filename 
   axis(side=1, at=c(0,60,120,180,240,300,360,420), labels=c("0","60","120","180","240","300","360","365"))
   axis(side=2, at=c(seq(0,15,5)), labels=T,las=1)
   data.frame(breaks=tt$breaks[1:length(tt$breaks)-1], counts=tt$counts)
-  tsd=hist(tr$SD,breaks=c(0,15,30,45,60,75,90,105,120,135),xlab="",ylab="",main="", axes=F, right=F)
-  mtext(1,text="variation of peakday (hyperSD)",line=2.5,cex=1)
-  
-  axis(side=2)
-  axis(side=1, at=c(0,15,30,45,60,75,90,105,120,135), labels=T)
+  tsd=hist(tr$SD,breaks=c(0,15,30,45,60,75,90,105,120),xlab="",ylab="",main="", axes=F, right=F)
+  mtext(1,text = "variation of peakday (number of days)",line = 2.5, cex = 1)
+   axis(side=2, las = 2)
+  axis(side=1, at=c(0,15,30,45,60,75,90,105,120), labels=T, las = 1)
   #c("0","","","45","","","90","","","135")
+  
   data.frame(breaks=tsd$breaks[1:length(tsd$breaks)-1], counts=tsd$counts)
   #hist(exp(t$logmu)+1,xlab="peak of seed production (number seeds/year)",ylab="number of species",main=site)
   #hist(exp(t$logSD)+1,xlab="SD of peak of seed production (number seeds/year)",ylab="number of species",main=site)
@@ -619,8 +624,6 @@ figure5=function(file=nourage, fit=results, beginyearfile=beginyearfile)
 
 
 ####FIGURE 5b OF THE PAPER ###############
-
-
 ## figure 5b is a short version of figure5 for the FAPESP relatorio cientifico
 
 figure5b=function(file=nourage, fit=results, beginyearfile=beginyearfile)
@@ -730,7 +733,6 @@ figure5b=function(file=nourage, fit=results, beginyearfile=beginyearfile)
 
 
 #### FIGURE 6 ################################
-
 ##figure6 plots the contribution of each species to the total amount of seed production per year
 
 #figure6(file="all parameters spp.txt",fileno="all parameters spp no Dj.txt", beginyearfile=beginyearfile, spstart=1, spend=45, graph=5,longnames="total number of seeds per species.txt",graphname="figure6.tif")
@@ -921,7 +923,6 @@ figure7=function(biomass=biomass,estfile="number total spp per month estimated.t
 
 
 ####FIGURE 7b OF THE PAPER ###############
-
 #figure7b function only includes the graph of biomass and estimated number of species against MEI
 figure7b=function(biomass=biomass,estfile="number total spp per month estimated.txt", k=3)
   
