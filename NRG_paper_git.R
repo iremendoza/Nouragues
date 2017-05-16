@@ -1,6 +1,6 @@
 
-load(".\\NRG.results2.Rdata")
-load(".\\tetpan2.Rdata")
+#load(".\\NRG.results2.Rdata")
+#load(".\\tetpan2.Rdata")
 
 setwd("C:\\Projects\\Nouragues")
 #setwd("C:\\Brunoy\\hierarchical models\\working files hierarchical models\\")
@@ -72,7 +72,7 @@ clim$yday=clim$dates$yday+1
 ### beautiful graph of mean number of species  and climatogram ###
 
 #figure1(datfile="new",graphname="figure1.tif",est=est,biomass=biomass)
-figure1=function(datfile=c("new", "old"),graphname="figure1.tif",est=est,biomass=biomass)
+figure1 = function(datfile = c("new", "old"), graphname="figure1.tif", est = est, biomass = biomass, newman = "Nouragues manual estimated new.txt")
   #newman is the estimated dataset of local climate from the climatic station of Nouragues
   #old datafile referes to "local climate data Nouragues.txt"
 {
@@ -84,8 +84,8 @@ figure1=function(datfile=c("new", "old"),graphname="figure1.tif",est=est,biomass
   }
   
   if (datfile == "new") {
-    dat=newman
-    dry=aggregate(data.frame(rain=dat$raine), by=list(Month=dat$Month,Year=dat$Year), sum,na.rm=T)
+    dat = read.delim(newman)
+    dry = aggregate(data.frame(rain=dat$raine), by = list(Month=dat$Month,Year=dat$Year), sum,na.rm=T)
     for (k in 1:dim(dry)[1]){   
       dry$lack[k]=length(which(is.na(dat$raine[dat$Year==dry$Year[k]&dat$Month==dry$Month[k]])==T))
     }
@@ -151,7 +151,7 @@ figure1=function(datfile=c("new", "old"),graphname="figure1.tif",est=est,biomass
   axis(1, at = 1:12, labels = labels)
   axis(2, at = 100*1:5, col.axis = "blue")
   axis(4, at = 200*1:4, labels = 10*1:4, col.axis = "red")
-  mtext("Temperature (?C)", 4, las = 3, line = 3, col = "red")
+  mtext("Temperature (ºC)", 4, las = 3, line = 3, col = "red")
   mtext("Precipitation (mm)", 2, las = 3, line = 3, col = "blue")
   
   
@@ -311,18 +311,84 @@ figure2nodispersal=function(trfile="Nouragues results hyperparameters.txt",longn
 
 ###FIGURE 3 OF THE PAPER ###############
 ##how many species had their peaks during the wet season?
+figure3 = function(file = "Nouragues results hyperparameters.txt", longnames="total number of seeds per species.txt", filename = "figure3.tif"){
+  
+  tr = read.delim(file)
+  tr$mu2 = tr$mu
+  tr$mu2[which(tr$mu<=0)] = tr$mu[which(tr$mu<=0)]+365.25
+  tr$mu2[which(tr$mu>365)] = tr$mu[which(tr$mu>365)]-365.25
+  
+  tr$CImu2.2 = tr$CImu2
+  #tr$CImu2.2[which(tr$CImu2 <= 0)] = tr$CImu2[which(tr$CImu2 <= 0)]+365.25
+  tr$CImu2.2[which(tr$CImu2 > 365)] = tr$CImu2[which(tr$CImu2 > 365)]-365.25
+ 
+  tr$CImu97.2 = tr$CImu97
+  #tr$CImu97.2[which(tr$CImu97 <= 0)] = tr$CImu97[which(tr$CImu97 <= 0)]+365.25
+  tr$CImu97.2[which(tr$CImu97 > 365)] = tr$CImu97[which(tr$CImu97 > 365)]-365.25
+  
+   
+  totseed = read.delim(file = longnames)
+  names(totseed) = c("species", "longname", "totseed", "form", "disp", "fruit", "length", "width", "Smythe")
+  long = merge(tr, totseed, by ="species")
+  type1 = subset(long, long$Smythe == "Type 1")
+  type2 = subset(long, long$Smythe == "Type 2")
+  long[long$longname == "Serjania paucidentata", 2:4] = long[long$longname == "Serjania paucidentata", 2:4] - 365.25
+  long[long$longname == "Tetragastris panamensis", 2:4] = long[long$longname == "Tetragastris panamensis", 2:4] + 365.25
+  long[long$longname == "Licania membranacea", 2:4] = long[long$longname == "Licania membranacea", 2:4] + 365.25
+  
+  dat <- data.frame(sp = factor(long$longname[order(long$mu)], levels = long$longname[order(long$mu)]), mu = long$mu[order(long$mu)], CImu2 = long$CImu2[order(long$mu)], CImu97 = long$CImu97[order(long$mu)], Smythe = long$Smythe[order(long$mu)], disp = long$disp[order(long$mu)])
+  
+  zoo = which(dat$disp == "zoo")
+  bal = which(dat$disp == "bal")
+  ane = which(dat$disp == "ane")
+  
+  colores = character(length = 45)
+  colores[zoo] = "red"
+  colores[ane] = "blue"
+  colores[bal] = "blue"
+  
+  tiff(filename = filename, height = 2000, width = 3000, res = 300)
+  par(las = 1, mar = c(3,13,1,1), oma = c(2,4,1,1), cex = 0.6)
+  
+  plot(dat$mu, 1:45, ylim = c(0, 50), xlim = c(-50, 400), pch = 21, bg = colores, cex = 1.5, ylab = "", xlab = "", axes = F)
+  axis(side=1, at=c(1,32,60,92,122,152,183,214,245,275,306,336,366), labels = c("J", "F", "M", "A","M", "J", "J", "A", "S","O","N","D","J"), cex.axis = 1.5)
+  segments(x0 = dat$mu, x1 = dat$CImu2, y0 = 1:45, y1 = 1:45)
+  segments(x0 = dat$mu, x1 = dat$CImu97, y0 = 1:45, y1 = 1:45)
+  polygon(c(212, 334, 334, 212),c(0, 0,50,50),col = "#CCCCCC42", border = NA)
+  axis(side = 2, at = 1:45, labels = dat$sp[seq(1,45,1)],las = 2, font = 3, cex.axis = 1.2)
+  legend(10, 44, lty = c(1,1), pch = 21, legend = c("biotic","abiotic"), pt.bg = c("red", "blue"), bty = "n", cex = 1.5, horiz = T, lwd = 2)
+  mtext(side = 1, line = 3, text = "date of peaks (month of the year)")
+  
+  # The errorbars overlapped, so use position_dodge to move them horizontally
+ # pd <- position_dodge(0.1) # move them .05 to the left and right
+  #ggplot(dat, aes (x = mu, y = sp)) +
+   # geom_point(position = pd) +
+  #  geom_errorbar(aes(ymin = CImu2, ymax = CImu97), stat = "identity", width=.1, position=pd) 
+  #+
+    #geom_errorbar(aes(ymin = CImu2, ymax = CImu2), width=.1, position = )
+  dev.off()
+ }  
 
-figure3=function(file="Nouragues results hyperparameters.txt",filename="figure3.tif"){
+figure3.old = function(file = "Nouragues results hyperparameters.txt", filename = "figure3_old.tif"){
   
-  tr=read.delim(file)
-  tr$mu2=tr$mu
-  tr$mu2[which(tr$mu<=0)]= tr$mu[which(tr$mu<=0)]+365.25
-  tr$mu2[which(tr$mu>365)]= tr$mu[which(tr$mu>365)]-365.25
+  tr = read.delim(file)
+  str(tr)
+  tr$mu2 = tr$mu
+  tr$mu2[which(tr$mu<=0)] = tr$mu[which(tr$mu<=0)]+365.25
+  tr$mu2[which(tr$mu>365)] = tr$mu[which(tr$mu>365)]-365.25
   
-  tiff(filename=filename,height=1000,width=2000,res=300)
-  par(mfrow=c(1,2),las=1,mar=c(3,3,1,0),oma=c(2,2,1,1),cex=0.6)
+  totseed = read.delim(file = longnames)
+  names(totseed) = c("species", "longname", "totseed", "form", "disp", "fruit", "length", "width", "Smythe")
+  long = merge(tr, totseed, by ="species")
+  type1 = subset(long, long$Smythe == "Type 1")
+  type2 = subset(long, long$Smythe == "Type 2")
+  
+  sort(long$mu2)
+  
+  tiff(filename = filename, height = 1000, width = 2000, res = 300)
+  par(mfrow = c(1,2), las = 1, mar = c(3,3,1,0), oma = c(2,2,1,1), cex = 0.6)
   #tt=hist(tr$mu2, breaks=c(0,30,60,90,120,150,180,210,240,270,300,330,360,390), xlab="",ylab="",right=FALSE,  axes=F, main="", ylim=c(0,9))
-  tt=hist(tr$mu2, breaks=c(0,60,120,180,240,300,360,420), xlab="",ylab="",right=FALSE,  axes=F, main="",ylim=c(0,15),cex=0.5)
+  tt = hist(tr$mu2, breaks=c(0,60,120,180,240,300,360,420), xlab="",ylab="",right=FALSE,  axes=F, main="",ylim=c(0,15),cex=0.5)
   mtext(1,text="peakday (hypermean)",line=2.5,cex=1)
   mtext(2,text="number of species",line=3,cex=1.5,las=0)
   axis(side=1, at=c(0,60,120,180,240,300,360,420), labels=c("0","60","120","180","240","300","360","365"))
@@ -342,26 +408,10 @@ figure3=function(file="Nouragues results hyperparameters.txt",filename="figure3.
   dev.off()
 }  
 
-CVspp=function (file = "nouragues results parameters per year.txt",cex.val=1.25) 
-{
-  par(mar = c(3, 3, 1, 1), cex = cex.val)
-  nrg = read.delim(file)
-  spnames = sort(unique(nrg$sp))
-  spmeans = aggregate(data.frame(peak = nrg$peak), by = list(species = nrg$species), 
-                      mean)
-  spsd = aggregate(data.frame(peak = nrg$peak), by = list(species = nrg$species), 
-                   sd)
-  condensed = merge(spmeans, spsd, by = "species")
-  names(condensed) = c("species", "mean", "sd")
-  condensed$CV = condensed$sd/condensed$mean
-  hist(condensed$CV, breaks = 8, xlab = "", main = "", ylab = "", 
-       lwd = 2, col = "grey", las = 1)
-}
-
 
 ####FIGURE 4 OF THE PAPER ###############
 
-figure4 = function(file = "nouragues results parameters per year.txt", longnames="total number of seeds per species.txt",filename="figure4.tif") {
+figure4 = function(file = "nouragues results parameters per year.txt", longnames="total number of seeds per species.txt", filename="figure4.tif") {
   
   nrg = read.delim(file)
   #spnames=sort(unique(nrg$sp))
@@ -390,7 +440,7 @@ figure4 = function(file = "nouragues results parameters per year.txt", longnames
   axis(side=2, at=c(0,1,2,3), labels=c("0","1","2","3") ,las=2, cex.axis=1.75)
   mtext(side=2, "Coefficient of variation", line=3,cex=2, las=3)
   #axis(side=1, at=seq(0.5,45,2), labels=condensed2$longname[orco][seq(1,45,2)],las=2,font=3, cex.axis=1.5)
-  axis(side=1, at=seq(0.5,45,1), labels=condensed2$longname[orco][seq(1,45,1)],las=2,font=3, cex.axis=1.5)
+  axis(side=1, at=seq(0.5,45,1), labels = condensed2$longname[orco][seq(1,45,1)],las=2,font=3, cex.axis=1.5)
   abline(h=1,lwd=2)
   text(0,2.5, "A", cex=2)
   legend(4,3,fill=c("gray28","white"),legend=c("biotic","abiotic"),bty="n",cex=2)
@@ -568,10 +618,8 @@ figure5=function(file=nourage, fit=results, beginyearfile=beginyearfile)
 }
 
 
+####FIGURE 5b OF THE PAPER ###############
 
-########################################
-###FIGURE 5b OF THE PAPER ###############
-########################################
 
 ## figure 5b is a short version of figure5 for the FAPESP relatorio cientifico
 
@@ -682,7 +730,6 @@ figure5b=function(file=nourage, fit=results, beginyearfile=beginyearfile)
 
 
 #### FIGURE 6 ################################
-
 
 ##figure6 plots the contribution of each species to the total amount of seed production per year
 
@@ -1051,7 +1098,7 @@ figure7d=function(file="Nouragues model all spp.txt",fileno="NRG model all spp w
 
 ###### FIGURE APPENDIX 1 ####################################################
 
-appendix1=function(file = nourage, fit= results, beginyearfile = beginyearfile)
+appendix1 = function(file = nourage, fit= results, beginyearfile = beginyearfile)
 {
   high=c(5,33,35,37)
   low=c(4,11,18,19,23,25,26,28,32,34,40,45)
@@ -1082,7 +1129,7 @@ appendix1=function(file = nourage, fit= results, beginyearfile = beginyearfile)
   nrg.graphsmoved.low(file=nourage, fit=results, beginyearfile=beginyearfile,spnumber=c(45), filename="appendix1-22.pdf",longnames="total number of seeds per species.txt")
 }
 
-####APPENDIX 2 ###############  for the ATBC 2016 talk
+#### APPENDIX 2 (for the ATBC 2016 talk) ###############  
 ##What was the trend of peak parameter?
 
 appendix2 = function(file="all parameters spp.txt",fileno="all parameters spp no Dj.txt", beginyearfile=beginyearfile, spstart=1, spend=45,graph=5,longnames="total number of seeds per species.txt",startyear=2001,endyear=2010,filename="appendix2.tiff"){
@@ -1141,6 +1188,16 @@ return(ss)
 }
 
 #### SUPPLEMENTARY TABLE 2 ####
+
+stable2 = function(file = "Nouragues results hyperparameters.txt"){
+  
+  tr = read.delim(file)
+  str(tr)
+  tr$mu2 = tr$mu
+  tr$mu2[which(tr$mu<=0)] = tr$mu[which(tr$mu<=0)]+365.25
+  tr$mu2[which(tr$mu>365)] = tr$mu[which(tr$mu>365)]-365.25
+  
+}
 
 #### SUPPLEMENTARY TABLE 3 ##################
 #file = nourage; beginyearfile = beginyearfile; spstart = 1; spend = 45; fit = results; dj=FALSE
@@ -2762,8 +2819,6 @@ comparisonNrgMeteo<-function(meteo=meteo, climraw=climraw){
   
 commonroch=climraw[which(climraw$julian %in% autoraw$julian),]
 lm1<-lm(climraw$Rainfall~rochambeau$rainfall)
-
-
 
 }
 

@@ -2,7 +2,7 @@ lengthunique=function(x) return(length(unique(x)))
 lengthisna=function(x) return(length(which(is.na(x))))
 
 
-runningmean=function(dataset,k=3) #this function calculates the running mean for a k number of observations; 
+runningmean = function(dataset, k = 3) #this function calculates the running mean for a k number of observations; 
   #dataset must be a vector including the variable of interest  
 {
   N<-length(dataset)
@@ -38,6 +38,7 @@ runningmean=function(dataset,k=3) #this function calculates the running mean for
 #yrmin=aggregate(data.frame(min=parameters$year), by=list(year=parameters$cycle,sp=parameters$sp),min)
 #yrmax=aggregate(data.frame(max=parameters$year), by=list(year=parameters$cycle,sp=parameters$sp),max)
 #pp2=data.frame(sp=pp$sp, cycle=pp$year,years=paste(yrmin$min,"-",yrmax$max), peakdays=round(pp$peakday,2), CIpeakday= paste(round(pp$CI2peakday,2),"-" ,round(pp$CI97peakday,2)), peak=round(pp$peak,2), CIpeak=paste(round(pp$CI2peak,2),"-", round(pp$CI97peak,2)))
+
 months = list(jan = 1:31, feb=32:59, mar=60:90, apr=91:120,
             may=121:151, jun=152:181, jul=182:212, aug=213:243, sep=244:273, oct=274:304, nov=305:334, dec=335:365)
 rmonths=unlist(months)
