@@ -19,27 +19,30 @@ source(".\\hierarchicalModelsRepyear_git.r")
 library(ggplot2)
 library(dplyr)
 
-###DATASETS
+####DATASETS####
+
 nourage <- "nouragues.txt" ## raw data with seed counts and density of seeds/m2 per census and species
 beginyearfile <- "beginyearseeds 2011 newfecha_NRG.txt"
-biomassraw = read.delim(file="biomass raw.txt")
-biomassraw$fecha = create.fulldate(biomassraw$date, format="%d/%m/%Y")
-summonth = aggregate(data.frame(fruits=biomassraw$fruits, flowers=biomassraw$flowers), by=list(month=biomassraw$month, year=biomassraw$year),sum)
-nbcens = aggregate(data.frame(nbcens=biomassraw$Census), by=list(month=biomassraw$month, year=biomassraw$year),lengthunique)
-summonth$nbcens=nbcens$nbcens
-summonth$fr=summonth$fruits/summonth$nbcens
-summonth$fl=summonth$flowers/summonth$nbcens
-biomass=read.delim(file="biomass all months.txt") ##this dataset includes the biomass values per month and standarized by the number of censuses
-ensoanomalies <- read.delim(file="ENSO anomalies - 2012.txt")
-nrgraw = read.delim("nrg 2011.txt",header=T)
-NRGallspp=read.delim(file="Nouragues model all spp.txt")
-NRGallsppnoDj=read.delim("NRG model all spp without Dj.txt") #this dataset includes all the parameters models without the correction for date 
-NRGmonthly=read.delim(file="monthly values of seed model.txt")
-nrghyper=read.delim(file="Nouragues results hyperparameters.txt")
-est<-read.delim("number total spp per month estimated.txt",header=T)
-totseed<-read.delim(file="total number of seeds per species.txt")
+
+#biomassraw = read.delim(file="biomass raw.txt")
+#biomassraw$fecha = create.fulldate(biomassraw$date, format="%d/%m/%Y")
+#summonth = aggregate(data.frame(fruits=biomassraw$fruits, flowers=biomassraw$flowers), by=list(month=biomassraw$month, year=biomassraw$year),sum)
+#nbcens = aggregate(data.frame(nbcens=biomassraw$Census), by=list(month=biomassraw$month, year=biomassraw$year),lengthunique)
+#summonth$nbcens=nbcens$nbcens
+#summonth$fr=summonth$fruits/summonth$nbcens
+#summonth$fl=summonth$flowers/summonth$nbcens
+#biomass = read.delim(file="biomass all months.txt") ##this dataset includes the biomass values per month and standarized by the number of censuses
+#ensoanomalies <- read.delim(file="ENSO anomalies - 2012.txt")
+#nrgraw = read.delim("nrg 2011.txt",header=T)
+#NRGallspp=read.delim(file="Nouragues model all spp.txt")
+#NRGallsppnoDj=read.delim("NRG model all spp without Dj.txt") #this dataset includes all the parameters models without the correction for date 
+#NRGmonthly=read.delim(file="monthly values of seed model.txt")
+#nrghyper=read.delim(file="Nouragues results hyperparameters.txt")
+#est<-read.delim("number total spp per month estimated.txt",header=T)
+#totseed<-read.delim(file="total number of seeds per species.txt")
+
 clim <- read.table("local climate data Nouragues.txt", header = T)
-nrgprior<-read.delim(file="Nouragues priors per year.txt")
+#nrgprior<-read.delim(file="Nouragues priors per year.txt")
 clim$dates=strptime(paste("1-",clim$month,"-",clim$year), format="%d - %m - %Y")
 clim$julian=tojulian(clim$dates,dateform = "%Y-%m-%d")
 clim$yday=clim$dates$yday+1
@@ -47,43 +50,21 @@ clim$month=clim$dates$mon+1
 clim$dates=strptime(paste("1-",clim$month,"-",clim$year), format="%d - %m - %Y")
 clim$julian=tojulian(clim$dates,dateform = "%Y-%m-%d")
 clim$yday=clim$dates$yday+1
-census<-read.delim(file="census list.txt")
 
-climraw<-read.delim(file="Nouragues climate 2003-2012_manual.txt") ##this includes raw data of local climate at Nouragues (manual station)
-climraw$dates=strptime(paste(climraw$Day,"-",climraw$Month,"-",climraw$Year), format="%d - %m - %Y")
-climraw$julian=tojulian(climraw$dates,dateform = "%Y-%m-%d")
-is.na(climraw$TempMin)<-which(climraw$TempMin<19)
+#census<-read.delim(file="census list.txt")
 
-autoraw<-read.delim(file="Nouragues_automatique climat journalieres 2006-2009.txt")
-autoraw$dates=strptime(paste(autoraw$Day,"-",autoraw$Month,"-",autoraw$Year), format="%d - %m - %Y")
-autoraw$julian=tojulian(autoraw$dates,dateform = "%Y-%m-%d")
+#climraw<-read.delim(file="Nouragues climate 2003-2012_manual.txt") ##this includes raw data of local climate at Nouragues (manual station)
+#climraw$dates=strptime(paste(climraw$Day,"-",climraw$Month,"-",climraw$Year), format="%d - %m - %Y")
+#climraw$julian=tojulian(climraw$dates,dateform = "%Y-%m-%d")
+#is.na(climraw$TempMin)<-which(climraw$TempMin<19)
 
-newman=read.delim(file="Nouragues manual estimated new.txt")
-newmansummary=aggregate(data.frame(tmin=newman$tmine,tmax=newman$tmaxe,rain=newman$raine),by=list( month=newman$Month,year=newman$Year),mean, na.rm=T)
+#autoraw<-read.delim(file="Nouragues_automatique climat journalieres 2006-2009.txt")
+#autoraw$dates=strptime(paste(autoraw$Day,"-",autoraw$Month,"-",autoraw$Year), format="%d - %m - %Y")
+#autoraw$julian=tojulian(autoraw$dates,dateform = "%Y-%m-%d")
 
-lengthunique=function(x) return(length(unique(x)))
-lengthisna=function(x) return(length(which(is.na(x))))
+#newman=read.delim(file="Nouragues manual estimated new.txt")
+#newmansummary=aggregate(data.frame(tmin=newman$tmine,tmax=newman$tmaxe,rain=newman$raine),by=list( month=newman$Month,year=newman$Year),mean, na.rm=T)
 
-
-runningmean=function(dataset,k=3) #this function calculates the running mean for a k number of observations; 
-  #dataset must be a vector including the variable of interest  
-{
-  N<-length(dataset)
-  total<-N-k+1
-  comienzo<-as.integer((k/2)+1)     
-  final<-as.integer(N-(k/2))
-  
-  counter=1
-  val=vector()
-  
-  for (i in 1:total)
-  {
-    val[i]<-mean(dataset[i:(k+i-1)])
-    counter=counter+1
-  }  
-  return(val)
-  
-}
 
 ####FIGURES OF THE PAPER####
 
@@ -380,13 +361,13 @@ CVspp=function (file = "nouragues results parameters per year.txt",cex.val=1.25)
 
 ####FIGURE 4 OF THE PAPER ###############
 
-figure4 = function(file="nouragues results parameters per year.txt",longnames="total number of seeds per species.txt",filename="figure4.tif") {
+figure4 = function(file = "nouragues results parameters per year.txt", longnames="total number of seeds per species.txt",filename="figure4.tif") {
   
-  nrg=read.delim(file)
+  nrg = read.delim(file)
   #spnames=sort(unique(nrg$sp))
-  totseed=read.delim(file=longnames)
-  names(totseed)=c("species","longname","totseed","form","disp","fruit")
-  spnames2=totseed$longname
+  totseed = read.delim(file=longnames)
+  names(totseed) = c("species", "longname", "totseed", "form", "disp", "fruit", "length", "width", "Smythe")
+  spnames2 = totseed$longname
   spmeans=aggregate(data.frame(peak=nrg$peak),by=list(species=nrg$species),mean)
   spsd=aggregate(data.frame(peak=nrg$peak),by=list(species=nrg$species),sd)
   condensed=merge(spmeans, spsd, by="species")
@@ -1158,6 +1139,8 @@ ss = data.frame(ss, Smythe)
 write.table(ss, file = "supplementary table 1.txt", row.names = F, sep = "\t")
 return(ss)
 }
+
+#### SUPPLEMENTARY TABLE 2 ####
 
 #### SUPPLEMENTARY TABLE 3 ##################
 #file = nourage; beginyearfile = beginyearfile; spstart = 1; spend = 45; fit = results; dj=FALSE
@@ -2561,18 +2544,18 @@ SNDmodel = function (nrgyear=NRGmonthly){
 
 ##### CLIMATIC DATA#################
 
-meteo<-read.delim(file="MeteoFrance-Nouragues.txt")
-meteo$dates=strptime(paste("1-",meteo$Month,"-",meteo$Year), format="%d - %m - %Y")
-meteo$julian=tojulian(meteo$dates,dateform = "%Y-%m-%d")
-meteo$yday=meteo$dates$yday+1
+meteo <- read.delim(file="MeteoFrance-Nouragues.txt")
+meteo$dates = strptime(paste("1-",meteo$Month,"-",meteo$Year), format="%d - %m - %Y")
+meteo$julian = tojulian(meteo$dates,dateform = "%Y-%m-%d")
+meteo$yday = meteo$dates$yday+1
 
-rochambeau<-meteo[meteo$Station=="Rochambeau",]
-stgeorges<-meteo[meteo$Station=="Saint Georges",]
-saul<-meteo[meteo$Station=="Saul",]
-camopi<-meteo[meteo$Station=="Camopi",]
-noura<-meteo[meteo$Station=="Nouragues",]
+rochambeau <- meteo[meteo$Station=="Rochambeau",]
+stgeorges <- meteo[meteo$Station=="Saint Georges",]
+saul <- meteo[meteo$Station=="Saul",]
+camopi <- meteo[meteo$Station=="Camopi",]
+noura <- meteo[meteo$Station=="Nouragues",]
 regina<-meteo[meteo$Station=="Regina",]
-roura<-meteo[meteo$Station=="Roura",]
+roura <- meteo[meteo$Station=="Roura",]
 
 
 
