@@ -1,46 +1,46 @@
-sp	longname	totseed	form	disp	fruit
-Acacia tenuifolia	Acacia tenuifolia 	1207	Liana	ane	dry
-Arrabidaea chica	Fridericia chica 	1385	Liana	bal	dry
-Bauhinia guianensis	Bauhinia guianensis 	157	Liana	zoo	dry
-Bombacaceae sp1	Bombacaceae sp1	141	Liana	ane	dry
-Coccoloba parimensis	Coccoloba excelsa 	186	Tree	zoo	dry
-Cordia fulva	Cordia fulva 	123	Tree	ane	dry
-Couratari multiflora	Couratari multiflora 	164	Tree	ane	dry
-Dicorynia guianensis	Dicorynia guianensis 	1163	Tree	ane	dry
-Diplotropis purpurea	Diplotropis purpurea 	82	Tree	ane	dry
-Eperua falcata	Eperua falcata 	56	Tree	zoo	fleshy
-Eschweilera sagotiana	Eschweilera sagotiana 	24	Liana	ane	dry
-Forsteronia guyanensis	Forsteronia guyanensis 	197	Liana	ane	dry
-Gouania blanchetiana	Gouania blanchetiana 	4505	Liana	ane	dry
-Guettarda acreana	Stenostomum acreanum 	1523	Liana	ane	dry
-Hippocratea volubilis	Hippocratea volubilis 	659	Tree	ane	dry
-Hymenolobium pulcherrimum	Hymenolobium pulcherrimum	409	Tree	zoo	fleshy 
-Licania majuscula	Licania majuscula	182	Tree	zoo	fleshy 
-Licania membranacea	Licania membranacea	1695	Liana	ane	dry
-Machaerium altiscandens	Machaerium microphyllum	130	Tree	zoo	fleshy
-Manilkara bidentata	Manilkara bidentata	120	Tree	zoo	fleshy
-Manilkara huberi	Manilkara huberi	118	Liana	zoo	Fleshy
-Mendoncia hoffmannseggiana	Mendoncia hoffmannseggiana	177	Tree	zoo	fleshy
-Micropholis guyanensis	Micropholis guyanensis	1317	Liana	ane	dry
-Mimosa guilandinae	Mimosa guilandinae	1115	Tree	zoo	fleshy
-Neea floribunda	Neea floribunda	70	Tree	zoo	fleshy
-Ocotea floribunda	Ocotea floribunda	315	Tree	zoo	fleshy
-Pourouma melinonii	Pourouma melinonii	101	Tree	zoo	fleshy
-Protium sagotianum	Protium sagotianum	271	Tree	ane	dry
-Pseudopiptadenia suaveolens	Pseudopiptadenia suaveolens	558	Tree	ane	dry
-Qualea dinizii	Qualea dinizii	752	Tree	ane	dry
-Qualea rosea	Qualea rosea	149	Tree	zoo	Fleshy?
-Quararibea duckei	Quararibea duckei	178	Tree	zoo	fleshy
-Rhodostemonodaphne kunthiana	Rhodostemonodaphne kunthiana	17	Liana	zoo	Fleshy
-Rourea frutescens	Rourea frutescens	233	Liana	ane	dry
-Serjania paucidentata	Serjania paucidentata	162	Tree	zoo	fleshy
-Sterculia pruriens	Sterculia pruriens	183	Tree	zoo	dry
-Stigmaphyllon sinuatum	Stigmaphyllon sinuatum	216	Liana	ane	Dry
-Strychnos erichsonii	Strychnos erichsonii	324	Liana	zoo	Fleshy
-Tachigali melinonii	Tachigali melinonii	255	Tree	ane	Dry
-Terminalia guyanensis	Terminalia guyanensis	150	Tree	ane	dry
-Tetragastris altissima	Tetragastris altissima	198	Tree	zoo	Fleshy
-Tetragastris panamensis	Tetragastris panamensis	195	Tree	zoo	fleshy
-Trattinnickia sp1	Trattinnickia sp1	59	Tree	zoo	Fleshy
-Unonopsis stipitata	Unonopsis stipitata	60	Tree	zoo	fleshy
-Virola michelii	Virola michelii	118	Tree	zoo	fleshy
+sp	longname	totseed	form	disp	fruit	length	width	Smythe
+Acacia tenuifolia	Acacia tenuifolia 	1207	Liana	ane	dry	7.175	4.75	
+Bauhinia guianensis	Bauhinia guianensis 	157	Liana	zoo	dry	16	12.5	Type 1
+Bombacaceae sp1	Bombacaceae sp1	141	Liana	ane	dry	2.3	2.1	
+Coccoloba parimensis	Coccoloba excelsa 	186	Tree	zoo	dry	11.24	8.02	Type 2
+Cordia fulva	Cordia fulva 	123	Tree	ane	dry	10.2	6.4	Type 2
+Couratari multiflora	Couratari multiflora 	164	Tree	ane	dry	40	10	Type 1
+Dicorynia guianensis	Dicorynia guianensis 	1163	Tree	ane	dry	14.1	10.9	
+Diplotropis purpurea	Diplotropis purpurea 	82	Tree	ane	dry	25	7	Type 1
+Eperua falcata	Eperua falcata 	56	Tree	zoo	fleshy	41	27	Type 1
+Eschweilera sagotiana	Eschweilera sagotiana 	24	Liana	ane	dry	18	15	Type 1
+Forsteronia guyanensis	Forsteronia guyanensis 	197	Liana	ane	dry	15	2	
+Arrabidaea chica	Fridericia chica 	1385	Liana	bal	dry	36.5	9.1	Type 1
+Gouania blanchetiana	Gouania blanchetiana 	4505	Liana	ane	dry	14.7	10	
+Hippocratea volubilis	Hippocratea volubilis 	659	Tree	ane	dry	45.35	57.7	Type 1
+Hymenolobium pulcherrimum	Hymenolobium pulcherrimum	409	Tree	zoo	fleshy 	15	3	
+Licania majuscula	Licania majuscula	182	Tree	zoo	fleshy 	35	32	Type 1
+Licania membranacea	Licania membranacea	1695	Liana	ane	dry	17	8	Type 1
+Machaerium altiscandens	Machaerium microphyllum	130	Tree	zoo	fleshy	45	12.5	Type 1
+Manilkara bidentata	Manilkara bidentata	120	Tree	zoo	fleshy	25	13	Type 1
+Manilkara huberi	Manilkara huberi	118	Liana	zoo	Fleshy	24	13	Type 1
+Mendoncia hoffmannseggiana	Mendoncia hoffmannseggiana	177	Tree	zoo	fleshy	16	6	Type 1
+Micropholis guyanensis	Micropholis guyanensis	1317	Liana	ane	dry	15	9	Type 2
+Mimosa guilandinae	Mimosa guilandinae	1115	Tree	zoo	fleshy	25	26.3	Type 2
+Neea floribunda	Neea floribunda	70	Tree	zoo	fleshy	10.4	16.1	Type 2
+Ocotea floribunda	Ocotea floribunda	315	Tree	zoo	fleshy	14	10	Type 2
+Pourouma melinonii	Pourouma melinonii	101	Tree	zoo	fleshy	16	9	Type 1
+Protium sagotianum	Protium sagotianum	271	Tree	ane	dry	16	8	Type 1
+Pseudopiptadenia suaveolens	Pseudopiptadenia suaveolens	558	Tree	ane	dry	45.6	17.8	Type 1
+Qualea rosea	Qualea rosea	149	Tree	zoo	Fleshy?	46	12	Type 1
+Quararibea duckei	Quararibea duckei	178	Tree	zoo	fleshy	15	9	Type 2
+Rhodostemonodaphne kunthiana	Rhodostemonodaphne kunthiana	17	Liana	zoo	Fleshy	12.4	7.5	Type 2
+Rourea frutescens	Rourea frutescens	233	Liana	ane	dry	10.5	5.1	Type 2
+Serjania paucidentata	Serjania paucidentata	162	Tree	zoo	fleshy	25.2	13.3	Type 1
+Guettarda acreana	Stenostomum acreanum 	1523	Liana	ane	dry	8	5	Type 2
+Sterculia pruriens	Sterculia pruriens	183	Tree	zoo	dry	19	14	Type 1
+Stigmaphyllon sinuatum	Stigmaphyllon sinuatum	216	Liana	ane	Dry	45	15	Type 1
+Strychnos erichsonii	Strychnos erichsonii	324	Liana	zoo	Fleshy	18	14	Type 1
+Tachigali melinonii	Tachigali melinonii	255	Tree	ane	Dry	25	12.5	Type 1
+Terminalia guyanensis	Terminalia guyanensis	150	Tree	ane	dry	60	2	Type 1
+Tetragastris altissima	Tetragastris altissima	198	Tree	zoo	Fleshy	22	12	Type 1
+Tetragastris panamensis	Tetragastris panamensis	195	Tree	zoo	fleshy	16	11	Type 1
+Trattinnickia sp1	Trattinnickia sp1	59	Tree	zoo	Fleshy	10.9	8.2	Type 2
+Unonopsis stipitata	Unonopsis stipitata	60	Tree	zoo	fleshy	11	7	Type 2
+Virola michelii	Virola michelii	118	Tree	zoo	fleshy	20.5	14.2	Type 1
+Qualea dinizii	Vochysia guianensis	752	Tree	ane	dry	48	12	Type 1
