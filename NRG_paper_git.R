@@ -365,25 +365,25 @@ figure4 = function(file = "nouragues results parameters per year.txt", longnames
   
   nrg = read.delim(file)
   #spnames=sort(unique(nrg$sp))
-  totseed = read.delim(file=longnames)
+  totseed = read.delim(file = longnames)
   names(totseed) = c("species", "longname", "totseed", "form", "disp", "fruit", "length", "width", "Smythe")
   spnames2 = totseed$longname
-  spmeans=aggregate(data.frame(peak=nrg$peak),by=list(species=nrg$species),mean)
-  spsd=aggregate(data.frame(peak=nrg$peak),by=list(species=nrg$species),sd)
-  condensed=merge(spmeans, spsd, by="species")
+  spmeans = aggregate(data.frame(peak = nrg$peak),by=list(species = nrg$species),mean)
+  spsd = aggregate(data.frame(peak = nrg$peak), by = list(species = nrg$species),sd)
+  condensed = merge(spmeans, spsd, by = "species")
   names(condensed)=c("species","mean","sd")
-  condensed2=merge(totseed, condensed, by="species")
-  condensed2$CV=condensed$sd/condensed$mean
-  orco=order(condensed2$CV)
+  condensed2 = merge(totseed, condensed, by="species")
+  condensed2$CV = condensed$sd/condensed$mean
+  orco = order(condensed2$CV)
   
   #split.screen(c(1,2))
   tiff(filename=filename,height=1600,width=2500,pointsize=24) #
-  par(mar=c(20,5,12,1),cex=1)
-  zoo=which(condensed2$disp[orco]=="zoo")
-  bal=which(condensed2$disp[orco]=="bal")
-  ane=which(condensed2$disp[orco]=="ane")
+  par(mar = c(20,5,12,1), cex = 1)
+  zoo = which(condensed2$disp[orco] == "zoo")
+  bal = which(condensed2$disp[orco] == "bal")
+  ane = which(condensed2$disp[orco] == "ane")
   colores=1:45
-  colores[zoo]="gray28"
+  colores[zoo] = "gray28"
   colores[ane]="white"
   colores[bal]="white"
   barplot(condensed2$CV[orco], main="", space=0,las=2,axes=F, ylim=c(0,3),col=colores)
