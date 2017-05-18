@@ -1254,16 +1254,34 @@ stable3 = function(file = nourage, beginyearfile = beginyearfile, spstart=1, spe
 
 #### SUPPLEMENTARY FIGURE 2 ################
 
-supplementary2=function(file="Nouragues results hyperparameters.txt",graphname="SFig2.tif"){
+supplementary2 = function(file = "Nouragues results hyperparameters.txt", graphname = "SFig2.tif") {
   
-  tr<-read.delim(file)
+  tr <- read.delim(file)
   tiff(filename=graphname,width = 1500, height = 1000,pointsize=12, res=300)
   par(las = 1, bty = "o", tcl = 0.2, mar = c(5, 5, 2,2), mgp = c(0.25, 0.25, 0),cex.axis=1.2,lwd=1.5)
   plot(tr$logSD,tr$SD,xlab="",ylab="",las=1,bty="l",pch=19)
   mtext(side=2,text="SD of peakday",line=2.5,las=0,cex=1.2)
   mtext(side=1,text="SD of peak (log)",line=2.5,las=0,cex=1.2)
-  abline(lm(tr$SD~tr$logSD))
-  summary(lm(tr$SD~tr$logSD))
+  abline(lm(tr$SD ~ tr$logSD))
+  summary(lm(tr$SD ~ tr$logSD))
+  cor.test(tr$SD,tr$logSD,method="pearson")
+  
+  dev.off()
+}
+
+
+#### SUPPLEMENTARY FIGURE 3 ################
+
+supplementary3 = function(file = "Nouragues results hyperparameters.txt", graphname = "SFig2.tif") {
+  
+  tr <- read.delim(file)
+  tiff(filename=graphname,width = 1500, height = 1000,pointsize=12, res=300)
+  par(las = 1, bty = "o", tcl = 0.2, mar = c(5, 5, 2,2), mgp = c(0.25, 0.25, 0),cex.axis=1.2,lwd=1.5)
+  plot(tr$logSD,tr$SD,xlab="",ylab="",las=1,bty="l",pch=19)
+  mtext(side=2,text="SD of peakday",line=2.5,las=0,cex=1.2)
+  mtext(side=1,text="SD of peak (log)",line=2.5,las=0,cex=1.2)
+  abline(lm(tr$SD ~ tr$logSD))
+  summary(lm(tr$SD ~ tr$logSD))
   cor.test(tr$SD,tr$logSD,method="pearson")
   
   dev.off()
@@ -1526,7 +1544,7 @@ spptime=function(nrgallspp="Nouragues model all spp.txt", k=3){
 
 
 #which species are masting? How can we define a masting species
-masting=function(file="nouragues results parameters per year.txt", fileresults="Nouragues-seed production with CI. pdf")
+masting=function(file="nouragues results parameters per year.txt", fileresults="Nouragues-seed production with CI.pdf")
   
 {
   nrg=read.delim(file)
