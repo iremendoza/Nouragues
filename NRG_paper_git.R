@@ -309,9 +309,10 @@ figure2nodispersal=function(trfile="Nouragues results hyperparameters.txt",longn
 }
 
 
-###FIGURE 3 OF THE PAPER ###############
+####FIGURE 3 OF THE PAPER ###############
 ##how many species had their peaks during the wet season?
-figure3 = function(file = "Nouragues results hyperparameters.txt", longnames="total number of seeds per species.txt", filename = "figure3.tif"){
+
+figure3 = function(file = "Nouragues results hyperparameters.txt", longnames = "total number of seeds per species.txt", filename = "figure3.tif"){
   
   tr = read.delim(file)
   tr$mu2 = tr$mu
@@ -1190,14 +1191,41 @@ return(ss)
 
 #### SUPPLEMENTARY TABLE 2 ####
 
-stable2 = function(file = "Nouragues results hyperparameters.txt"){
+stable2 = function(file = "Nouragues results hyperparameters.txt", longnames = "total number of seeds per species.txt", filename = "supplementary Table 2.txt"){
   
   tr = read.delim(file)
-  str(tr)
   tr$mu2 = tr$mu
   tr$mu2[which(tr$mu<=0)] = tr$mu[which(tr$mu<=0)]+365.25
   tr$mu2[which(tr$mu>365)] = tr$mu[which(tr$mu>365)]-365.25
   
+  
+  months=list(jan=1:31,feb=32:59,mar=60:90,apr=91:120,
+              may=121:151,jun=152:181,jul=182:212,aug=213:243,sep=244:273,oct=274:304,nov=305:334,dec=335:365)
+  rmonths=unlist(months)
+  month = names(rmonths[trunc(tr$mu2)]) 
+  
+  tr$CImu2.2 = tr$CImu2
+  tr$CImu2.2[which(tr$CImu2 <= 0)] = tr$CImu2[which(tr$CImu2 <= 0)]+365.25
+  tr$CImu2.2[which(tr$CImu2 > 365)] = tr$CImu2[which(tr$CImu2 > 365)]-365.25
+  month2 <- names(rmonths[trunc(tr$CImu2.2)])  
+  
+  tr$CImu97.2 = tr$CImu97
+  tr$CImu97.2[which(tr$CImu97 <= 0)] = tr$CImu97[which(tr$CImu97 <= 0)]+365.25
+  tr$CImu97.2[which(tr$CImu97 > 365)] = tr$CImu97[which(tr$CImu97 > 365)]-365.25
+  month97 <- names(rmonths[trunc(tr$CImu97.2)])
+  
+  tr$pmu = exp(tr$logmu)
+  tr$pCI2 = exp(tr$CIlogmu2)
+  tr$pCI97 = exp(tr$CIlogmu97)
+  tr$pSD = exp(tr$logSD)
+  tr$pSDCI2 = exp(tr$CIlogSD2)
+  tr$pSDCI97 = exp(tr$CIlogSD97)
+  
+  totseed = read.delim(file = longnames)
+  names(totseed) = c("species", "longname", "totseed", "form", "disp", "fruit", "length", "width", "Smythe")
+  long = merge(tr, totseed, by ="species")
+  dataset = data.frame(species = long$longname, peakdays = paste(round(long$mu2,2)," (",month,")",sep=""), CIpeakday = paste(round(long$CImu2.2,2),"-" ,round(long$CImu97.2,2), " (", month2, "-", month97, ")", sep =""), SDpeakday =  round(long$SD,2), CISDpeakday = paste(round(long$CISD2,2),"-", round(long$CISD97,2), sep =""), peakmu = round(long$pmu,2), CIpeakmu = paste(round(long$pCI2,2),"-", round(long$pCI97,2), sep =""), peakSD = round(long$pSD, 2), CIpeakSD = paste(round(long$pSDCI2,2),"-", round(long$pSDCI97,2), sep =""), SD = round(long$bestSD, 2))
+  write.table(dataset, file = filename, sep = "\t", row.names = F)
 }
 
 #### SUPPLEMENTARY TABLE 3 ##################
