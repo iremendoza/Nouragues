@@ -1272,17 +1272,23 @@ supplementary2 = function(file = "Nouragues results hyperparameters.txt", graphn
 
 #### SUPPLEMENTARY FIGURE 3 ################
 
-supplementary3 = function(file = "Nouragues results hyperparameters.txt", graphname = "SFig2.tif") {
+supplementary3 = function(file = "Nouragues results hyperparameters.txt", seedfile = "seed size.txt", graphname = "SFig3.tif") {
   
   tr <- read.delim(file)
+  ssize <- read.delim(seedfile)
+  
+  condensed <- CVpeakdays()
+  combined <- merge(tr, ssize, by = "species")
+  #combined <- merge(condensed, ssize, by = "species")
+  
   tiff(filename=graphname,width = 1500, height = 1000,pointsize=12, res=300)
   par(las = 1, bty = "o", tcl = 0.2, mar = c(5, 5, 2,2), mgp = c(0.25, 0.25, 0),cex.axis=1.2,lwd=1.5)
-  plot(tr$logSD,tr$SD,xlab="",ylab="",las=1,bty="l",pch=19)
-  mtext(side=2,text="SD of peakday",line=2.5,las=0,cex=1.2)
-  mtext(side=1,text="SD of peak (log)",line=2.5,las=0,cex=1.2)
-  abline(lm(tr$SD ~ tr$logSD))
-  summary(lm(tr$SD ~ tr$logSD))
-  cor.test(tr$SD,tr$logSD,method="pearson")
+  plot(combined$ave.L, combined$SD, xlab="", ylab="", las=1, bty="l", pch=19)
+  mtext(side = 1,text="seed length (mm)",line=2.5,las=0,cex=1.2)
+  mtext(side = 2,text="SD of peakday",line=2.5,las=0,cex=1.2)
+  abline(lm(combined$SD ~ combined$ave.L))
+  summary(lm(combined$SD ~ combined$ave.L))
+  cor.test(combined$ave.L, combined$SD, method="pearson")
   
   dev.off()
 }
@@ -1606,13 +1612,14 @@ CVpeakdays=function(file="nouragues results parameters per year with cycles.txt"
   spmeans=aggregate(data.frame(peak=nrg$peakday),by=list(species=nrg$sp),mean)
   spsd=aggregate(data.frame(peak=nrg$peakday),by=list(species=nrg$sp),sd)
   condensed=merge(spmeans, spsd, by="species")
-  names(condensed)=c("year","mean","sd")
+  names(condensed)=c("species","mean","sd")
   condensed$CV=condensed$sd/condensed$mean
   tt=hist(condensed$CV, breaks=10,xlab="CV of peakday",right=TRUE)
   orco=order(condensed$CV)
   par(mar=c(14,4,2,2))
   barplot( condensed$CV[orco],xlab="",ylab="CV of day of year" ,names.arg=condensed$year[orco], ylim=c(0,5),las=2)
 abline(h=1)
+return (condensed)
 }
 
 confidencepeakdays=function(file="nouragues results parameters per year.txt", fileresults="Nouragues peakday confidence intervals.pdf")
