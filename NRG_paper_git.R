@@ -433,7 +433,7 @@ figure4 = function(file = "nouragues results parameters per year.txt", longnames
   orco = order(condensed2$CV)
   
   #split.screen(c(1,2))
-  tiff(filename=filename,height=1600,width=2500,pointsize=24) #
+  tiff(filename = filename, height = 1600, width = 2500, pointsize = 24) #
   par(mar = c(20,5,12,1), cex = 1)
   zoo = which(condensed2$disp[orco] == "zoo")
   bal = which(condensed2$disp[orco] == "bal")
@@ -1581,9 +1581,9 @@ masting=function(file="nouragues results parameters per year.txt", fileresults="
   
 
 ## How many years with practically 0 seed production was found per species?
-CVyears=function(file="nouragues results parameters per year.txt") {
+CVyears = function(file = "nouragues results parameters per year.txt") {
   
-  nrg=read.delim(file)
+  nrg = read.delim(file)
   #nrg=nrg[-117,]
   spnames=sort(unique(nrg$sp))
   spmeans=aggregate(data.frame(peak=nrg$peak),by=list(year=nrg$year),mean)
@@ -1592,7 +1592,7 @@ CVyears=function(file="nouragues results parameters per year.txt") {
   names(condensed)=c("year","mean","sd")
   condensed$CV=condensed$sd/condensed$mean
   hist(condensed$CV, breaks=10,xlab="CV of seed production", ylab="number of species")
-  barplot( condensed$CV,xlab="years",ylab="CV of seed production" ,names.arg=condensed$year, ylim=c(0,5))
+  barplot(condensed$CV,xlab="years",ylab="CV of seed production" ,names.arg=condensed$year, ylim=c(0,5))
 }
 
 CVpeakdays=function(file="nouragues results parameters per year with cycles.txt") {
