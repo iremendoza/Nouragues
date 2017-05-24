@@ -1245,7 +1245,7 @@ stable3 = function(file = nourage, beginyearfile = beginyearfile, spstart=1, spe
   peak2=ifelse(peak>365,peak-365,peak)
   month=names(rmonths[trunc(peak2)]) 
   
-  pp2=data.frame(sp=pp$sp, cycle=pp$year,years=paste(yrmin$min,"-",yrmax$max), peakdays=paste(round(pp$peakday,2)," (",month,")",sep=""), CIpeakday= paste(round(pp$CI2peakday,2),"-" ,round(pp$CI97peakday,2)), peak=round(pp$peak,2), CIpeak=paste(round(pp$CI2peak,2),"-", round(pp$CI97peak,2)))
+  pp2=data.frame(sp=pp$sp, cycle = pp$year,years=paste(yrmin$min,"-",yrmax$max), peakdays=paste(round(pp$peakday,2)," (",month,")",sep=""), CIpeakday= paste(round(pp$CI2peakday,2),"-" ,round(pp$CI97peakday,2)), peak=round(pp$peak,2), CIpeak=paste(round(pp$CI2peak,2),"-", round(pp$CI97peak,2)))
   pp3=data.frame(sp=pp$sp, cycle=pp$year,year1=yrmin$min, year2=yrmax$max, peakdays=pp$peakday, CI2peakday= pp$CI2peakday, CI97peakday=pp$CI97peakday, peak=pp$peak, CI2peak=pp$CI2peak, CI97peak=pp$CI97peak)
   
   return(pp2)
@@ -1293,6 +1293,7 @@ supplementary3 = function(file = "Nouragues results hyperparameters.txt", seedfi
   dev.off()
 }
 
+#### MISCELLANEOUS ####
 
 #this function plots fruit biomass for Nouragues in relation to MEI (it doesn't work well)
 biomasstime=function(biomass=biomass, k=3) {
@@ -1550,12 +1551,12 @@ spptime=function(nrgallspp="Nouragues model all spp.txt", k=3){
 
 
 #which species are masting? How can we define a masting species
-masting=function(file="nouragues results parameters per year.txt", fileresults="Nouragues-seed production with CI.pdf")
+masting = function(file = "nouragues results parameters per year.txt", fileresults="Nouragues-seed production with CI.pdf")
   
 {
-  nrg=read.delim(file)
+  nrg = read.delim(file)
  #I calculate the ratio for the peak of each year in relation to the previous year.
-  spnames=sort(unique(nrg$species))
+  spnames = sort(unique(nrg$species))
   pdf(file=fileresults)
   par(mar=c(5,4,3,3), las=1)
   for (i in 1:length(spnames))
@@ -1601,7 +1602,7 @@ CVyears = function(file = "nouragues results parameters per year.txt") {
   barplot(condensed$CV,xlab="years",ylab="CV of seed production" ,names.arg=condensed$year, ylim=c(0,5))
 }
 
-CVpeakdays=function(file="nouragues results parameters per year with cycles.txt") {
+CVpeakdays = function(file="nouragues results parameters per year with cycles.txt") {
   
   nrg=read.delim(file)
   negval=as.vector(which(nrg$peakday<0))
