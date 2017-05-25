@@ -9,6 +9,7 @@ nrgresults = read.delim(file = "nouragues results parameters per year.txt")
 
 #source("C:\\Irene\\Brunoy\\hierarchical models\\working files hierarchical models\\hierarchical-enso-local climate.r")
 source(".\\hierarchical models_git.r")
+source(".\\Nouragues_functions_git.r")
 source(".\\hierarchicalModelsRepyear_git.r")
 #source("C:\\Irene\\Brunoy\\Base Datos Nouragues\\Metadata Joe Wright\\NRG\\Rcode_CV_PhenYr_20110509.r")
 #source("C:\\Irene\\Brunoy\\Base Datos Nouragues\\Metadata Joe Wright\\modeling max likelihood\\BCI-max likelihood.r")
@@ -1195,12 +1196,12 @@ stable2 = function(file = "Nouragues results hyperparameters.txt", longnames = "
   
   tr = read.delim(file)
   tr$mu2 = tr$mu
-  tr$mu2[which(tr$mu<=0)] = tr$mu[which(tr$mu<=0)]+365.25
-  tr$mu2[which(tr$mu>365)] = tr$mu[which(tr$mu>365)]-365.25
+  tr$mu2[which(tr$mu <= 0)] = tr$mu[which(tr$mu <= 0)] + 365.25
+  tr$mu2[which(tr$mu > 365)] = tr$mu[which(tr$mu > 365)] - 365.25
   
   
-  months=list(jan=1:31,feb=32:59,mar=60:90,apr=91:120,
-              may=121:151,jun=152:181,jul=182:212,aug=213:243,sep=244:273,oct=274:304,nov=305:334,dec=335:365)
+  months = list(jan = 1:31, feb = 32:59, mar = 60:90, apr = 91:120,
+              may = 121:151, jun = 152:181, jul = 182:212, aug = 213:243, sep = 244:273, oct = 274:304, nov = 305:334, dec = 335:365)
   rmonths=unlist(months)
   month = names(rmonths[trunc(tr$mu2)]) 
   
@@ -1229,27 +1230,38 @@ stable2 = function(file = "Nouragues results hyperparameters.txt", longnames = "
 }
 
 #### SUPPLEMENTARY TABLE 3 ##################
-#file = nourage; beginyearfile = beginyearfile; spstart = 1; spend = 45; fit = results; dj=FALSE
-stable3 = function(file = nourage, beginyearfile = beginyearfile, spstart=1, spend=45, fit=results, dj=TRUE)
+#file = nourage; beginyearfile = beginyearfile; spstart = 1; spend = 45; fit = results; dj=FALSE; filename = "Supplementary Table 3.txt"
+stable3 = function(file = nourage, beginyearfile = beginyearfile, spstart = 1, spend = 45, fit = results, dj = TRUE, filename = "Supplementary Table 3.txt")
 {
-  
-  parameters = parametersyr(file=file, beginyearfile=beginyearfile, spstart=spstart, spend=spend, fit=results, dj=TRUE)
+  parameters = parametersyr(file = file, beginyearfile = beginyearfile, spstart = spstart, spend = spend, fit = results, dj = dj)
   pp = aggregate(data.frame(peakday = parameters$peakday,  CI2peakday=parameters$CI2peakday,  CI97peakday=parameters$CI97peakday,peak=parameters$peak,  CI2peak=parameters$CI2peak,  CI97peak=parameters$CI97peak), by=list(year=parameters$cycle,sp=parameters$sp),mean)
-  yrmin=aggregate(data.frame(min=parameters$year), by=list(year=parameters$cycle,sp=parameters$sp),min)
-  yrmax=aggregate(data.frame(max=parameters$year), by=list(year=parameters$cycle,sp=parameters$sp),max)
-  months=list(jan=1:31,feb=32:59,mar=60:90,apr=91:120,
-              may=121:151,jun=152:181,jul=182:212,aug=213:243,sep=244:273,oct=274:304,nov=305:334,dec=335:365)
-  rmonths=unlist(months)
+  yrmin = aggregate(data.frame(min=parameters$year), by=list(year=parameters$cycle,sp=parameters$sp),min)
+  yrmax = aggregate(data.frame(max=parameters$year), by=list(year=parameters$cycle,sp=parameters$sp),max)
+  months = list(jan = 1:31, feb = 32:59, mar = 60:90, apr = 91:120,
+                may = 121:151, jun = 152:181, jul = 182:212, aug = 213:243, sep = 244:273, oct = 274:304, nov = 305:334, dec = 335:365)
+  rmonths = unlist(months)
+ 
   
-  peak=ifelse(pp$peakday<0,pp$peakday+365,pp$peakday)
-  peak2=ifelse(peak>365,peak-365,peak)
-  month=names(rmonths[trunc(peak2)]) 
+  peak = ifelse(pp$peakday< 0, pp$peakday+365, pp$peakday)
+  peak2 = ifelse(peak > 365, peak - 365, peak)
+  month = names(rmonths[trunc(peak2)]) 
   
-  pp2=data.frame(sp=pp$sp, cycle = pp$year,years=paste(yrmin$min,"-",yrmax$max), peakdays=paste(round(pp$peakday,2)," (",month,")",sep=""), CIpeakday= paste(round(pp$CI2peakday,2),"-" ,round(pp$CI97peakday,2)), peak=round(pp$peak,2), CIpeak=paste(round(pp$CI2peak,2),"-", round(pp$CI97peak,2)))
-  pp3=data.frame(sp=pp$sp, cycle=pp$year,year1=yrmin$min, year2=yrmax$max, peakdays=pp$peakday, CI2peakday= pp$CI2peakday, CI97peakday=pp$CI97peakday, peak=pp$peak, CI2peak=pp$CI2peak, CI97peak=pp$CI97peak)
+  CI2peak = ifelse(pp$CI2peakday < 0, pp$CI2peakday + 365, pp$CI2peakday)
+  CI2peak2 = ifelse(CI2peak > 365, CI2peak - 365, CI2peak)
+  CI2peak3 = ifelse(CI2peak2 < 1 & CI2peak2 > 0, 1, CI2peak2)
+  month2 = names(rmonths[trunc(CI2peak3)])
   
+  CI97peak = ifelse(pp$CI97peakday < 0, pp$CI97peakday + 365, pp$CI97peakday)
+  CI97peak2 = ifelse(CI97peak > 365, CI97peak - 365, CI97peak)
+  CI97peak3 = ifelse(CI97peak2 < 1 & CI97peak2 > 0, 1, CI97peak2)
+  month97 = names(rmonths[trunc(CI97peak3)])
+  
+  pp2 = data.frame(sp = pp$sp, cycle = pp$year, years = paste(yrmin$min,"-",yrmax$max), peakdays = paste(round(peak2,2)," (",month,")",sep=""), CIpeakday = paste(round(CI2peak2,2),"-" , round(CI97peak2,2), " (", month2, "-", month97, ")", sep =""), peak = round(pp$peak,2), CIpeak = paste(round(pp$CI2peak,2),"-", round(pp$CI97peak,2)))
+  pp3 = data.frame(sp=pp$sp, cycle=pp$year,year1=yrmin$min, year2=yrmax$max, peakdays=pp$peakday, CI2peakday= pp$CI2peakday, CI97peakday=pp$CI97peakday, peak=pp$peak, CI2peak=pp$CI2peak, CI97peak=pp$CI97peak)
+  
+  write.table(pp2, file = filename, sep = "\t", row.names = F)
   return(pp2)
-  
+ 
 }
 
 #### SUPPLEMENTARY FIGURE 2 ################
