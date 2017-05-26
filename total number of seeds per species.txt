@@ -21,7 +21,7 @@ Manilkara bidentata	Manilkara bidentata	120	Tree	zoo	fleshy	25	13	Type 1
 Manilkara huberi	Manilkara huberi	118	Liana	zoo	Fleshy	24	13	Type 1
 Mendoncia hoffmannseggiana	Mendoncia hoffmannseggiana	177	Tree	zoo	fleshy	16	6	Type 1
 Micropholis guyanensis	Micropholis guyanensis	1317	Liana	ane	dry	15	9	Type 2
-Mimosa guilandinae	Mimosa guilandinae	1115	Tree	zoo	fleshy	25	26.3	Type 2
+Mimosa guilandinae	Mimosa guilandinae	1115	Tree	zoo	fleshy	25	26.3	Type 1
 Neea floribunda	Neea floribunda	70	Tree	zoo	fleshy	10.4	16.1	Type 2
 Ocotea floribunda	Ocotea floribunda	315	Tree	zoo	fleshy	14	10	Type 2
 Pourouma melinonii	Pourouma melinonii	101	Tree	zoo	fleshy	16	9	Type 1
