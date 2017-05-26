@@ -1283,6 +1283,7 @@ supplementary2 = function(file = "Nouragues results hyperparameters.txt", graphn
 
 
 #### SUPPLEMENTARY FIGURE 3 ################
+#relationship between seed size and variation of peakday (hyper-SD of peakday)
 
 supplementary3 = function(file = "Nouragues results hyperparameters.txt", seedfile = "seed size.txt", graphname = "SFig3.tif") {
   
@@ -1291,13 +1292,19 @@ supplementary3 = function(file = "Nouragues results hyperparameters.txt", seedfi
   
   condensed <- CVpeakdays()
   combined <- merge(tr, ssize, by = "species")
+  #combined <- combined[-4,] 
+  type = character(length = dim(combined)[1])
+  combined$type[which(combined$ave.L >= 15)] <- "Type 1"
+  combined$type[which(combined$ave.L < 15)] <- "Type 2"
+  boxplot(combined$logSD ~ combined$type)
+  
   #combined <- merge(condensed, ssize, by = "species")
   
-  tiff(filename=graphname,width = 1500, height = 1000,pointsize=12, res=300)
+  tiff(filename = graphname, width = 1500, height = 1000, pointsize = 12, res = 300)
   par(las = 1, bty = "o", tcl = 0.2, mar = c(5, 5, 2,2), mgp = c(0.25, 0.25, 0),cex.axis=1.2,lwd=1.5)
   plot(combined$ave.L, combined$SD, xlab="", ylab="", las=1, bty="l", pch=19)
   mtext(side = 1,text="seed length (mm)",line=2.5,las=0,cex=1.2)
-  mtext(side = 2,text="SD of peakday",line=2.5,las=0,cex=1.2)
+  mtext(side = 2,text= "SD of peakday",line=2.5,las=0,cex=1.2)
   abline(lm(combined$SD ~ combined$ave.L))
   summary(lm(combined$SD ~ combined$ave.L))
   cor.test(combined$ave.L, combined$SD, method="pearson")
