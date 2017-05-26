@@ -1314,6 +1314,46 @@ supplementary3 = function(file = "Nouragues results hyperparameters.txt", seedfi
 
 #### MISCELLANEOUS ####
 
+### Smythe´s hypothesis###
+smythe = function(file = "nouragues results parameters per year.txt", longnames="total number of seeds per species.txt") {
+  
+  nrg = read.delim(file)
+  #spnames=sort(unique(nrg$sp))
+  totseed = read.delim(file = longnames)
+  names(totseed) = c("species", "longname", "totseed", "form", "disp", "fruit", "length", "width", "Smythe")
+  spnames2 = totseed$longname
+  sptot = aggregate(data.frame(ptot = nrg$peak),by = list(species = nrg$species),sum)
+  
+  condensed = merge(nrg, sptot, by = "species", all.x = T)
+  condensed$p = condensed$peak/condensed$ptot
+  condensed$Di <- condensed$p*log(condensed$p)
+  
+  spD <- aggregate(data.frame(spD = condensed$Di),by = list(species = condensed$species),sum)
+  spD$maxdiv <- -spD$spD/log(10)
+  
+  condensed2 = merge(totseed, spD, by="species")
+  type = character(length = dim(condensed2)[1])
+  condensed2$type[which(condensed2$length >= 15)] <- "Type 1"
+  condensed2$type[which(condensed2$length < 15)] <- "Type 2"
+  condensed2 <- condensed2[- which(condensed2$species == "Bombacaceae sp1"),]
+  orco = order(condensed2$maxdiv)
+  
+  ggplot(condensed2, aes(length, maxdiv)) + 
+    geom_point() +
+    geom_smooth(aes(x = length, y = maxdiv), span = 0.4, method = "loess", se = F,  col = "black", alpha = 0.4) 
+  
+  #abline(lm(condensed2$maxdiv ~ condensed2$length))
+  summary(lm(condensed2$maxdiv ~ condensed2$length))
+  summary(glm(condensed2$maxdiv ~ condensed2$length), family = "binomial")
+  boxplot(condensed2$maxdiv ~ condensed2$type)
+  lm1 <- lm(condensed2$maxdiv ~ condensed2$type)
+  summary(lm1)
+}
+
+
+
+
+
 #this function plots fruit biomass for Nouragues in relation to MEI (it doesn't work well)
 biomasstime=function(biomass=biomass, k=3) {
   
