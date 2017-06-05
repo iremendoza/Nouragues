@@ -44,13 +44,16 @@ beginyearfile <- "beginyearseeds 2011 newfecha_NRG.txt"
 
 clim <- read.table("local climate data Nouragues.txt", header = T)
 #nrgprior<-read.delim(file="Nouragues priors per year.txt")
-clim$dates=strptime(paste("1-",clim$month,"-",clim$year), format="%d - %m - %Y")
-clim$julian=tojulian(clim$dates,dateform = "%Y-%m-%d")
-clim$yday=clim$dates$yday+1
-clim$month=clim$dates$mon+1
-clim$dates=strptime(paste("1-",clim$month,"-",clim$year), format="%d - %m - %Y")
-clim$julian=tojulian(clim$dates,dateform = "%Y-%m-%d")
-clim$yday=clim$dates$yday+1
+clim$dates = strptime(paste("1-",clim$month,"-",clim$year), format="%d - %m - %Y")
+clim$julian = tojulian(clim$dates,dateform = "%Y-%m-%d")
+clim$yday = clim$dates$yday+1
+clim$month = clim$dates$mon+1
+clim$dates = strptime(paste("1-",clim$month,"-",clim$year), format="%d - %m - %Y")
+clim$julian = tojulian(clim$dates,dateform = "%Y-%m-%d")
+clim$yday = clim$dates$yday+1
+
+newman = read.delim(file = "Nouragues manual estimated new.txt")
+
 
 #census<-read.delim(file="census list.txt")
 
@@ -63,7 +66,6 @@ clim$yday=clim$dates$yday+1
 #autoraw$dates=strptime(paste(autoraw$Day,"-",autoraw$Month,"-",autoraw$Year), format="%d - %m - %Y")
 #autoraw$julian=tojulian(autoraw$dates,dateform = "%Y-%m-%d")
 
-#newman=read.delim(file="Nouragues manual estimated new.txt")
 #newmansummary=aggregate(data.frame(tmin=newman$tmine,tmax=newman$tmaxe,rain=newman$raine),by=list( month=newman$Month,year=newman$Year),mean, na.rm=T)
 
 
@@ -154,9 +156,6 @@ figure1 = function(datfile = c("new", "old"), graphname="figure1.tif", est = est
   axis(4, at = 200*1:4, labels = 10*1:4, col.axis = "red")
   mtext("Temperature (ºC)", 4, las = 3, line = 3, col = "red")
   mtext("Precipitation (mm)", 2, las = 3, line = 3, col = "blue")
-  
-  
-  
   
   dev.off() 
 }
@@ -1350,7 +1349,12 @@ smythe = function(file = "nouragues results parameters per year.txt", longnames=
   summary(lm1)
 }
 
+#stats with table 1: do fruit variability change according to the dispersal mode?#
 
+table1stats <- function (table1 = "table 1.txt"){
+  
+  
+}
 
 
 
