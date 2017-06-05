@@ -457,7 +457,7 @@ figure3.old = function(file = "Nouragues results hyperparameters.txt", filename 
 
 ####FIGURE 4 OF THE PAPER ###############
 
-figure4 = function(file = "nouragues results parameters per year.txt", longnames="total number of seeds per species.txt", filename="figure4.tif") {
+figure4 = function(file = "nouragues results parameters per year.txt", hyper = "Nouragues results hyperparameters.txt", longnames = "total number of seeds per species.txt", filename = "figure4.tif") {
   
   nrg = read.delim(file)
   #spnames=sort(unique(nrg$sp))
@@ -471,6 +471,9 @@ figure4 = function(file = "nouragues results parameters per year.txt", longnames
   condensed2 = merge(totseed, condensed, by="species")
   condensed2$CV = condensed$sd/condensed$mean
   orco = order(condensed2$CV)
+  
+  tr <-read.delim(hyper)
+  tr$CV <- sqrt(exp(tr$logSD)-1 )
   
   #split.screen(c(1,2))
   tiff(filename = filename, height = 1600, width = 2500, pointsize = 24) #
@@ -1310,7 +1313,7 @@ SFig1 = function(file = "Nouragues results hyperparameters.txt", graphname = "SF
   tr <- read.delim(file)
   tiff(filename = graphname,width = 1500, height = 1000,pointsize=12, res=300)
   par(las = 1, bty = "o", tcl = 0.2, mar = c(5, 5, 2,2), mgp = c(0.25, 0.25, 0),cex.axis=1.2,lwd=1.5)
-  plot(tr$logSD,tr$SD,xlab="",ylab="",las=1,bty="l",pch=19)
+  plot(tr$logSD, tr$SD,xlab="",ylab="",las=1,bty="l",pch=19)
   mtext(side = 2, text="hyper SD of peakday",line=2.5,las=0,cex=1.2)
   mtext(side=1,text="hyper SD of P (log)",line=2.5,las=0,cex=1.2)
   abline(lm(tr$SD ~ tr$logSD))
