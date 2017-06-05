@@ -244,7 +244,7 @@ figure2 = function(trfile = "Nouragues results hyperparameters.txt", longnames =
   dim(rainy1)
   length(which(rainy1$disp=="zoo"))
   
-  drydisp=matrix(ncol=2,nrow=2)
+  drydisp = matrix(ncol=2,nrow=2)
   colnames(drydisp)=c("dryseason","rest")
   rownames(drydisp)=c("biotic","abiotic")
   drydisp[,1]=c(length(which(dry$disp == "zoo")),length(which(dry$disp == "ane")))
@@ -356,6 +356,10 @@ figure3 = function(file = "Nouragues results hyperparameters.txt", longnames = "
   zoo = which(dat$disp == "zoo")
   bal = which(dat$disp == "bal")
   ane = which(dat$disp == "ane")
+  dat$disp2 <- character(length = dim(dat)[1])
+  dat$disp2[zoo] = "biotic"
+  dat$disp2[ane] = "abiotic"
+  dat$disp2[bal] = "abiotic"
   
   colores = character(length = 45)
   colores[zoo] = "red"
@@ -386,7 +390,29 @@ figure3 = function(file = "Nouragues results hyperparameters.txt", longnames = "
   #+
     #geom_errorbar(aes(ymin = CImu2, ymax = CImu2), width=.1, position = )
   dev.off()
- }  
+ 
+  ####classification of species according to hyperSD####
+  length(which(dat$SD <= 45))
+  summary(dat$SD)
+  low <- dat[which(dat$SD <= 24.250),]
+  medium <- dat[which(dat$SD > 24.250 & dat$SD <= 63.580),]
+  high <- dat[which(dat$SD > 63.580),]
+  
+  variability <- matrix(ncol = 3, nrow = 2)
+  colnames(variability) = c("low","medium", "high")
+  rownames(variability) = c("biotic","abiotic")
+  variability[,1] = c(length(which(low$disp == "zoo")), length(which(low$disp == "ane")))
+  variability[,2] = c(length(which(medium$disp == "zoo")), length(which(medium$disp == "ane"|medium$disp == "bal")))
+  variability[,3] = c(length(which(high$disp == "zoo")), length(which(high$disp == "ane")))
+  chisq.test(variability)
+  
+  cvariability <- cbind(variability[,"low"] + variability[,"medium"] , variability[,"high"])
+  chisq.test(cvariability) ## not significant differences in variability according to a chi-squared test
+  
+  glm1 <- glm(dat$SD ~ dat$disp2)
+  summary(glm1)
+  boxplot(dat$SD ~ dat$disp2)
+  }  
 
 figure3.old = function(file = "Nouragues results hyperparameters.txt", filename = "figure3_old.tif"){
   
@@ -425,6 +451,7 @@ figure3.old = function(file = "Nouragues results hyperparameters.txt", filename 
   # hist(tr$logmu,main="", ylab="number of species", xlab="hyperpeak")
   
   dev.off()
+  
 }  
 
 
