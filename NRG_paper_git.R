@@ -165,27 +165,27 @@ figure1 = function(datfile = c("new", "old"), graphname="figure1.tif", est = est
 
 #figure2 plots the hyperparameters for each species in Nouragues (in an exponential scale)
 #figure2(trfile="Nouragues results hyperparameters.txt",longnames="total number of seeds per species.txt",filename="figure2.tif")
-figure2=function(trfile="Nouragues results hyperparameters.txt",longnames="total number of seeds per species.txt",filename="figure2.tif")
+figure2 = function(trfile = "Nouragues results hyperparameters.txt", longnames = "total number of seeds per species.txt", filename = "figure2.tif")
   
 {
   
   #x11(height=9,width=9)
   tiff(filename=filename,height=1200,width=1900,res=300)
   par(mar=c(3,3,3,1),oma=c(1,1,1,1))
-  tr=read.delim(file=trfile)
+  tr = read.delim(file=trfile)
   tr$mu2=tr$mu
   tr$mu2[which(tr$mu<=0)]= tr$mu[which(tr$mu<=0)]+365.25
   tr$mu2[which(tr$mu>365)]= tr$mu[which(tr$mu>365)]-365.25
   negdate=which(tr$mu<=0)
   
   
-  totseed=read.delim(file=longnames)
-  names(totseed)=c("species","longname","totseed","form","disp","fruit")
-  spnames2=totseed$longname
-  dat<-merge(tr,totseed,by="species")
-  zoo=which(totseed$disp=="zoo")
-  bal=which(totseed$disp=="bal")
-  ane=which(totseed$disp=="ane")
+  totseed = read.delim(file = longnames)
+  names(totseed)=c("species","longname","totseed","form","disp","fruit", "length", "width", "Smythe")
+  spnames2 = totseed$longname
+  dat <- merge(tr,totseed,by="species")
+  zoo = which(totseed$disp=="zoo")
+  bal = which(totseed$disp=="bal")
+  ane = which(totseed$disp=="ane")
   
   colores=1:45
   colores[zoo]="red"
@@ -215,31 +215,44 @@ figure2=function(trfile="Nouragues results hyperparameters.txt",longnames="total
   lines(1:365, 14*mean(exp(tr$logmu))*dnorm(1:365,mean=mean(tr$mu2),sd=mean(tr$bestSD)),col="black",lwd=4)
   legend(10,37,lty=c(1,1),col=c("black","red","blue"),legend=c("community","biotic","abiotic"),bty="n",cex=0.8,horiz=T,lwd=2)
   
-  # contingency test associated with figure 2: we test the Ho that the peaks of fruit production were uniform through the year
+  #### contingency test associated with figure 2: we test the Ho that the peaks of fruit production were uniform through the year####
   # March-May is 25% of the year. Does 21 species differ significantly from 25% of 45 species?
   
   ## Species having peaks during the rainy peak (Mar-May)
-  dim(tr[which(tr$mu2>=60&tr$mu2<=151),])[1]
-  chisq.test(x=c(22,24),p=c(0.25,0.75))
+  dim(tr[which(tr$mu2 >= 60 & tr$mu2 <= 151),])[1]
+  chisq.test(x=c(22,23),p=c(0.25,0.75))
   
   # contingency test associated with figure 2: we test the Ho that the peaks of fruit production were uniform through the year for all dispersal modes
-  biotic=which(totseed$disp=="zoo")
-  abiotic=which(totseed$disp=="bal"| totseed$disp=="ane")
+  biotic = which(totseed$disp=="zoo")
+  abiotic = which(totseed$disp=="bal"| totseed$disp=="ane")
   
   
   ## Species having peaks during the rainy peak (Mar-May) 
-  rainypeak<-dat[which(dat$mu2>=60&dat$mu2<=151),]
+  rainypeak <- dat[which(dat$mu2 >= 60 & dat$mu2 <= 151),]
   dim(rainypeak)
-  length(which(rainypeak$disp=="zoo"))
+  length(which(rainypeak$disp == "zoo"))
   rainy2<-dat[which(dat$mu2>=152&dat$mu2<=243),]
   dim(rainy2)
   length(which(rainy2$disp=="zoo"))
-  dry<-dat[which(dat$mu2>=244&dat$mu2<=334),]
+  dry <- dat[which(dat$mu2 >= 212 & dat$mu2 <= 334),]
+  rest <- dat[which(dat$mu2 < 212 | dat$mu2 > 334),]
   dim(dry)
-  length(which(dry$disp=="zoo"))
+  length(which(dry$disp == "zoo"))
+  length(which(dry$disp == "ane"))
+  
   rainy1<-dat[which(dat$mu2>=335|dat$mu2<=59),]
   dim(rainy1)
   length(which(rainy1$disp=="zoo"))
+  
+  drydisp=matrix(ncol=2,nrow=2)
+  colnames(drydisp)=c("dryseason","rest")
+  rownames(drydisp)=c("biotic","abiotic")
+  drydisp[,1]=c(length(which(dry$disp == "zoo")),length(which(dry$disp == "ane")))
+  drydisp[,2]=c(length(which(rest$disp == "zoo")),length(which(rest$disp == "ane"|rest$disp == "bal")))
+  
+  chisq.test(disptest) 
+  
+  
   disptest=matrix(ncol=2,nrow=2)
   colnames(disptest)=c("rainypeak","rest")
   rownames(disptest)=c("biotic","abiotic")
