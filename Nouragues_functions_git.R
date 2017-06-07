@@ -1,6 +1,6 @@
 lengthunique <- function(x) return(length(unique(x)))
 lengthisna <- function(x) return(length(which(is.na(x))))
-cvLognormal <- function(var,...) sqrt(exp((var))-1)
+cvLognormal <- function(logSD,...) sqrt(exp((logSD^2))-1)
 
 
 runningmean = function(dataset, k = 3) #this function calculates the running mean for a k number of observations; 
