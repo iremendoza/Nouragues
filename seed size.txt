@@ -1,46 +1,46 @@
-Taxa	species	Family	detected in Poncy´s list	adult density	observations	Life form	Dispersal syndrome	Type of fruit	Total number of seeds	measured	ave L	ave W	D3	measure comments
-Acacia tenuifolia (L.) Willd.	Acacia tenuifolia	Leguminosae (Mimosoideae)	no			Liana	ane	dry	1207	no	7.175	4.75		
-Bauhinia guianensis Aubl	Bauhinia guianensis	Leguminosae (Caesalpinioideae)	no			Liana	bal	dry	157	yes	16	12.5		
-Bombacaceae sp1	Bombacaceae sp1	Malvaceae	no			Liana	ane	dry	141	no	2.3	2.1		
-Coccoloba excelsa Benth. (= Coccoloba parimensis)	Coccoloba parimensis	Polygonaceae	yes			Liana	zoo	fleshy	186	no	11.24	8.02		
-Cordia fulva I.M. Johnston	Cordia fulva	Boraginaceae	no	72	several species mixed	Tree	zoo	fleshy	123	yes	10.2	6.4		
-Couratari multiflora (J.E. Smith) Eyma	Couratari multiflora	Lecythidaceae	yes	31	several species mixed	Tree	ane	dry	164	no	40	10	0.5	Sabatier (1983)
-Dicorynia guianensis Amsh.	Dicorynia guianensis	Leguminosae (Caesalpinioideae)	yes	119		Tree	ane	dry	1163	no	14.1	10.9	3.6	Forget (1988), dry seeds, dormant
-Diplotropis purpurea (Rich.) Amsh.	Diplotropis purpurea	Leguminosae (Faboideae)	yes	5		Tree	ane	dry	82	no	25	7	2	TVS 17 : Stratification of a tropical forest as seen in dispersal types Par Ingrid Roth
-Eperua falcata Aubl.	Eperua falcata	Leguminosae (Caesalpinioideae)	yes	134		Tree	bal	dry	56	no	41	27	9	Forget (1989)
-Eschweilera sagotiana Miers	Eschweilera sagotiana	Lecythidaceae	yes	665	several species mixed	Tree	zoo	fleshy	24	yes	18	15		
-Forsteronia guyanensis Müll. Arg.	Forsteronia guyanensis	Apocynaceae	yes			Liana	ane	dry	197	yes	15	2		
-Fridericia chica (Bonpl.) L.G. Lohmann (=Arrabidaea chica)	Arrabidaea chica	Bignoniaceae	no		Arrabidea mollis in tree list	Liana	bal	dry	1385	no	36.5	9.1		
-Gouania blanchetiana Miq.	Gouania blanchetiana	Rhamnaceae	no			Liana	ane	dry	4505	no	14.7	10		
-Hippocratea volubilis L.	Hippocratea volubilis	Hippocrateaceae	no			Liana	ane	dry	659	no	45.35	57.7		
-Hymenolobium pulcherrimum Ducke	Hymenolobium pulcherrimum	Leguminosae	no	3		Tree	ane	dry	409	no	15	3	0.2	Hymenolobium flavum Kleinh. Van Roosmalen (1985) 
-Licania majuscula Sagot	Licania majuscula	Chrysobalanaceae	yes	10		Tree	zoo	fleshy 	182	yes	35	32		
-Licania membranacea Sagot ex Laness.	Licania membranacea	Chrysobalanaceae	yes	94		Tree	zoo	fleshy 	1695	yes	17	8		
-Machaerium microphyllum (E.Mey.) Standl (= Machaerium altiscandens)	Machaerium altiscandens	Leguminosae (Faboideae)	no		Machaerium inundatum in tree list	Liana	ane	dry	130	no	45	12.5		p310 Mori et al. 2002
-Manilkara bidentata (A. DC.) A. Chevalier	Manilkara bidentata	Sapotaceae	yes	49		Tree	zoo	fleshy	120	yes	25	13		
-Manilkara huberi (Ducke) Standl.	Manilkara huberi	Sapotaceae	yes	47		Tree	zoo	fleshy	118	yes	24	13		
-Mendoncia hoffmannseggiana Nees	Mendoncia hoffmannseggiana	Acanthaceae	no			Liana	zoo	fleshy	177	yes	16	6		
-Micropholis guyanensis (A. DC.) Pierre	Micropholis guyanensis	Sapotaceae	yes	32		Tree	zoo	fleshy	1317	yes	15	9		
-Mimosa guilandinae (DC.) Barneby var. guilandinae	Mimosa guilandinae	Leguminosae (Mimosoideae)	no		other Mimosa species described in Poncy's list	Liana	ane	dry	1115	no	25	26.3		
-Neea floribunda Poepp. & Endl.	Neea floribunda	Nyctaginaceae	yes	165	several species mixed	Tree	zoo	fleshy	70	no	10.4	16.1		
-Ocotea floribunda (Swartz) Mez	Ocotea floribunda	Lauraceae	yes	91	several species mixed	Tree	zoo	fleshy	315	yes	14	10		
-Pourouma melinonii Benoist	Pourouma melinonii	Urticaceae	yes	19		Tree	zoo	fleshy	101	yes	16	9		
-Protium sagotianum Marchand	Protium sagotianum	Burseraceae	yes	63		Tree	zoo	fleshy	271	yes	16	8		
-Pseudopiptadenia suaveolens (Miq.) J.W. Grimes	Pseudopiptadenia suaveolens	Leguminosae (Mimosoideae)	yes	34	several species mixed	Tree	ane	dry	558	no	45.6	17.8		
-Qualea rosea Aubl.	Qualea rosea	Vochysiaceae	yes	94		Tree	ane	dry	149	no	46	12	4	Van Roosmalen 1985
-Quararibea duckei Huber	Quararibea duckei	Malvaceae	yes	359	several species mixed	Tree	zoo	fleshy	178	yes	15	9		
-Rhodostemonodaphne kunthiana (Nees) Rohwer (= Nectandra kunthiana)	Rhodostemonodaphne kunthiana	Lauraceae	no	28	several species mixed	Tree	zoo	fleshy	17	no	12.4	7.5		
-Rourea frutescens Aubl.	Rourea frutescens	Connaraceae	no			Liana	zoo	fleshy	233	no	10.5	5.1		
-Serjania paucidentata DC	Serjania paucidentata	Sapindaceae	yes			Liana	ane	dry	162	no	25.2	13.3		
-Stenostomum acreanum (K.Krause) Achille & Delprete (= Guettarda acreana)	Guettarda acreana	Rubiaceae	yes	51		Tree	zoo	fleshy	1523	yes	8	5		
-Sterculia pruriens (Aubl.) K. Schum.	Sterculia pruriens	Malvaceae	yes	147	several species mixed	Tree	zoo	dry	183	yes	19	14		
-Stigmaphyllon sinuatum (DC.) A. Juss.	Stigmaphyllon sinuatum	Malpighiaceae	yes			Liana	ane	dry	216	no	45	15		Syn. S. fulgens (van Roosmalen 1985)
-Strychnos erichsonii M.R. Schomb. ex Progel	Strychnos erichsonii	Loganiaceae	yes			Liana	zoo	fleshy	324	yes	18	14		
-Tachigali melinonii (Harms) Zarucchi & Herend.	Tachigali melinonii	Leguminosae (Caesalpinioideae)	yes	7		Tree	ane	dry	255	no	25	12.5		Scherolobium melinonii van Roosmalen 1985
-Terminalia guyanensis Eichler	Terminalia guyanensis	Combretaceae	yes	15	several species mixed	Tree	ane	dry	150	no	60	2		Mori et al. P. 227, 2002
-Tetragastris altissima (Aubl.) Swart	Tetragastris altissima	Burseraceae	yes	38		Tree	zoo	fleshy	198	yes	22	12		
-Tetragastris panamensis (Engl.) Kuntze	Tetragastris panamensis	Burseraceae	yes	8		Tree	zoo	fleshy	195	yes	16	11		
-Trattinnickia sp1	Trattinnickia sp1	Burseraceae	yes	12	several species mixed	Tree	zoo	fleshy	59	no	10.9	8.2		
-Unonopsis stipitata Diels	Unonopsis stipitata	Annonaceae	yes	56	several species mixed	Tree	zoo	fleshy	60	yes	11	7		
-Virola michelii Heckel	Virola michelii	Myristicaceae	yes	57		Tree	zoo	fleshy	118	yes	20.5	14.2		
-Vochysia guianensis Aubl.	Qualea dinizii	Vochysiaceae	no	44	several species mixed	Tree	ane	dry	752	no	48	12	4	"plutôt Vochysia guianensis (48 x 12 x 4 mm, van Roosmalen 1985)? (cf. Larpin dans Belbenoit et al.; Nouragues book) Q. dinizii est sur savanna forest sur cuirasse latéritique (PMF orget, au Suriname, cf Van Roosmalen 1985)"
+Taxa	species	longname	Family	detected in Poncy´s list	adult density	observations	Life form	Dispersal syndrome	Type of fruit	Total number of seeds	measured	ave L	ave W	D3	measure comments
+Acacia tenuifolia (L.) Willd.	Acacia tenuifolia	Acacia tenuifolia	Leguminosae (Mimosoideae)	no			Liana	ane	dry	1207	no	7.175	4.75		
+Bauhinia guianensis Aubl	Bauhinia guianensis	Bauhinia guianensis	Leguminosae (Caesalpinioideae)	no			Liana	bal	dry	157	yes	16	12.5		
+Bombacaceae sp1	Bombacaceae sp1	Bombacaceae sp1	Malvaceae	no			Liana	ane	dry	141	no	2.3	2.1		
+Coccoloba excelsa Benth. (= Coccoloba parimensis)	Coccoloba parimensis	Coccoloba excelsa	Polygonaceae	yes			Liana	zoo	fleshy	186	no	11.24	8.02		
+Cordia fulva I.M. Johnston	Cordia fulva	Cordia fulva	Boraginaceae	no	72	several species mixed	Tree	zoo	fleshy	123	yes	10.2	6.4		
+Couratari multiflora (J.E. Smith) Eyma	Couratari multiflora	Couratari multiflora	Lecythidaceae	yes	31	several species mixed	Tree	ane	dry	164	no	40	10	0.5	Sabatier (1983)
+Dicorynia guianensis Amsh.	Dicorynia guianensis	Dicorynia guianensis	Leguminosae (Caesalpinioideae)	yes	119		Tree	ane	dry	1163	no	14.1	10.9	3.6	Forget (1988), dry seeds, dormant
+Diplotropis purpurea (Rich.) Amsh.	Diplotropis purpurea	Diplotropis purpurea	Leguminosae (Faboideae)	yes	5		Tree	ane	dry	82	no	25	7	2	TVS 17 : Stratification of a tropical forest as seen in dispersal types Par Ingrid Roth
+Eperua falcata Aubl.	Eperua falcata	Eperua falcata	Leguminosae (Caesalpinioideae)	yes	134		Tree	bal	dry	56	no	41	27	9	Forget (1989)
+Eschweilera sagotiana Miers	Eschweilera sagotiana	Eschweilera sagotiana	Lecythidaceae	yes	665	several species mixed	Tree	zoo	fleshy	24	yes	18	15		
+Forsteronia guyanensis Müll. Arg.	Forsteronia guyanensis	Forsteronia guyanensis	Apocynaceae	yes			Liana	ane	dry	197	yes	15	2		
+Fridericia chica (Bonpl.) L.G. Lohmann (=Arrabidaea chica)	Arrabidaea chica	Fridericia chica	Bignoniaceae	no		Arrabidea mollis in tree list	Liana	bal	dry	1385	no	36.5	9.1		
+Gouania blanchetiana Miq.	Gouania blanchetiana	Gouania blanchetiana	Rhamnaceae	no			Liana	ane	dry	4505	no	14.7	10		
+Hippocratea volubilis L.	Hippocratea volubilis	Hippocratea volubilis	Hippocrateaceae	no			Liana	ane	dry	659	no	45.35	57.7		
+Hymenolobium pulcherrimum Ducke	Hymenolobium pulcherrimum	Hymenolobium pulcherrimum	Leguminosae	no	3		Tree	ane	dry	409	no	15	3	0.2	Hymenolobium flavum Kleinh. Van Roosmalen (1985) 
+Licania majuscula Sagot	Licania majuscula	Licania majuscula	Chrysobalanaceae	yes	10		Tree	zoo	fleshy 	182	yes	35	32		
+Licania membranacea Sagot ex Laness.	Licania membranacea	Licania membranacea	Chrysobalanaceae	yes	94		Tree	zoo	fleshy 	1695	yes	17	8		
+Machaerium microphyllum (E.Mey.) Standl (= Machaerium altiscandens)	Machaerium altiscandens	Machaerium microphyllum	Leguminosae (Faboideae)	no		Machaerium inundatum in tree list	Liana	ane	dry	130	no	45	12.5		p310 Mori et al. 2002
+Manilkara bidentata (A. DC.) A. Chevalier	Manilkara bidentata	Manilkara bidentata	Sapotaceae	yes	49		Tree	zoo	fleshy	120	yes	25	13		
+Manilkara huberi (Ducke) Standl.	Manilkara huberi	Manilkara huberi	Sapotaceae	yes	47		Tree	zoo	fleshy	118	yes	24	13		
+Mendoncia hoffmannseggiana Nees	Mendoncia hoffmannseggiana	Mendoncia hoffmannseggiana	Acanthaceae	no			Liana	zoo	fleshy	177	yes	16	6		
+Micropholis guyanensis (A. DC.) Pierre	Micropholis guyanensis	Micropholis guyanensis	Sapotaceae	yes	32		Tree	zoo	fleshy	1317	yes	15	9		
+Mimosa guilandinae (DC.) Barneby var. guilandinae	Mimosa guilandinae	Mimosa guilandinae	Leguminosae (Mimosoideae)	no		other Mimosa species described in Poncy's list	Liana	ane	dry	1115	no	25	26.3		
+Neea floribunda Poepp. & Endl.	Neea floribunda	Neea floribunda	Nyctaginaceae	yes	165	several species mixed	Tree	zoo	fleshy	70	no	10.4	16.1		
+Ocotea floribunda (Swartz) Mez	Ocotea floribunda	Ocotea floribunda	Lauraceae	yes	91	several species mixed	Tree	zoo	fleshy	315	yes	14	10		
+Pourouma melinonii Benoist	Pourouma melinonii	Pourouma melinonii	Urticaceae	yes	19		Tree	zoo	fleshy	101	yes	16	9		
+Protium sagotianum Marchand	Protium sagotianum	Protium sagotianum	Burseraceae	yes	63		Tree	zoo	fleshy	271	yes	16	8		
+Pseudopiptadenia suaveolens (Miq.) J.W. Grimes	Pseudopiptadenia suaveolens	Pseudopiptadenia suaveolens	Leguminosae (Mimosoideae)	yes	34	several species mixed	Tree	ane	dry	558	no	45.6	17.8		
+Qualea rosea Aubl.	Qualea rosea	Qualea rosea	Vochysiaceae	yes	94		Tree	ane	dry	149	no	46	12	4	Van Roosmalen 1985
+Quararibea duckei Huber	Quararibea duckei	Quararibea duckei	Malvaceae	yes	359	several species mixed	Tree	zoo	fleshy	178	yes	15	9		
+Rhodostemonodaphne kunthiana (Nees) Rohwer (= Nectandra kunthiana)	Rhodostemonodaphne kunthiana	Rhodostemonodaphne kunthiana	Lauraceae	no	28	several species mixed	Tree	zoo	fleshy	17	no	12.4	7.5		
+Rourea frutescens Aubl.	Rourea frutescens	Rourea frutescens	Connaraceae	no			Liana	zoo	fleshy	233	no	10.5	5.1		
+Serjania paucidentata DC	Serjania paucidentata	Serjania paucidentata	Sapindaceae	yes			Liana	ane	dry	162	no	25.2	13.3		
+Stenostomum acreanum (K.Krause) Achille & Delprete (= Guettarda acreana)	Guettarda acreana	Stenostomum acreanum	Rubiaceae	yes	51		Tree	zoo	fleshy	1523	yes	8	5		
+Sterculia pruriens (Aubl.) K. Schum.	Sterculia pruriens	Sterculia pruriens	Malvaceae	yes	147	several species mixed	Tree	zoo	dry	183	yes	19	14		
+Stigmaphyllon sinuatum (DC.) A. Juss.	Stigmaphyllon sinuatum	Stigmaphyllon sinuatum	Malpighiaceae	yes			Liana	ane	dry	216	no	45	15		Syn. S. fulgens (van Roosmalen 1985)
+Strychnos erichsonii M.R. Schomb. ex Progel	Strychnos erichsonii	Strychnos erichsonii	Loganiaceae	yes			Liana	zoo	fleshy	324	yes	18	14		
+Tachigali melinonii (Harms) Zarucchi & Herend.	Tachigali melinonii	Tachigali melinonii	Leguminosae (Caesalpinioideae)	yes	7		Tree	ane	dry	255	no	25	12.5		Scherolobium melinonii van Roosmalen 1985
+Terminalia guyanensis Eichler	Terminalia guyanensis	Terminalia guyanensis	Combretaceae	yes	15	several species mixed	Tree	ane	dry	150	no	60	2		Mori et al. P. 227, 2002
+Tetragastris altissima (Aubl.) Swart	Tetragastris altissima	Tetragastris altissima	Burseraceae	yes	38		Tree	zoo	fleshy	198	yes	22	12		
+Tetragastris panamensis (Engl.) Kuntze	Tetragastris panamensis	Tetragastris panamensis	Burseraceae	yes	8		Tree	zoo	fleshy	195	yes	16	11		
+Trattinnickia sp1	Trattinnickia sp1	Trattinnickia sp1	Burseraceae	yes	12	several species mixed	Tree	zoo	fleshy	59	no	10.9	8.2		
+Unonopsis stipitata Diels	Unonopsis stipitata	Unonopsis stipitata	Annonaceae	yes	56	several species mixed	Tree	zoo	fleshy	60	yes	11	7		
+Virola michelii Heckel	Virola michelii	Virola michelii	Myristicaceae	yes	57		Tree	zoo	fleshy	118	yes	20.5	14.2		
+Vochysia guianensis Aubl.	Qualea dinizii	Vochysia guianensis	Vochysiaceae	no	44	several species mixed	Tree	ane	dry	752	no	48	12	4	"plutôt Vochysia guianensis (48 x 12 x 4 mm, van Roosmalen 1985)? (cf. Larpin dans Belbenoit et al.; Nouragues book) Q. dinizii est sur savanna forest sur cuirasse latéritique (PMF orget, au Suriname, cf Van Roosmalen 1985)"
