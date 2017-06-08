@@ -290,3 +290,36 @@ yearvalues=function(file="Nouragues model all spp.txt", fileno="NRG model all sp
   return(allresults)
 }
 
+
+spshort2 = function(spname)
+{
+  genuscode = spcode = character()
+  latin = strsplit(spname,split=' ')
+  genuscode = left(latin[[1]][1],3)
+  spcode = left(latin[[1]][2],3)
+  return(pst(genuscode,spcode))
+}
+
+##splong reconverts an abbreviation of six letters to the full name of a species
+#splong(infile=nourage, shortname="Virmic")
+splong=function(infile, shortname)
+{
+  fulldata=read.delim(infile,as.is=TRUE)
+  spnames=sort(unique(fulldata$sp))
+  splong=character()
+  genuscode=spcode=character()
+  
+  latin=strsplit(spnames,split=' ')
+  for(i in 1:length(latin))
+  {
+    genuscode[i]=left(latin[[i]][1],3)
+    spcode[i]=left(latin[[i]][2],3)
+    splong[i]=spnames[i]
+  }
+  
+  spshort=pst(genuscode,spcode)
+  spp=data.frame(splong,spshort)
+  result=which(spp$spshort==shortname)
+  return(spp[result,1])
+}   
+
