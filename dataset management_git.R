@@ -1,26 +1,43 @@
 ### This code includes functions for managing de datasets from the hierarchical models
 
 library(Hmisc)
+library(dplyr)
+source(".\\Nouragues_functions_git.r")
 
 ##spshort creates an abbreviation of six letters for each species
-spshort=function()
+##spshort2 creates an abbreviation of six letters for a given name of a species
+#spshort2("Virola michelii")
+
+
+#function for extracting the 9,000 estimates of hyperlogSD all species in Nouragues
+CVpeak <- function(fit = results)
 {
-   fulldata=read.delim(file=nourage)
-   spnames=sort(unique(fulldata$sp))
-   spshort=character()
-   counter=1
-   for (i in 1:length(spnames))  
-   {
-     spc<-gsub(" ","-",spnames[i])
-     spc1<-regexpr("-",spc)
-     genuscode<-substr(spc,1,3)
-     spcode<-substr(spc,as.numeric(spc1[1])+1,as.numeric(spc1[1])+3)
-     spshort[counter]=paste(genuscode,spcode,sep="")
-    counter=counter+1
-   } 
- return=spshort
-}   
+  
+
+  spnames = names(fit)
+  species = character()
+  counter=1
+  
+  for (i in 1:length(spnames))
+  { 
+    f = fit[[spnames[i]]]
+    speciesused = as.character(spnames[i])  
+    splong1 = as.character(splong(infile = file, shortname = speciesused))
+    logSD = f$hyper$logSD [1001: 10000]
+    vectorCV = sqrt(exp(logSD^2)-1 )
+    species = rep(splong1, 9000)
+    results = data.frame(species, logSD, vectorCV)
+    if (i == 1) allresults = results else allresults = rbind(allresults, results)
    
+  }
+  
+  return(allresults)
+}
+
+allhyperSD <- CVpeak(fit = results)
+grouped <- group_by(allhyperSD, species)
+CVall <- summarise (grouped, mean = mean(vectorCV))
+save(allhyperSD, file = "hyperSD all species Nouragues.RData")
 
 datasetnrg<-function(dataset=nourage)
 {
@@ -81,47 +98,6 @@ initial.peak=function(dataset)
  return(results)
 } 
 
-## do a loop for all species in BCI
-
-
- hierarchical.BCI<-function(file=bci)
- 
-{
-   bci1=read.delim(file)   
-   inc<-getseeds(bci1$part,bci1$sp,bci1$trap)
-   bcifruits<-bci1[inc,]  
-   maspp=mostabundspp.bci()
-   ma<-data.frame(maspp)
-   bcishort<-merge(bcifruits,ma,by.x="sp",by.y="maspp", all.y=T)
-   spnames=as.vector(sort(unique(bcishort$sp)))
-   #spnameshort=spnames[c(157,149,81)]
-   
-   results=list()          
-   startv=vector()
-   for (i in 1:length(spnames))
-
-  {     
-     onesp<-subset(bcishort,sp==spnames[i])
-     cat("sp:",as.character(spnames[i]), "\n" )
-     censsum<-bcicens(infile=onesp)
-     bcianal=bciwithzeros(infile=censsum)    
-     spdata<-extract.seedfall_bci(dataset=bcianal)
-     #spdata=subset(spdata,spdata$year==1998|spdata$year==1999|spdata$year==2000|spdata$year==2001|spdata$year==2002)
-     maxdate=which.max(spdata$quantity)
-     startv[1]=spdata$yday[maxdate]
-     startv[2]= 10
-     startv[3]=3.7
-     startv[4]= 1.2
-     startv[5]= 25
-     #fit=model.seedfall.Gibbs(data=spdata,start=startv,startyear=1998,endyear=2002,steps=2000,show=10,burn=1000)
-     fit=model.seedfall.Gibbs(data=spdata,start=startv,startyear=1987,endyear=2011,steps=200,show=10,burn=10)
-     #save(fit,file=paste(spnames[i],".RData"))
-     results[[spnames[i]]]= fit
-   }
- save(results, file="hierarchical models BCI.RData")
- return(results)
-}
-
 
 graphierspp<-function(sp="Arrchi", file=nourage)
 {
@@ -136,47 +112,49 @@ graph.fitseedrain(spdata=dataname,fit=fitset)
 }
 
 #function for constructing a table with the hyperparameters of peak and peakday for all species
-resultstablenrghyp<-function(fit=results,file=nourageanalyses,beginyearfile=beginyearfile)
+resultstablenrghyp<-function(fit=results, file = "nouragues.txt", beginyearfile=beginyearfile)
 {
-
-beginyr=read.delim(file=beginyearfile)
-datafile=read.delim(file)
-spnames=names(fit)
-species=character()
-mu=CImu2=CImu97=SD=CISD2=CISD97=logmu=CIlogmu2=CIlogmu97=logSD=CIlogSD2=CIlogSD97=bestSD=maxlik=vector()
-counter=1
-
-for (i in 1:length(spnames))
-{ 
-f=fit[[spnames[i]]]
-speciesused=as.character(spnames[i])  
-splong= as.character(splong(infile=file,shortname=speciesused))
-bgy= unique(beginyr$beginyr[beginyr$sp==splong])
-fitset=retranslate.seedfalldate(fit=f,beginyear=bgy)
-
-bgy= unique(beginyr$beginyr[beginyr$sp==splong])
-fitset=retranslate.seedfalldate(fit=f,beginyear=bgy)
-
-species[counter]=splong
-mu[counter]=fitset$besthyper[1]
-CImu2[counter]= fitset$CIhyper[1]
-CImu97[counter]= fitset$CIhyper[2]
-SD[counter]=fitset$besthyper[2]
-CISD2[counter]= fitset$CIhyper[3]
-CISD97[counter]= fitset$CIhyper[4]
-logmu[counter]=fitset$besthyper[3]
-CIlogmu2[counter]= fitset$CIhyper[5]
-CIlogmu97[counter]= fitset$CIhyper[6]
-logSD[counter]=fitset$besthyper[4]
-CIlogSD2[counter]= fitset$CIhyper[7]
-CIlogSD97[counter]= fitset$CIhyper[8]
-bestSD[counter]=fitset$bestSD
-maxlik[counter]=max(fitset$llike)
-counter=counter+1
+  
+  beginyr=read.delim(file=beginyearfile)
+  datafile=read.delim(file)
+  spnames=names(fit)
+  species=character()
+  mu=CImu2=CImu97=SD=CISD2=CISD97=logmu=CIlogmu2=CIlogmu97=logSD=CIlogSD2=CIlogSD97=bestSD=maxlik=vector()
+  counter=1
+  
+  for (i in 1:length(spnames))
+  { 
+    f=fit[[spnames[i]]]
+    speciesused=as.character(spnames[i])  
+    splong= as.character(splong(infile=file,shortname=speciesused))
+    bgy= unique(beginyr$beginyr[beginyr$sp==splong])
+    fitset=retranslate.seedfalldate(fit=f,beginyear=bgy)
+    
+    bgy= unique(beginyr$beginyr[beginyr$sp==splong])
+    fitset=retranslate.seedfalldate(fit=f,beginyear=bgy)
+    
+    species[counter]=splong
+    mu[counter]=fitset$besthyper[1]
+    CImu2[counter]= fitset$CIhyper[1]
+    CImu97[counter]= fitset$CIhyper[2]
+    SD[counter]=fitset$besthyper[2]
+    CISD2[counter]= fitset$CIhyper[3]
+    CISD97[counter]= fitset$CIhyper[4]
+    logmu[counter]=fitset$besthyper[3]
+    CIlogmu2[counter]= fitset$CIhyper[5]
+    CIlogmu97[counter]= fitset$CIhyper[6]
+    logSD[counter]=fitset$besthyper[4]
+    CIlogSD2[counter]= fitset$CIhyper[7]
+    CIlogSD97[counter]= fitset$CIhyper[8]
+    bestSD[counter]=fitset$bestSD
+    maxlik[counter]=max(fitset$llike)
+    counter=counter+1
+  }
+  results=data.frame(species,mu,CImu2,CImu97,SD,CISD2,CISD97,logmu,CIlogmu2,CIlogmu97,logSD,CIlogSD2,CIlogSD97,bestSD,maxlik)
+  return(results)
 }
-results=data.frame(species,mu,CImu2,CImu97,SD,CISD2,CISD97,logmu,CIlogmu2,CIlogmu97,logSD,CIlogSD2,CIlogSD97,bestSD,maxlik)
-return(results)
-}
+
+
 
 #table for extracting parameters of each year in Nouragues
 resultstablenrgyears<-function(fit=results,file=nourageanalyses,beginyearfile=beginyearfile)
@@ -842,6 +820,7 @@ bci.graph.pdf<-function(file=bcishort, fit=bciresults2, beginyearfile=bcibeginye
  dev.off()
 }
 }  
+
 #this function repeat models just for a subset of species that were not working with other beginyear priors 
 somerepetBCI<-function(file=bci,beginyearfile=bcibeginyear, steps=10000, burnin=1000,outfile)
  
@@ -904,106 +883,6 @@ somerepetBCI<-function(file=bci,beginyearfile=bcibeginyear, steps=10000, burnin=
 }
 
  
-bci.graphsmoved.arr1=function(file=bcishort, fit=results14,species="ARR1")         #this graph put 0 days of the year in the center: it is only valid for LOW numbers of peakday
-{
-   
-   bcishort<-read.delim (file) 
-   spnames=as.vector(sort(unique(bcishort$sp)))
-   
-     results=list()          
-     startv=vector()
-
-     onesp<-subset(bcishort,sp==species)
-     cat("sp:",as.character(species), "\n" )
-     censsum<-bcicens(infile=onesp)
-     bcianal=bciwithzeros(infile=censsum)    
-     spdata<-extract.seedfall_bci(dataset=bcianal)
-     bgy= unique(bcishort$beginyr[bcishort$sp==species])
-     spdata2<-create.rep.year(data=spdata,beginyear=bgy)
-     #spdata<-create.rep.year(data=spdata,beginyear=bgy)
-    
-     Dj=round(ifelse(bgy<182.5,bgy,bgy-366),0)
-     nyear= unique(spdata2$year)    
-     maxyday=numfiles=dif=numeric()
-     for (j in 1:length(nyear))
-     { 
-        oneyr=subset(spdata2,spdata2$year==nyear[j])
-        maxyday[j]<-max(oneyr$yday)
-        dif[j]<-max(oneyr$yday)-min(oneyr$yday)
-        numfiles[j]=dim(oneyr)[1]  
-     }
-     
-     yearselection=data.frame(maxyday,dif,numfiles)
-     numyear=dim(yearselection)[1]
-     startv=endv=numeric()
-     startv= ifelse(yearselection$maxyday[1]>=320&dif[1]>300,nyear[1],nyear[2])
-     endv=ifelse(yearselection$maxyday[numyear]>=320&dif[numyear]>300,nyear[numyear],nyear[numyear-1]) 
-     inc2=which(spdata2$year>=startv&spdata2$year<=endv)
-     fitset=fit[[species]] 
-     #fittrans= retranslate.seedfalldate2(data=spdata,fit=fitset,beginyear=bgy,startyear=startyear,endyear=endyear)
-     fittrans= retranslate.seedfalldate(fit=fitset,beginyear=bgy)
-     
-     filename=paste(species,"moved2.pdf")   
-     pdf(file=filename)
-
-     
-    par(mfrow=c(2,1))
-    inc=which(spdata$year>=startv&spdata$year<=endv)
-    plot(spdata$julian,spdata$quantity,pch=16,ylim=c(0,max(fittrans$bestpeak)),axes=F,xlab="years",ylab="number of seeds")
-    jan=tojulian(pst('01/01/',min(unique(spdata$year)):(max(unique(spdata$year))+1)))
-    janlab=pst('1Jan',min(unique(spdata$year)):(max(unique(spdata$year))+1))
-    axis(side=1, at=jan, labels= janlab)
-    axis(2)
-    ejex=as.vector(spdata2$julian[inc2]+Dj)
-    lines(ejex[1:length(fitset$model)],fitset$model)  
-    title(main=species)
-    newdates=fromjulian(spdata$julian[inc2]+Dj,dateform="%Y-%m-%d")
-    fulldate=create.fulldate(newdates,format='%Y-%m-%d')
-    startyear=min(unique(fulldate$year))
-    endyear=max(unique(fulldate$year))
-    jan1=tojulian(pst('01/01/',startv:endv))
-    fitpeakjulian=jan1+fittrans$bestpeakday 
-    points(fitpeakjulian,fittrans$bestpeak,col='red',pch=16)
-   
-   maxyr=which.max(fittrans$bestpeak)
-   oneyrpred=14*fittrans$bestpeak[maxyr]*dnorm(-120:245,mean=fittrans$bestpeakday[maxyr],sd=fittrans$bestSD)
-   plot(-120:245,oneyrpred,type='l',ylab='biweekly seedfall',xlab='day of year',axes=FALSE)
-   axis(side=1, at=c(-120,-60,1,60,120,180,240),labels=c("245","305","0","60","120","180","240") )
-   axis(side=2)
-   for(k in 1:length(fittrans$bestpeak)) 
-    { 
-     oneyrpred=14*fittrans$bestpeak[k]*dnorm(-120:245,mean=fittrans$bestpeakday[k],sd=fittrans$bestSD)
-     lines(-120:245,oneyrpred,col=k) 
-    }
- dev.off()
-}
-
-
-boxplot.BCI=function(parameter="peakday")                           #this function draws the plots for the estimated parameters of peak or peakday for BCI. The desired parameter must be indicated
-{
-  setwd("C:/Brunoy/Base Datos Nouragues/Metadata Joe Wright/modeling max likelihood/hierarchical models/results hierarchical models BCI-NRG")
-  bcy=read.delim(file="BCI results parameters per year.txt")
-  spnames=sort(unique(bcy$species))
-
-    for (i in 1:length(spnames))
-                       
-  {     
-  sp=as.character(spnames[i])
-   cat("sp:",as.character(sp), "\n" ) 
-  onesp=subset(bcy,bcy$species==sp)
-  filename=paste(sp,"year.pdf")   
-  pdf(file=filename)
-  color=c("red","blue","grey","grey","red","red","red","grey","grey","grey","red","red",
-  "grey","grey","grey","red","grey","grey","grey","grey","blue","blue","purple","blue","blue")
-  barplot(onesp$peak, ylim=c(0,max(onesp$CIpeak97)), space=1,axes=FALSE, col=color[1:dim(onesp)[1]],xlab="years",ylab="estimated number of seeds")
-  title(main=sp)
-  xpos=seq(1.5,(dim(onesp)[1])*2,2)
-  axis(side =1, at=xpos,lab=as.character(c(min(bcy$year):max(bcy$year))[1:length(xpos)]))
-  axis(side=2)
-  errbar(x=xpos,y=onesp$peak,yplus=onesp$CIpeak2,yminus=onesp$CIpeak97,add=TRUE)
-  dev.off()
-  }
-}
 
 boxplot.NRG=function(parameter="peak")           #this function draws the plots for the estimated parameters of peak or peakday for Nouragues. The desired parameter must be indicated
 {
