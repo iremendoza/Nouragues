@@ -172,7 +172,7 @@ figure2 = function(trfile = "Nouragues results hyperparameters.txt", longnames =
   #x11(height=9,width=9)
   tiff(filename=filename,height=1200,width=1900,res=300)
   par(mar=c(3,3,3,1),oma=c(1,1,1,1))
-  tr = read.delim(file=trfile)
+  tr = read.delim(file = trfile)
   tr$mu2=tr$mu
   tr$mu2[which(tr$mu<=0)]= tr$mu[which(tr$mu<=0)]+365.25
   tr$mu2[which(tr$mu>365)]= tr$mu[which(tr$mu>365)]-365.25
@@ -456,13 +456,14 @@ figure3.old = function(file = "Nouragues results hyperparameters.txt", filename 
 
 
 ####FIGURE 4 OF THE PAPER ###############
+### coefficient of variation of seed production for the 45 species
 
-figure4 = function(file = "nouragues results parameters per year.txt", hyper = "Nouragues results hyperparameters.txt", longnames = "total number of seeds per species.txt", filename = "figure4.tif") {
+figure4 = function(file = "nouragues results parameters per year.txt", hyper = "Nouragues results hyperparameters.txt", longnames = "seed size.txt", filename = "figure4.tif") {
   
   nrg = read.delim(file)
   #spnames=sort(unique(nrg$sp))
   totseed = read.delim(file = longnames)
-  names(totseed) = c("species", "longname", "totseed", "form", "disp", "fruit", "length", "width", "Smythe")
+  names(totseed) = c("Taxa", "species", "longname", "family", "Poncy", "adult", "observations", "form", "disp", "fruit", "totseed", "measured", "length", "width", "D3", "comments.measure")
   spnames2 = totseed$longname
   spmeans = aggregate(data.frame(peak = nrg$peak),by=list(species = nrg$species),mean)
   spsd = aggregate(data.frame(peak = nrg$peak), by = list(species = nrg$species),sd)
@@ -473,37 +474,46 @@ figure4 = function(file = "nouragues results parameters per year.txt", hyper = "
   orco = order(condensed2$CV)
   
   tr <-read.delim(hyper)
-  tr$CV <- sqrt(exp(tr$logSD)-1 )
+  tr$CV <- sqrt(exp(tr$logSD^2)-1 )
+  orCV <- order(log(tr$CV+1))
+  condensedtr = merge(tr, totseed, by = "species")
+  
   
   #split.screen(c(1,2))
   tiff(filename = filename, height = 1600, width = 2500, pointsize = 24) #
   par(mar = c(20,5,12,1), cex = 1)
-  zoo = which(condensed2$disp[orco] == "zoo")
-  bal = which(condensed2$disp[orco] == "bal")
-  ane = which(condensed2$disp[orco] == "ane")
+  zoo = which(condensedtr$disp[orCV] == "zoo")
+  bal = which(condensedtr$disp[orCV] == "bal")
+  ane = which(condensedtr$disp[orCV] == "ane")
   colores=1:45
   colores[zoo] = "gray28"
   colores[ane]="white"
   colores[bal]="white"
-  barplot(condensed2$CV[orco], main="", space=0,las=2,axes=F, ylim=c(0,3),col=colores)
-  axis(side=2, at=c(0,1,2,3), labels=c("0","1","2","3") ,las=2, cex.axis=1.75)
-  mtext(side=2, "Coefficient of variation", line=3,cex=2, las=3)
-  #axis(side=1, at=seq(0.5,45,2), labels=condensed2$longname[orco][seq(1,45,2)],las=2,font=3, cex.axis=1.5)
-  axis(side=1, at=seq(0.5,45,1), labels = condensed2$longname[orco][seq(1,45,1)],las=2,font=3, cex.axis=1.5)
+  #barplot(condensed2$CV[orco], main="", space=0,las=2,axes=F, ylim=c(0,3),col=colores) #this is for the old way of calculating the CV of peak
+  barplot(log(condensedtr$CV + 1)[orCV], main="", space = 0, las = 2, axes = F, ylim = c(0,30), col = colores)
+  axis(side=2,las=2, cex.axis=1.75)
+  mtext(side=2, "Coefficient of variation (log)", line=3,cex=2, las=3)
+  #axis(side=1, at=seq(0.5,45,1), labels = condensed2$longname[orco][seq(1,45,1)],las=2,font=3, cex.axis=1.5) #this is for the old way of calculating the CV of peak
+  axis(side=1, at=seq(0.5,45,1), labels = condensedtr$longname[orCV][seq(1,45,1)],las=2,font=3, cex.axis=1.5) #this is for the new way of calculating the CV of peak
+  
   abline(h=1,lwd=2)
-  text(0,2.5, "A", cex=2)
-  legend(4,3,fill=c("gray28","white"),legend=c("biotic","abiotic"),bty="n",cex=2)
-  par(new=T)
+  text(0,28, "A", cex=2)
+  legend(4,28,fill=c("gray28","white"),legend=c("biotic","abiotic"),bty="n",cex=2)
+  par(new=T, mar = c(2,2,2,2))
   m=matrix(ncol=3,nrow=4)
   m[1,3]=2
   m[2:4,]=1
   m[1,c(1,2)]=1
-  layout(m, widths=c(1,1))
-  CVspp(file=file)
-  abline(v=1,lwd=2)
+  layout(m, widths=c(0.9,0.9))
+  #CVspp(file=file)
+  h <- hist(log(tr$CV[orCV]+1), breaks = c(0,1,10,30),  plot =F)
+  barplot(h$counts, space = 0, axes =F)
+  axis(side = 1, at = c(1, 2, 3), labels = c("1", "10", "30"), las = 1, cex.axis = 1.75)
+  axis(side = 2, las = 1, cex.axis = 1.75)
+  abline(v=1,lwd=3)
   text(3,15, "B", cex=2)
-  mtext(side=1,"coefficient of variation",line=3,cex=1.3)
-  mtext(side=2, "number of species",line=3,cex=1.3)
+  mtext(side=1,"coefficient of variation (log)",line=3,cex=1.5)
+  mtext(side=2, "number of species",line=3,cex=1.5)
   dev.off()
 }
 
