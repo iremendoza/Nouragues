@@ -1,8 +1,8 @@
 
-#load(".\\NRG.results2.Rdata")
+load(".\\NRG.results2.Rdata")
 #load(".\\tetpan2.Rdata")
 
-setwd("C:\\Projects\\Nouragues")
+#setwd("C:\\Projects\\Nouragues")
 #setwd("C:\\Brunoy\\hierarchical models\\working files hierarchical models\\")
 
 nrgresults = read.delim(file = "nouragues results parameters per year.txt")
@@ -11,6 +11,7 @@ nrgresults = read.delim(file = "nouragues results parameters per year.txt")
 source(".\\hierarchical models_git.r")
 source(".\\Nouragues_functions_git.r")
 source(".\\hierarchicalModelsRepyear_git.r")
+source(".\\dataset management_git.r")
 #source("C:\\Irene\\Brunoy\\Base Datos Nouragues\\Metadata Joe Wright\\NRG\\Rcode_CV_PhenYr_20110509.r")
 #source("C:\\Irene\\Brunoy\\Base Datos Nouragues\\Metadata Joe Wright\\modeling max likelihood\\BCI-max likelihood.r")
 
@@ -1402,14 +1403,26 @@ smythe = function(file = "nouragues results parameters per year.txt", longnames=
   summary(lm1)
 }
 
-#stats with table 1: do fruit variability change according to the dispersal mode?#
+#stats with table 1: how many species were masting; do fruit variability change according to the dispersal mode?#
 
 table1stats <- function (table1 = "table 1.txt"){
-  
-  
+  tab1 <- read.delim(table1)
+  table(tab1$masting)
+  (18/45)
 }
 
+# using the bestSD as proxy of fit of the model
 
+fitmodel = function(file = "Nouragues results hyperparameters.txt"){
+  
+  tr <-read.delim(file)
+  bestSD <- tr$bestSD
+  hist(bestSD)
+  boxplot(bestSD)
+  CI(bestSD)
+  tr[which(bestSD >=94),]
+  
+}
 
 #this function plots fruit biomass for Nouragues in relation to MEI (it doesn't work well)
 biomasstime=function(biomass=biomass, k=3) {
