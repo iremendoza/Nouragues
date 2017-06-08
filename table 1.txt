@@ -1,4 +1,4 @@
-Taxa	dispersal	variation	masting	season
+longname	dispersal	variation	masting	season
 Acacia tenuifolia 	ane	High	No	Wet
 Bauhinia guianensis 	bal	Medium	No	Wet
 Bombacaceae sp1	ane	Medium	No	Wet
@@ -40,7 +40,7 @@ Tachigali melinonii	ane	High	Yes	Wet
 Terminalia guyanensis	ane	High	No	Wet
 Tetragastris altissima	zoo	Low	Yes	Wet
 Tetragastris panamensis	zoo	Low	No	Dry
-Trattinnickia sp1	zoo	Low	Yes	Wet
+Trattinnickia sp1	zoo	Low	No	Wet
 Unonopsis stipitata	zoo	Medium	Yes	Wet
 Virola michelii	zoo	Low	No	Wet
 Vochysia guianensis	ane	High	Yes	Wet
