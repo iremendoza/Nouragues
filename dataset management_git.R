@@ -23,10 +23,13 @@ CVpeak <- function(fit = results)
     f = fit[[spnames[i]]]
     speciesused = as.character(spnames[i])  
     splong1 = as.character(splong(infile = file, shortname = speciesused))
+    mu = f$hyper$mu [1001: 10000]
+    SD = f$hyper$SD [1001: 10000]
+    logmu = f$hyper$logmu [1001: 10000]
     logSD = f$hyper$logSD [1001: 10000]
     vectorCV = sqrt(exp(logSD^2)-1 )
     species = rep(splong1, 9000)
-    results = data.frame(species, logSD, vectorCV)
+    results = data.frame(species, mu, SD, logmu, logSD, vectorCV)
     if (i == 1) allresults = results else allresults = rbind(allresults, results)
    
   }
@@ -34,10 +37,10 @@ CVpeak <- function(fit = results)
   return(allresults)
 }
 
-allhyperSD <- CVpeak(fit = results)
-grouped <- group_by(allhyperSD, species)
-CVall <- summarise (grouped, mean = mean(vectorCV))
-save(allhyperSD, file = "hyperSD all species Nouragues.RData")
+#hyper <- CVpeak(fit = results)
+#grouped <- group_by(allhyperSD, species)
+#CVall <- summarise (grouped, mean = mean(vectorCV))
+#save(hyper, file = "hyper all species Nouragues.RData")
 
 datasetnrg<-function(dataset=nourage)
 {
