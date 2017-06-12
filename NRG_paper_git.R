@@ -1,5 +1,6 @@
 
-load(".\\NRG.results2.Rdata")
+#load(".\\NRG.results2.Rdata")
+#load(".\\EstimatedCV.Rdata")
 #load(".\\tetpan2.Rdata")
 
 #setwd("C:\\Projects\\Nouragues")
@@ -363,9 +364,9 @@ figure3 = function(file = "Nouragues results hyperparameters.txt", longnames = "
   dat$disp2[bal] = "abiotic"
   
   colores = character(length = 45)
-  colores[zoo] = "red"
-  colores[ane] = "blue"
-  colores[bal] = "blue"
+  colores[zoo] = "gray48"
+  colores[ane] = "white"
+  colores[bal] = "white"
   
   tiff(filename = filename, height = 2000, width = 3000, res = 300)
   par(las = 1, mar = c(3,13,1,1), oma = c(2,4,1,1), cex = 0.6)
@@ -380,7 +381,7 @@ figure3 = function(file = "Nouragues results hyperparameters.txt", longnames = "
   
   polygon(c(212, 334, 334, 212),c(0, 0,50,50),col = "#CCCCCC42", border = NA)
   axis(side = 2, at = 1:45, labels = dat$sp[seq(1,45,1)],las = 2, font = 3, cex.axis = 1.2)
-  legend(10, 44, lty = c(1,1), pch = 21, legend = c("biotic","abiotic"), pt.bg = c("red", "blue"), bty = "n", cex = 1.5, horiz = T, lwd = 2)
+  legend(10, 44, lty = c(1,1), pch = 21, legend = c("biotic","abiotic"), pt.bg = c("gray48", "white"), bty = "n", cex = 1.5, horiz = T, lwd = 2)
   mtext(side = 1, line = 3, text = "date of peaks (month of the year)")
   
   # The errorbars overlapped, so use position_dodge to move them horizontally
@@ -412,7 +413,7 @@ figure3 = function(file = "Nouragues results hyperparameters.txt", longnames = "
   
   glm1 <- glm(dat$SD ~ dat$disp2)
   summary(glm1)
-  boxplot(dat$SD ~ dat$disp2)
+  #boxplot(dat$SD ~ dat$disp2)
   }  
 
 figure3.old = function(file = "Nouragues results hyperparameters.txt", filename = "figure3_old.tif"){
@@ -459,7 +460,7 @@ figure3.old = function(file = "Nouragues results hyperparameters.txt", filename 
 ####FIGURE 4 OF THE PAPER ###############
 ### coefficient of variation of seed production for the 45 species
 
-figure4 = function(file = "nouragues results parameters per year.txt", hyper = "Nouragues results hyperparameters.txt", longnames = "seed size.txt", filename = "figure4.tif") {
+figure4 = function(file = "nouragues results parameters per year.txt", hyper = "Nouragues results hyperparameters.txt", EstimatedCV = EstimatedCV, longnames = "seed size.txt", filename = "figure4.tif") {
   
   nrg = read.delim(file)
   #spnames=sort(unique(nrg$sp))
@@ -474,32 +475,49 @@ figure4 = function(file = "nouragues results parameters per year.txt", hyper = "
   condensed2$CV = condensed$sd/condensed$mean
   orco = order(condensed2$CV)
   
+  ##this is for the second way of calculating the CV from a lognormal
   tr <-read.delim(hyper)
   tr$CV <- sqrt(exp(tr$logSD^2)-1 )
   orCV <- order(log(tr$CV+1))
   condensedtr = merge(tr, totseed, by = "species")
   
+  #this is the third and correct way, using the table calculated by Rick Condit
+  orest = order(EstimatedCV$meancv)
+  EstimatedCV$species <- rownames(EstimatedCV)
+  condensedest = merge(EstimatedCV, totseed, by = "species")
   
   #split.screen(c(1,2))
   tiff(filename = filename, height = 1600, width = 2500, pointsize = 24) #
   par(mar = c(20,5,12,1), cex = 1)
-  zoo = which(condensedtr$disp[orCV] == "zoo")
-  bal = which(condensedtr$disp[orCV] == "bal")
-  ane = which(condensedtr$disp[orCV] == "ane")
+  zoo = which(condensedest$disp[orest] == "zoo")
+  bal = which(condensedest$disp[orest] == "bal")
+  ane = which(condensedest$disp[orest] == "ane")
   colores=1:45
-  colores[zoo] = "gray28"
-  colores[ane]="white"
-  colores[bal]="white"
+  colores[zoo] = "gray68"
+  colores[ane] = "white"
+  colores[bal] = "white"
   #barplot(condensed2$CV[orco], main="", space=0,las=2,axes=F, ylim=c(0,3),col=colores) #this is for the old way of calculating the CV of peak
-  barplot(log(condensedtr$CV + 1)[orCV], main="", space = 0, las = 2, axes = F, ylim = c(0,30), col = colores)
+  #barplot(log(condensedtr$CV + 1)[orCV], main="", space = 0, las = 2, axes = F, ylim = c(0,30), col = colores)
+  #ggplot(condensedest, aes(x = longname[orest], y = as.numeric(meancv[orest]))) +
+           #geom_bar(stat = "identity")
+  barplot(as.numeric(condensedest$meancv[orest]), main="", space=0,las=2, ylim=c(0,40),col=colores, axes = F)
+  segments(y0 = as.numeric(condensedest$meancv[orest]), y1 = as.numeric(EstimatedCV$upper[orest]), x0 = seq(0.5, 44.5, 1), x1 = seq(0.5, 44.5, 1), lwd = 2, col = "black")
+  segments(y0 = as.numeric(condensedest$lower[orest]), y1 = as.numeric(condensedest$meancv[orest]), x0 = seq(0.5, 44.5, 1), x1 = seq(0.5, 44.5, 1), lwd = 2, col = "black")
+  
+  arrows(y0 = as.numeric(condensedest$meancv[orest]), y1 = as.numeric(EstimatedCV$upper[orest]), x0 = seq(0.5, 44.5, 1), x1 = seq(0.5, 44.5, 1), lwd = 2, col = "black", angle = 90,
+         code = 3, length = 0.05)
+  arrows(y0 = as.numeric(condensedest$lower[orest]), y1 = as.numeric(condensedest$meancv[orest]), x0 = seq(0.5, 44.5, 1), x1 = seq(0.5, 44.5, 1), lwd = 2, col = "black", angle = 90,
+         code = 3, length = 0.05)
+  
+  
   axis(side=2,las=2, cex.axis=1.75)
-  mtext(side=2, "Coefficient of variation (log)", line=3,cex=2, las=3)
+  mtext(side=2, "Coefficient of variation of seed production", line=3,cex=2, las=3)
   #axis(side=1, at=seq(0.5,45,1), labels = condensed2$longname[orco][seq(1,45,1)],las=2,font=3, cex.axis=1.5) #this is for the old way of calculating the CV of peak
-  axis(side=1, at=seq(0.5,45,1), labels = condensedtr$longname[orCV][seq(1,45,1)],las=2,font=3, cex.axis=1.5) #this is for the new way of calculating the CV of peak
+  axis(side=1, at=seq(0.5,45,1), labels = condensedest$longname[orest][seq(1,45,1)],las=2,font=3, cex.axis=1.5) #this is for the new way of calculating the CV of peak
   
   abline(h=1,lwd=2)
   text(0,28, "A", cex=2)
-  legend(4,28,fill=c("gray28","white"),legend=c("biotic","abiotic"),bty="n",cex=2)
+  legend(4,28,fill=c("gray68","white"),legend=c("biotic","abiotic"),bty="n",cex=2)
   par(new=T, mar = c(2,2,2,2))
   m=matrix(ncol=3,nrow=4)
   m[1,3]=2
@@ -507,13 +525,13 @@ figure4 = function(file = "nouragues results parameters per year.txt", hyper = "
   m[1,c(1,2)]=1
   layout(m, widths=c(0.9,0.9))
   #CVspp(file=file)
-  h <- hist(log(tr$CV[orCV]+1), breaks = c(0,1,10,30),  plot =F)
+  h <- hist(condensedest$meancv,  breaks = c(0,1,5,10,15,20,25), plot = F)
   barplot(h$counts, space = 0, axes =F)
-  axis(side = 1, at = c(1, 2, 3), labels = c("1", "10", "30"), las = 1, cex.axis = 1.75)
+  axis(side = 1, las = 1, cex.axis = 1.75, at = 1:6, labels = c( "1", "5", "10", "15", "20", "25"))
   axis(side = 2, las = 1, cex.axis = 1.75)
   abline(v=1,lwd=3)
   text(3,15, "B", cex=2)
-  mtext(side=1,"coefficient of variation (log)",line=3,cex=1.5)
+  mtext(side=1,"coefficient of variation of seed production",line=3,cex=1.5)
   mtext(side=2, "number of species",line=3,cex=1.5)
   dev.off()
 }
@@ -1421,6 +1439,25 @@ fitmodel = function(file = "Nouragues results hyperparameters.txt"){
   boxplot(bestSD)
   CI(bestSD)
   tr[which(bestSD >=94),]
+  
+}
+
+## calculating CV for Peak
+#load("hyper all species Nouragues.RData")
+
+CVlog <- function (hyper = hyper){
+  acacia = hyper[hyper$species == "Acacia tenuifolia",]
+  CV = geommean = geomsd = vector(length = 9000)
+  for (i in 1:9000) {
+    lognormal <- rlnorm(1000, hyper$logmu[i], hyper$logSD[i])
+    CV[i]= sd(lognormal)/mean(lognormal)
+   geommean[i] = mean(lognormal)
+   geomsd[i] = sd(lognormal)
+  }
+  logSD = mean(acacia$logmu)
+  meancv = mean(CV)
+  uppercv = as.numeric(CI(CV)[1])
+  lowercv = as.numeric(CI(CV)[2])
   
 }
 
