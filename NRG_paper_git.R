@@ -355,6 +355,7 @@ figure3 = function(file = "Nouragues results hyperparameters.txt", longnames = "
   dat <- data.frame(sp = factor(long$longname[order(long$mu)], levels = long$longname[order(long$mu)]), mu = long$mu[order(long$mu)], CImu2 = long$CImu2[order(long$mu)], CImu97 = long$CImu97[order(long$mu)], 
                     SD = long$SD[order(long$mu)], Smythe = long$Smythe[order(long$mu)], disp = long$disp[order(long$mu)])
   
+  dat$CV <- dat$SD/dat$mu
   zoo = which(dat$disp == "zoo")
   bal = which(dat$disp == "bal")
   ane = which(dat$disp == "ane")
