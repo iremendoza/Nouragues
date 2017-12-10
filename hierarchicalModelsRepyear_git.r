@@ -466,7 +466,7 @@ splong=function(infile, shortname)
 }   
   
 
-###### APLICATION OF MODELS####
+###### APPLICATION OF MODELS####
 
 ## example of a loop for Nouragues data:
 #  nrgresults= hierarchical.NRG.repyr(file=nourage, beginyearfile=beginyearfile,spstart=1,spend=45, steps=10000, burnin=1000,outfile="nrg-results.RData")
