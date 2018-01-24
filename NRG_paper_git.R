@@ -37,12 +37,13 @@ beginyearfile <- "beginyearseeds 2011 newfecha_NRG.txt"
 #biomass = read.delim(file="biomass all months.txt") ##this dataset includes the biomass values per month and standarized by the number of censuses
 #ensoanomalies <- read.delim(file="ENSO anomalies - 2012.txt")
 #nrgraw = read.delim("nrg 2011.txt",header=T)
-#NRGallspp=read.delim(file="Nouragues model all spp.txt")
-#NRGallsppnoDj=read.delim("NRG model all spp without Dj.txt") #this dataset includes all the parameters models without the correction for date 
-#NRGmonthly=read.delim(file="monthly values of seed model.txt")
-#nrghyper=read.delim(file="Nouragues results hyperparameters.txt")
+#NRGallspp = read.delim(file="Nouragues model all spp.txt")
+#NRGallsppnoDj = read.delim("NRG model all spp without Dj.txt") #this dataset includes all the parameters models without the correction for date 
+#NRGmonthly = read.delim(file="monthly values of seed model.txt")
+#nrghyper = read.delim(file="Nouragues results hyperparameters.txt")
 #est<-read.delim("number total spp per month estimated.txt",header=T)
 #totseed<-read.delim(file="total number of seeds per species.txt")
+hyperseed <- merge ()
 
 clim <- read.table("local climate data Nouragues.txt", header = T)
 #nrgprior<-read.delim(file="Nouragues priors per year.txt")
@@ -1341,8 +1342,16 @@ stable3 = function(file = nourage, beginyearfile = beginyearfile, spstart = 1, s
 SFig1 = function(file = "Nouragues results hyperparameters.txt", graphname = "SFig1.tif") {
   
   tr <- read.delim(file)
+  sp<- read.delim("total number of seeds per species.txt")
+  sp2 = data.frame(species = sp$sp, totseed = sp$totseed)
+  sp3<- merge(sp2,tr, by = "species")
+  plot(log(sp3$totseed), sp3$logSD)
+  cor(log(sp3$totseed), sp3$logSD)
+  plot(log(sp3$totseed), sp3$SD)
+  cor(log(sp3$totseed), sp3$SD)
   tiff(filename = graphname,width = 1500, height = 1000,pointsize=12, res=300)
   par(las = 1, bty = "o", tcl = 0.2, mar = c(5, 5, 2,2), mgp = c(0.25, 0.25, 0),cex.axis=1.2,lwd=1.5)
+  plot(tr$logmu, tr$SD,xlab="",ylab="",las=1,bty="l",pch=19)
   plot(tr$logSD, tr$SD,xlab="",ylab="",las=1,bty="l",pch=19)
   mtext(side=2,text = expression(paste (sigma, " of peakday", sep ="")),line=2.5,las=0,cex=1.2)
   mtext(side=1,text = expression(paste ("log", sigma, " of P", sep ="")),line=2.5,las=0,cex=1.2)
