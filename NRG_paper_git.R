@@ -43,7 +43,6 @@ beginyearfile <- "beginyearseeds 2011 newfecha_NRG.txt"
 #nrghyper = read.delim(file="Nouragues results hyperparameters.txt")
 #est<-read.delim("number total spp per month estimated.txt",header=T)
 #totseed<-read.delim(file="total number of seeds per species.txt")
-hyperseed <- merge ()
 
 clim <- read.table("local climate data Nouragues.txt", header = T)
 #nrgprior<-read.delim(file="Nouragues priors per year.txt")
