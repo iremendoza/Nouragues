@@ -1336,7 +1336,7 @@ stable3 = function(file = nourage, beginyearfile = beginyearfile, spstart = 1, s
  
 }
 
-#### SUPPLEMENTARY FIGURE 1 ################
+#### SUPPLEMENTARY FIGURE 1 (now Fig. 5)################
 
 SFig1 = function(file = "Nouragues results hyperparameters.txt", graphname = "SFig1.tif") {
   
@@ -1344,19 +1344,18 @@ SFig1 = function(file = "Nouragues results hyperparameters.txt", graphname = "SF
   sp<- read.delim("total number of seeds per species.txt")
   sp2 = data.frame(species = sp$sp, totseed = sp$totseed)
   sp3<- merge(sp2,tr, by = "species")
-  plot(log(sp3$totseed), sp3$logSD)
-  cor(log(sp3$totseed), sp3$logSD)
-  plot(log(sp3$totseed), sp3$SD)
-  cor(log(sp3$totseed), sp3$SD)
-  tiff(filename = graphname,width = 1500, height = 1000,pointsize=12, res=300)
+  #plot(log(sp3$totseed), sp3$logSD)
+  #cor(log(sp3$totseed), sp3$logSD)
+  tiff(filename = graphname, width = 1500, height = 1000,pointsize=12, res=300)
   par(las = 1, bty = "o", tcl = 0.2, mar = c(5, 5, 2,2), mgp = c(0.25, 0.25, 0),cex.axis=1.2,lwd=1.5)
   plot(tr$logmu, tr$SD,xlab="",ylab="",las=1,bty="l",pch=19)
   plot(tr$logSD, tr$SD,xlab="",ylab="",las=1,bty="l",pch=19)
-  mtext(side=2,text = expression(paste (sigma, " of peakday", sep ="")),line=2.5,las=0,cex=1.2)
-  mtext(side=1,text = expression(paste ("log", sigma, " of P", sep ="")),line=2.5,las=0,cex=1.2)
+  mtext(side=2, text = expression(paste(italic(sigma), " of ", italic("peakday"), sep ="")),line=2.5,las=0,cex=1.2)
+  mtext(side=1, text = expression(paste(italic(paste("log(", sigma, ")", sep = "")), " of ", italic("P"), sep ="")),line=2.5,las=0,cex=1.2)
   abline(lm(tr$SD ~ tr$logSD))
   summary(lm(tr$SD ~ tr$logSD))
-  cor.test(tr$SD,tr$logSD,method="pearson")
+  pears <- cor.test(tr$SD,tr$logSD, method="pearson")
+  text(6, 20, labels = expression(paste("r = 0.63; ", italic(P), " value <0.001", sep ="")), cex = 0.9)
   
   dev.off()
 }
