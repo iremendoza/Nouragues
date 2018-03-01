@@ -55,7 +55,7 @@ clim$dates = strptime(paste("1-",clim$month,"-",clim$year), format="%d - %m - %Y
 clim$julian = tojulian(clim$dates,dateform = "%Y-%m-%d")
 clim$yday = clim$dates$yday+1
 
-newman = read.delim(file = "Nouragues manual estimated new.txt")
+newman <- "Nouragues manual estimated new.txt"
 
 
 #census<-read.delim(file="census list.txt")
@@ -96,9 +96,9 @@ figure1 = function(datfile = c("new", "old"), graphname="figure1.tif", est = est
       dry$lack[k]=length(which(is.na(dat$raine[dat$Year==dry$Year[k]&dat$Month==dry$Month[k]])==T))
     }
     # we establish a threshold of 4 days for keeping rainfall data of that month
-    dry2=dry[-which(dry$lack>4),]
-    monthrain=aggregate(data.frame(rain=dry2$rain),by=list(month=dry2$Month),mean)
-    sdrain=aggregate(data.frame(rain=dry2$rain),by=list(month=dry2$Month),sd)
+    dry2 = dry[-which(dry$lack>4),]
+    monthrain = aggregate(data.frame(rain=dry2$rain),by=list(month=dry2$Month),mean)
+    sdrain = aggregate(data.frame(rain=dry2$rain),by=list(month=dry2$Month),sd)
     
     means <- data.frame(aggregate(data.frame(tmin=dat[,16],tmax=dat[,17]), by = list(month = dat$Month), mean,na.rm=T),rain=monthrain$rain)
     sds  <- data.frame(aggregate(data.frame(tmin=dat[,16],tmax=dat[,17]), by = list(month = dat$Month), sd,na.rm=T),rain=sdrain$rain)
@@ -107,15 +107,15 @@ figure1 = function(datfile = c("new", "old"), graphname="figure1.tif", est = est
   labels <- c("J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D")
   
   #est<-read.delim("number total spp per month estimated.txt",header=T)
-  sppmeans = aggregate( est$estnumbspp, by = list(month = est$month), mean)
+  sppmeans = aggregate(est$estnumbspp, by = list(month = est$month), mean)
   names(sppmeans)=c("month","nbspp")
   sppsds=aggregate( est$estnumbspp, by = list(month = est$month), sd)
   names(sppsds)=c("month","nbspp")
   
   #biomass=read.delim(file="biomass all months.txt",as.is=T)
-  biomass=biomass[-1,]
-  meanbio=aggregate(data.frame(fruit=biomass$fruits,flower=biomass$flowers), by=list(month=biomass$month), mean)
-  sdbio=aggregate(data.frame(fruit=biomass$fruits,flower=biomass$flowers), by=list(month=biomass$month), sd)
+  biomass = biomass[-1,]
+  meanbio = aggregate(data.frame(fruit=biomass$fruits,flower=biomass$flowers), by=list(month=biomass$month), mean)
+  sdbio = aggregate(data.frame(fruit=biomass$fruits,flower=biomass$flowers), by=list(month=biomass$month), sd)
   
   #x11(height=10,width=6) 
   tiff(filename=graphname,width = 1900, height = 3000,pointsize=12, res=300)
@@ -130,8 +130,8 @@ figure1 = function(datfile = c("new", "old"), graphname="figure1.tif", est = est
   text(2,15,labels="A",pos=2, offset=2, cex=2)
   par(new=TRUE)
   ji12=jitter(c(1:12))
-  plot(ji12,flowermeans$flower, type="o",axes=FALSE, xlab="", ylab="", col="grey70", ylim=c(0,15) ,lwd=2)
-  segments(ji12, flowermeans$flower- flowersds$flower, ji12, flowermeans$flower + flowersds$flower, lwd = 2, lend = 3, col = "grey70")
+  plot(ji12, meanbio$flower, type="o",axes=FALSE, xlab="", ylab="", col="grey70", ylim=c(0,15) ,lwd=2)
+  segments(ji12, meanbio$flower- sdbio$flower, ji12, meanbio$flower + sdbio$flower, lwd = 2, lend = 3, col = "grey70")
   legend(7,15,legend=c("fruits","flowers"), col=c("black","grey70"),lty=1,lwd=3,bty="n",cex=2)
   
   print(cor.test(means$rain, meanbio$flower))
