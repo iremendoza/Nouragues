@@ -34,4 +34,4 @@ vignettes/*.pdf
 .Rproj.user
 NRG-results.RData
 
-.tif
+/*.tif
