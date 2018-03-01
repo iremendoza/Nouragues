@@ -26,6 +26,8 @@ library(dplyr)
 
 nourage <- "nouragues.txt" ## raw data with seed counts and density of seeds/m2 per census and species
 beginyearfile <- "beginyearseeds 2011 newfecha_NRG.txt"
+est <- read.delim("number total spp per month estimated.txt", header = T)
+biomass <- read.delim(file = "biomass all months.txt") ##this dataset includes the biomass values per month and standarized by the number of censuses
 
 #biomassraw = read.delim(file="biomass raw.txt")
 #biomassraw$fecha = create.fulldate(biomassraw$date, format="%d/%m/%Y")
@@ -41,7 +43,6 @@ beginyearfile <- "beginyearseeds 2011 newfecha_NRG.txt"
 #NRGallsppnoDj = read.delim("NRG model all spp without Dj.txt") #this dataset includes all the parameters models without the correction for date 
 #NRGmonthly = read.delim(file="monthly values of seed model.txt")
 #nrghyper = read.delim(file="Nouragues results hyperparameters.txt")
-#est<-read.delim("number total spp per month estimated.txt",header=T)
 #totseed<-read.delim(file="total number of seeds per species.txt")
 
 clim <- read.table("local climate data Nouragues.txt", header = T)
@@ -106,7 +107,7 @@ figure1 = function(datfile = c("new", "old"), graphname="figure1.tif", est = est
   labels <- c("J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D")
   
   #est<-read.delim("number total spp per month estimated.txt",header=T)
-  sppmeans=aggregate( est$estnumbspp, by = list(month = est$month), mean)
+  sppmeans = aggregate( est$estnumbspp, by = list(month = est$month), mean)
   names(sppmeans)=c("month","nbspp")
   sppsds=aggregate( est$estnumbspp, by = list(month = est$month), sd)
   names(sppsds)=c("month","nbspp")
