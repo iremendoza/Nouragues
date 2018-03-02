@@ -365,6 +365,9 @@ figure3 = function(file = "Nouragues results hyperparameters.txt", longnames = "
   dat$disp2[ane] = "abiotic"
   dat$disp2[bal] = "abiotic"
   
+  spearmandata <- data.frame(sp = dat$sp, SD = dat$SD, disp = as.factor(dat$disp2))
+  spearman.test(y = spearmandata$SD, x = spearmandata$disp)
+  
   colores = character(length = 45)
   colores[zoo] = "gray48"
   colores[ane] = "white"
