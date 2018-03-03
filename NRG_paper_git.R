@@ -1301,7 +1301,8 @@ stable2 = function(file = "Nouragues results hyperparameters.txt", longnames = "
   totseed = read.delim(file = longnames)
   names(totseed) = c("species", "longname", "totseed", "form", "disp", "fruit", "length", "width", "Smythe")
   long = merge(tr, totseed, by ="species")
-  dataset = data.frame(species = long$longname, peakdays = paste(round(long$mu2,2)," (",month,")",sep=""), CIpeakday = paste(round(long$CImu2.2,2),"-" ,round(long$CImu97.2,2), " (", month2, "-", month97, ")", sep =""), SDpeakday =  round(long$SD,2), CISDpeakday = paste(round(long$CISD2,2),"-", round(long$CISD97,2), sep =""), peakmu = round(long$pmu,2), CIpeakmu = paste(round(long$pCI2,2),"-", round(long$pCI97,2), sep =""), peakSD = round(long$pSD, 2), CIpeakSD = paste(round(long$pSDCI2,2),"-", round(long$pSDCI97,2), sep =""), SD = round(long$bestSD, 2))
+ 
+  dataset = data.frame(species = long$longname, peakdays = paste(round(long$mu2,2)," (",month,")",sep=""), CIpeakday = paste(round(long$CImu2.2,2),"-" ,round(long$CImu97.2,2), " (", month2, "-", month97, ")", sep =""), SDpeakday =  round(long$SD,2), CISDpeakday = paste(round(long$CISD2,2),"-", round(long$CISD97,2), sep =""), peakmu = round(long$logmu,2), CIpeakmu = paste(round(long$CIlogmu2,2)," to ", round(long$CIlogmu97,2), sep =""), peakSD = round(long$logSD, 2), CIpeakSD = paste(round(long$CIlogSD2,2)," to ", round(long$CIlogSD97,2), sep =""), SD = round(long$bestSD, 2))
   write.table(dataset, file = filename, sep = "\t", row.names = F)
 }
 
@@ -1359,7 +1360,9 @@ SFig1 = function(file = "Nouragues results hyperparameters.txt", graphname = "SF
   abline(lm(tr$SD ~ tr$logSD))
   summary(lm(tr$SD ~ tr$logSD))
   pears <- cor.test(tr$SD,tr$logSD, method="pearson")
-  text(6, 20, labels = expression(paste("r = 0.63; ", italic(P), " value <0.001", sep ="")), cex = 0.9)
+  rval <- as.numeric(round(pears$estimate, 2))
+  text(6, 20, labels = (paste("r = ", print(rval), sep = "")), cex = 0.9, adj = 0)
+  text(6, 14, labels =  expression(paste( italic(P), " value <0.001", sep ="")), cex = 0.9, adj = 0)
   
   dev.off()
 }
