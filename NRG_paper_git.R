@@ -1361,8 +1361,8 @@ SFig1 = function(file = "Nouragues results hyperparameters.txt", graphname = "SF
   summary(lm(tr$SD ~ tr$logSD))
   pears <- cor.test(tr$SD,tr$logSD, method="pearson")
   rval <- as.numeric(round(pears$estimate, 2))
-  text(6, 20, labels = (paste("r = ", print(rval), sep = "")), cex = 0.9, adj = 0)
-  text(6, 14, labels =  expression(paste( italic(P), " value <0.001", sep ="")), cex = 0.9, adj = 0)
+  text(5, 22, labels = (paste("r = ", print(rval), sep = "")), cex = 0.9, adj = 0)
+  text(5, 14, labels =  expression(paste( italic(P), " value <0.001", sep ="")), cex = 0.9, adj = 0)
   
   dev.off()
 }
