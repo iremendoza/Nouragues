@@ -354,7 +354,7 @@ figure3 = function(file = "Nouragues results hyperparameters.txt", longnames = "
   long[long$longname == "Licania membranacea", 2:4] = long[long$longname == "Licania membranacea", 2:4] + 365.25
   
   dat <- data.frame(sp = factor(long$longname[order(long$mu)], levels = long$longname[order(long$mu)]), mu = long$mu[order(long$mu)], CImu2 = long$CImu2[order(long$mu)], CImu97 = long$CImu97[order(long$mu)], 
-                    SD = long$SD[order(long$mu)], Smythe = long$Smythe[order(long$mu)], disp = long$disp[order(long$mu)])
+                    SD = long$SD[order(long$mu)], logSD = long$logSD[order(long$mu)], Smythe = long$Smythe[order(long$mu)], disp = long$disp[order(long$mu)])
   
   dat$CV <- dat$SD/dat$mu
   zoo = which(dat$disp == "zoo")
@@ -367,6 +367,10 @@ figure3 = function(file = "Nouragues results hyperparameters.txt", longnames = "
   
   spearmandata <- data.frame(sp = dat$sp, SD = dat$SD, disp = as.factor(dat$disp2))
   spearman.test(y = spearmandata$SD, x = spearmandata$disp)
+  
+  
+  spearmandata2 <- data.frame(sp = dat$sp, logSD = dat$logSD, disp = as.factor(dat$disp2))
+  spearman.test(y = spearmandata2$logSD, x = spearmandata$disp)
   
   colores = character(length = 45)
   colores[zoo] = "gray48"
