@@ -467,12 +467,13 @@ figure3.old = function(file = "Nouragues results hyperparameters.txt", filename 
 ####FIGURE 4 OF THE PAPER ###############
 ### coefficient of variation of seed production for the 45 species
 
-figure4 = function(file = "nouragues results parameters per year.txt", hyper = "Nouragues results hyperparameters.txt", EstimatedCV = EstimatedCV, longnames = "seed size.txt", filename = "figure4.tif") {
-  
+figure4 = function(file = "nouragues results parameters per year.txt", hyper = "Nouragues results hyperparameters.txt", longnames = "seed size.txt", filename = "figure4.tif") {
+  load("EstimatedCV.Rdata")
   nrg = read.delim(file)
   #spnames=sort(unique(nrg$sp))
   totseed = read.delim(file = longnames)
-  names(totseed) = c("Taxa", "species", "longname", "family", "Poncy", "adult", "observations", "form", "disp", "fruit", "totseed", "measured", "length", "width", "D3", "comments.measure")
+  #names(totseed) = c("Taxa", "species", "longname", "family", "Poncy", "adult", "observations", "form", "disp", "fruit", "totseed", "measured", "length", "width", "D3", "comments.measure")
+  names(totseed) = c("species", "longname", "totseed", "form", "disp", "fruit",  "length", "width", "Smythe")
   spnames2 = totseed$longname
   spmeans = aggregate(data.frame(peak = nrg$peak),by=list(species = nrg$species),mean)
   spsd = aggregate(data.frame(peak = nrg$peak), by = list(species = nrg$species),sd)
