@@ -546,9 +546,9 @@ figure4 = function(file = "nouragues results parameters per year.txt", hyper = "
 
 ###FIGURE 5 OF THE PAPER ###############
 
-figure5=function(file=nourage, fit=results, beginyearfile=beginyearfile)
+figure5 = function(file = nourage, fit = results, beginyearfile = beginyearfile)
 {
-  nrgdata=read.delim(file)
+  nrgdata = read.delim(file)
   beginyr=read.delim(file=beginyearfile)
   fulldata=merge(nrgdata,beginyr,by="sp", all.x=TRUE)
   spnames=sort(unique(fulldata$sp))
