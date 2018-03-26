@@ -547,8 +547,10 @@ figure4 = function(file = "nouragues results parameters per year.txt", hyper = "
 
 ###FIGURE 5 OF THE PAPER ###############
 
-figure5 = function(file = nourage, fit = results, beginyearfile = beginyearfile)
+figure5 = function(file = nourage,  beginyearfile = beginyearfile)
 {
+  load("nrg.results2.RData")
+  fit = results
   nrgdata = read.delim(file)
   beginyr=read.delim(file=beginyearfile)
   fulldata=merge(nrgdata,beginyr,by="sp", all.x=TRUE)
@@ -579,18 +581,19 @@ figure5 = function(file = nourage, fit = results, beginyearfile = beginyearfile)
     inc2=which(spdata2$year>=startv&spdata2$year<=endv)
     
     spsh=spshort2(spname=species)
-    fitset=fit[[spsh]] 
+    fitset = fit[[spsh]] 
     fittrans= retranslate.seedfalldate(fit=fitset,beginyear=bgy)
     
     #plot(spdata$julian[inc],spdata$quantity[inc],pch=16,ylim=c(0,max(fittrans$bestpeak)))
+    #axis(side=2, las=2, at = seq(0,35,5), labels = round(seq(0,35,5)/80,2))
     
     if (i ==1|i==5){
-      plot(spdata$julian,spdata$quantity,pch=16,ylim=c(0,max(fittrans$bestpeak)),axes=F,xlab="years",ylab="number of seeds")
-      jan=tojulian(pst('01/01/',min(unique(spdata$year)):(max(unique(spdata$year))+1)))
+      plot(spdata$julian, spdata$quantity, pch=16, ylim=c(0, floor(max(fittrans$bestpeak))+1),axes=F,xlab="years",ylab="number of seeds")
+      jan = tojulian(pst('01/01/',min(unique(spdata$year)):(max(unique(spdata$year))+1)))
       #axis(side=1, at=jan, labels= c(min(unique(spdata$year)):max(unique(spdata$year))))
       axis(side=1, at=jan, labels= jan)
-      axis(2)
-      Dj=round(ifelse(bgy<182.5,bgy,bgy-366),0)
+      axis(2, las = 2) 
+      Dj=round(ifelse(bgy<182.5, bgy,bgy-366),0)
       lines(spdata2$julian[inc2]+Dj,fitset$model)  
       newdates=fromjulian(spdata$julian[inc2]+Dj,dateform="%Y-%m-%d")
       fulldate=create.fulldate(newdates,format='%Y-%m-%d')
@@ -707,7 +710,7 @@ figure5 = function(file = nourage, fit = results, beginyearfile = beginyearfile)
 ####FIGURE 5b OF THE PAPER ###############
 ## figure 5b is a short version of figure5 for the FAPESP relatorio cientifico
 
-figure5b=function(file=nourage, fit=results, beginyearfile=beginyearfile)
+figure5b=function(file=nourage, fit = results, beginyearfile=beginyearfile)
 {
   nrgdata=read.delim(file)
   beginyr=read.delim(file=beginyearfile)
