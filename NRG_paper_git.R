@@ -17,7 +17,7 @@ source(".\\dataset management_git.r")
 #source("C:\\Irene\\Brunoy\\Base Datos Nouragues\\Metadata Joe Wright\\modeling max likelihood\\BCI-max likelihood.r")
 
 
-#attach('CTFSRPackage.rdata')
+attach('CTFSRPackage.rdata')
 
 library(ggplot2)
 library(dplyr)
@@ -371,9 +371,9 @@ figure3 = function(file = "Nouragues results hyperparameters.txt", longnames = "
   spearman.test(y = spearmandata2$logSD, x = spearmandata$disp)
   
   colores = character(length = 45)
-  colores[zoo] = "gray48"
-  colores[ane] = "white"
-  colores[bal] = "white"
+  colores[zoo] =  "red"    #"gray48"
+  colores[ane] = "blue"
+  colores[bal] = "blue"
   
   tiff(filename = filename, height = 2000, width = 3000, res = 300)
   par(las = 1, mar = c(3,13,1,1), oma = c(2,4,1,1), cex = 0.6)
@@ -386,9 +386,9 @@ figure3 = function(file = "Nouragues results hyperparameters.txt", longnames = "
   #segments(x0 = dat$mu, x1 = dat$CImu97, y0 = 1:45, y1 = 1:45)
   
   
-  polygon(c(212, 334, 334, 212),c(0, 0,50,50),col = "#CCCCCC42", border = NA)
+  polygon(c(212, 334, 334, 212),c(0, 0,50,50),col = "#CCCCCC62", border = NA)
   axis(side = 2, at = 1:45, labels = dat$sp[seq(1,45,1)],las = 2, font = 3, cex.axis = 1.2)
-  legend(10, 44, lty = c(1,1), pch = 21, legend = c("biotic","abiotic"), pt.bg = c("gray48", "white"), bty = "n", cex = 1.5, horiz = T, lwd = 2)
+  legend(10, 44, lty = c(1,1), pch = 21, legend = c("biotic","abiotic"), pt.bg = c("red", "blue"), bty = "n", cex = 1.5, horiz = T, lwd = 2)
   mtext(side = 1, line = 3, text = "date of peaks (month of the year)")
   
   # The errorbars overlapped, so use position_dodge to move them horizontally
