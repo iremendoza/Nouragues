@@ -467,7 +467,7 @@ figure3.old = function(file = "Nouragues results hyperparameters.txt", filename 
 ####FIGURE 4 OF THE PAPER ###############
 ### coefficient of variation of seed production for the 45 species
 
-figure4 = function(file = "nouragues results parameters per year.txt", hyper = "Nouragues results hyperparameters.txt", longnames = "seed size.txt", filename = "figure4.tif") {
+figure4 = function(file = "nouragues results parameters per year.txt", hyper = "Nouragues results hyperparameters.txt", longnames = "seed size.txt", filename = "figureCV.tif") {
   load("EstimatedCV.Rdata")
   nrg = read.delim(file)
   #spnames=sort(unique(nrg$sp))
@@ -545,9 +545,9 @@ figure4 = function(file = "nouragues results parameters per year.txt", hyper = "
 }
 
 
-###FIGURE 5 OF THE PAPER ###############
+###FIGURE 5 OF THE PAPER (NOW FIG. 4)###############
 
-figure5 = function(file = nourage,  beginyearfile = beginyearfile)
+figure5 = function(file = nourage,  beginyearfile = beginyearfile, filename = "figure4.tif")
 {
   load("nrg.results2.RData")
   fit = results
@@ -555,7 +555,8 @@ figure5 = function(file = nourage,  beginyearfile = beginyearfile)
   beginyr=read.delim(file=beginyearfile)
   fulldata=merge(nrgdata,beginyr,by="sp", all.x=TRUE)
   spnames=sort(unique(fulldata$sp))
-  jpeg(filename="Figure5.jpg",width = 900, height = 1050,quality=100)
+  tiff(filename = filename, height = 4000, width = 3500, res = 300)
+  #jpeg(filename="Figure5.jpg",width = 900, height = 1050,quality=100)
   par(mfrow=c(6,2),mar=c(2.5,1,2,5), oma=c(4,5,1,1),las=1, cex=1)
   sprange=c(45,10,23,8,18,20)
   for (i in 1:length(sprange)){
@@ -1349,7 +1350,7 @@ stable3 = function(file = nourage, beginyearfile = beginyearfile, spstart = 1, s
 
 #### SUPPLEMENTARY FIGURE 1 (now Fig. 5)################
 
-SFig1 = function(file = "Nouragues results hyperparameters.txt", graphname = "SFig1.tif") {
+SFig1 = function(file = "Nouragues results hyperparameters.txt", graphname = "Figure5.tif") {
   
   tr <- read.delim(file)
   sp<- read.delim("total number of seeds per species.txt")
