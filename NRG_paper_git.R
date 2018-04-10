@@ -119,14 +119,14 @@ figure1 = function(datfile = c("new", "old"), graphname="figure1.tif", est = est
   
   #x11(height=10,width=6) 
   tiff(filename=graphname,width = 1900, height = 3000,pointsize=12, res=300)
-  par(las = 1, bty = "o", tcl = 0.2, mar = c(2, 5, 1, 5), mgp = c(0.25, 0.25, 0),cex.axis=1.5,lwd=1.5)
+  par(las = 1, bty = "o", tcl = 0.2, mar = c(2, 5, 1, 5), oma=c(2,3,1,1), mgp = c(0.25, 0.25, 0),cex.axis=1.5,lwd=1.5)
   par(mfrow=c(3,1))
   
   plot(meanbio$fruit,type="o",axes=FALSE, xlab="",ylab="", col="black", ylim=c(0,15) )
   segments(1:12, meanbio$fruit- sdbio$fruit, 1:12, meanbio$fruit + sdbio$fruit, lwd = 2, lend = 3, col = "black")
   axis(1, at = 1:12, labels = NA)
-  axis(2) 
-  mtext(text=expression(paste("Biomass (g ",m^-2, ")", sep = " ")), 2, las = 3, line = 3) 
+  axis(2, cex.axis = 2) 
+  mtext(text=expression(paste("Biomass (g ",m^-2, ")", sep = " ")), 2, las = 3, line = 4, cex = 1.5) 
   text(2,15,labels="A",pos=2, offset=2, cex=2)
   par(new=TRUE)
   ji12=jitter(c(1:12))
@@ -140,10 +140,9 @@ figure1 = function(datfile = c("new", "old"), graphname="figure1.tif", est = est
   plot(sppmeans$nbspp,type="o",axes=FALSE, ylim=c(10,40), xlab="",ylab="",col="black")
   text(2,40,labels="B",pos=2, offset=2, cex=2)
   axis(1, at = 1:12, labels = NA)
-  axis(2)
+  axis(2, cex.axis = 2)
   segments(1:12, sppmeans$nbspp - sppsds$nbspp, 1:12, sppmeans$nbspp + sppsds$nbspp, lwd = 2, lend = 3, col = "black")
-  mtext("Number of fruiting species", 2, las = 3, line = 3)
-  
+  mtext("Number of fruiting species", 2, las = 3, line = 4, cex = 1.5)
   print(cor.test(means$rain,sppmeans$nbspp))
   
   #plot(1:12, means$rain, axes = F, type = "n", xlab = "", ylab = "", ylim = range(means$rain - sds$rain, means$rain+ sds$rain))
@@ -154,11 +153,11 @@ figure1 = function(datfile = c("new", "old"), graphname="figure1.tif", est = est
   segments(1:12, means$rain - sds$rain, 1:12, means$rain+ sds$rain, lwd = 2, lend = 3, col = "black")
   
   
-  axis(1, at = 1:12, labels = labels)
-  axis(2, at = 100*1:5, col.axis = "blue")
-  axis(4, at = 200*1:4, labels = 10*1:4, col.axis = "red")
-  mtext("Temperature (ºC)", 4, las = 3, line = 3, col = "red")
-  mtext("Precipitation (mm)", 2, las = 3, line = 3, col = "blue")
+  axis(1, at = 1:12, labels = labels, cex.axis = 1.7)
+  axis(2, at = 100*1:5, col.axis = "blue", cex.axis = 2)
+  axis(4, at = 200*1:4, labels = 10*1:4, col.axis = "red", cex.axis = 2)
+  mtext("Temperature (ºC)", 4, las = 3, line = 3.5, col = "red", cex = 1.5)
+  mtext("Precipitation (mm)", 2, las = 3, line = 4, col = "blue", cex = 1.5)
   
   dev.off() 
 }
