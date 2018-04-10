@@ -555,9 +555,9 @@ figure5 = function(file = nourage,  beginyearfile = beginyearfile, filename = "f
   beginyr=read.delim(file=beginyearfile)
   fulldata=merge(nrgdata,beginyr,by="sp", all.x=TRUE)
   spnames=sort(unique(fulldata$sp))
-  tiff(filename = filename, height = 4000, width = 3500, res = 300)
+  tiff(filename = filename, height = 4200, width = 3500, res = 300)
   #jpeg(filename="Figure5.jpg",width = 900, height = 1050,quality=100)
-  par(mfrow=c(6,2),mar=c(2.5,1,2,5), oma=c(4,5,1,1),las=1, cex=1)
+  par(mfrow=c(6,2),mar=c(2.5,2,2,5), oma=c(4,5,1,1),las=1, cex=1, cex.axis = 1.2)
   sprange=c(45,10,23,8,18,20)
   for (i in 1:length(sprange)){
     species=as.character(spnames[sprange][i])
@@ -588,12 +588,17 @@ figure5 = function(file = nourage,  beginyearfile = beginyearfile, filename = "f
     #plot(spdata$julian[inc],spdata$quantity[inc],pch=16,ylim=c(0,max(fittrans$bestpeak)))
     #axis(side=2, las=2, at = seq(0,35,5), labels = round(seq(0,35,5)/80,2))
     
-    if (i ==1|i==5){
-      plot(spdata$julian, spdata$quantity, pch=16, ylim=c(0, floor(max(fittrans$bestpeak))+1),axes=F,xlab="years",ylab="number of seeds")
+    if (i ==1){
+      plot(spdata$julian, spdata$quantity, pch=16, ylim=c(0, floor(max(fittrans$bestpeak))+1),axes=F,xlab="",ylab="")
       jan = tojulian(pst('01/01/',min(unique(spdata$year)):(max(unique(spdata$year))+1)))
+      years = c(min(unique(spdata$year)):(max(unique(spdata$year))+1))
       #axis(side=1, at=jan, labels= c(min(unique(spdata$year)):max(unique(spdata$year))))
-      axis(side=1, at=jan, labels= jan)
-      axis(2, las = 2) 
+      axis(side=1, at = jan, labels= years)
+      #axis(side=2, las=2, at = seq(0,floor(max(fittrans$bestpeak)),5), labels = seq(0,floor(max(fittrans$bestpeak)),5)/80)
+      axis(2, las = 2)
+      #mtext(text = expression(paste("biweekly seedfall (seeds* ",m^-2, ")", sep = " ")), 2, las = 3, line = 3, cex = 1)
+      #mtext(text = "years", 1, las = 1, line = 3, cex = 1)
+       
       Dj=round(ifelse(bgy<182.5, bgy,bgy-366),0)
       lines(spdata2$julian[inc2]+Dj,fitset$model)  
       newdates=fromjulian(spdata$julian[inc2]+Dj,dateform="%Y-%m-%d")
@@ -603,13 +608,15 @@ figure5 = function(file = nourage,  beginyearfile = beginyearfile, filename = "f
       jan1=tojulian(pst('01/01/',startv:endv))
       fitpeakjulian=jan1+fittrans$bestpeakday 
       points(fitpeakjulian,fittrans$bestpeak,col='red',pch=16)
-      mtext(side=3, text=species, font=3,line=0.5, cex=1.5)
+      mtext(side=3, text=species, font=3,line = 0, cex=1.5)
       
       maxyr=which.max(fittrans$bestpeak)
       oneyrpred=14*fittrans$bestpeak[maxyr]*dnorm(-185:185,mean=fittrans$bestpeakday[maxyr],sd=fittrans$bestSD)
       plot(-185:185,oneyrpred,type='l',ylab='biweekly seedfall',xlab='day of year',axes=FALSE,lwd=2, bty="l")
       axis(side=1, at=c(-180,-120,-60,1,60,120,180),labels=c("185","245","305","0","60","120","180") )
-      axis(side=2)
+      #axis(side=2, las = 1, at = seq(0,floor(max(oneyrpred)),1), labels = round(seq(0,floor(max(oneyrpred)),1)/80,2))
+      axis(side=2, las = 1)
+
       for(k in 1:length(fittrans$bestpeak)) 
       { 
         oneyrpred=14*fittrans$bestpeak[k]*dnorm(-185:185,mean=fittrans$bestpeakday[k],sd=fittrans$bestSD)
@@ -617,11 +624,76 @@ figure5 = function(file = nourage,  beginyearfile = beginyearfile, filename = "f
       }
       #mtext(side=3, text=species, font=3,line=0.75, cex=1.5)
     }
+    
+    if(i == 2| i == 3){
+      plot(spdata$julian,spdata$quantity,pch=16,ylim=c(0,max(fittrans$bestpeak)),axes=F,xlab="years",ylab="number of seeds")
+      jan=tojulian(pst('01/01/',min(unique(spdata$year)):(max(unique(spdata$year))+1)))
+      #axis(side=1, at=jan, labels= c(min(unique(spdata$year)):max(unique(spdata$year))))
+      years = c(min(unique(spdata$year)):(max(unique(spdata$year))+1))
+      axis(side=1, at = jan, labels= years)
+      axis(side=2, las=2)
+      
+      Dj=round(ifelse(bgy<182.5,bgy,bgy-366),0)
+      lines(spdata2$julian[inc2]+Dj,fitset$model)  
+      newdates=fromjulian(spdata$julian[inc2]+Dj,dateform="%Y-%m-%d")
+      fulldate=create.fulldate(newdates,format='%Y-%m-%d')
+      startyear=min(unique(fulldate$year))
+      endyear=max(unique(fulldate$year))
+      jan1=tojulian(pst('01/01/',startv:endv))
+      fitpeakjulian=jan1+fittrans$bestpeakday 
+      points(fitpeakjulian,fittrans$bestpeak,col='red',pch=16)
+      mtext(side=3, text=species, font=3, line = 0, cex=1.5)
+      maxyr=which.max(fittrans$bestpeak)
+      oneyrpred=14*fittrans$bestpeak[maxyr]*dnorm(1:400,mean=fittrans$bestpeakday[maxyr],sd=fittrans$bestSD)
+      plot(1:400,oneyrpred,type='l',ylab='',xlab='',lwd=2,ylim=c(0,max(oneyrpred+1)),bty="l", axes = F)
+      axis(side=2, las = 1)
+      axis(1)
+       for(k in 1:length(fittrans$bestpeak)) 
+      { 
+        oneyrpred=14*fittrans$bestpeak[k]*dnorm(1:400,mean=fittrans$bestpeakday[k],sd=fittrans$bestSD)
+        lines(1:400,oneyrpred,col=k,lwd=2) 
+      } 
+      #mtext(side=3, text=species, font=3,line=0.75, cex=1.5)   
+    }
+    
+     if (i == 5){
+      plot(spdata$julian, spdata$quantity, pch=16, ylim=c(0, floor(max(fittrans$bestpeak))+1),axes=F,xlab="",ylab="")
+      jan = tojulian(pst('01/01/',min(unique(spdata$year)):(max(unique(spdata$year))+1)))
+      years = c(min(unique(spdata$year)):(max(unique(spdata$year))+1))
+      axis(side=1, at = jan, labels= years)
+      axis(side=2, las=2)
+      
+      
+      Dj=round(ifelse(bgy<182.5, bgy,bgy-366),0)
+      lines(spdata2$julian[inc2]+Dj,fitset$model)  
+      newdates=fromjulian(spdata$julian[inc2]+Dj,dateform="%Y-%m-%d")
+      fulldate=create.fulldate(newdates,format='%Y-%m-%d')
+      startyear=min(unique(fulldate$year))
+      endyear=max(unique(fulldate$year))
+      jan1=tojulian(pst('01/01/',startv:endv))
+      fitpeakjulian=jan1+fittrans$bestpeakday 
+      points(fitpeakjulian,fittrans$bestpeak,col='red',pch=16)
+      mtext(side=3, text=species, font=3,line = 0, cex=1.5)
+      
+      maxyr=which.max(fittrans$bestpeak)
+      oneyrpred=14*fittrans$bestpeak[maxyr]*dnorm(-185:185,mean=fittrans$bestpeakday[maxyr],sd=fittrans$bestSD)
+      plot(-185:185,oneyrpred,type='l',ylab='biweekly seedfall',xlab='day of year',axes=FALSE,lwd=2, bty="l")
+      axis(side=1, at=c(-180,-120,-60,1,60,120,180),labels=c("185","245","305","0","60","120","180") )
+      axis(side=2, las = 1)
+      for(k in 1:length(fittrans$bestpeak)) 
+      { 
+        oneyrpred=14*fittrans$bestpeak[k]*dnorm(-185:185,mean=fittrans$bestpeakday[k],sd=fittrans$bestSD)
+        lines(-185:185,oneyrpred,col=k,lwd=2) 
+      }
+      #mtext(side=3, text=species, font=3,line=0.75, cex=1.5)
+    } 
+    
     if(i ==6){
       plot(spdata$julian,spdata$quantity,pch=16,ylim=c(0,max(fittrans$bestpeak)),axes=F,xlab="years",ylab="number of seeds")
       jan=tojulian(pst('01/01/',min(unique(spdata$year)):(max(unique(spdata$year))+1)))
       #axis(side=1, at=jan, labels= c(min(unique(spdata$year)):max(unique(spdata$year))))
-      axis(side=1, at=jan, labels= jan)
+      years = c(min(unique(spdata$year)):(max(unique(spdata$year))+1))
+      axis(side=1, at = jan, labels= years)
       axis(2)
       Dj=round(ifelse(bgy<182.5,bgy,bgy-366),0)
       lines(spdata2$julian[inc2]+Dj,fitset$model)  
@@ -632,7 +704,7 @@ figure5 = function(file = nourage,  beginyearfile = beginyearfile, filename = "f
       jan1=tojulian(pst('01/01/',startv:endv))
       fitpeakjulian=jan1+fittrans$bestpeakday 
       points(fitpeakjulian,fittrans$bestpeak,col='red',pch=16)
-      mtext(side=3, text=species, font=3,line=0.5, cex=1.5)
+      mtext(side=3, text=species, font = 3, line = 0, cex=1.5)
       mtext(side=1, text="years", font=1,line=3, cex=2) 
       
       maxyr=which.max(fittrans$bestpeak)
@@ -646,37 +718,13 @@ figure5 = function(file = nourage,  beginyearfile = beginyearfile, filename = "f
       mtext(side=1, text="day of year", font=1,line=3, cex=2)   
     }  
     
-    if(i == 2|i ==3){
-      plot(spdata$julian,spdata$quantity,pch=16,ylim=c(0,max(fittrans$bestpeak)),axes=F,xlab="years",ylab="number of seeds")
-      jan=tojulian(pst('01/01/',min(unique(spdata$year)):(max(unique(spdata$year))+1)))
-      #axis(side=1, at=jan, labels= c(min(unique(spdata$year)):max(unique(spdata$year))))
-      axis(side=1, at=jan, labels= jan)
-      axis(2)
-      Dj=round(ifelse(bgy<182.5,bgy,bgy-366),0)
-      lines(spdata2$julian[inc2]+Dj,fitset$model)  
-      newdates=fromjulian(spdata$julian[inc2]+Dj,dateform="%Y-%m-%d")
-      fulldate=create.fulldate(newdates,format='%Y-%m-%d')
-      startyear=min(unique(fulldate$year))
-      endyear=max(unique(fulldate$year))
-      jan1=tojulian(pst('01/01/',startv:endv))
-      fitpeakjulian=jan1+fittrans$bestpeakday 
-      points(fitpeakjulian,fittrans$bestpeak,col='red',pch=16)
-      mtext(side=3, text=species, font=3,line=0.5, cex=1.5)
-      maxyr=which.max(fittrans$bestpeak)
-      oneyrpred=14*fittrans$bestpeak[maxyr]*dnorm(1:400,mean=fittrans$bestpeakday[maxyr],sd=fittrans$bestSD)
-      plot(1:400,oneyrpred,type='l',ylab='',xlab='',lwd=2,ylim=c(0,max(oneyrpred+1)),bty="l")
-      for(k in 1:length(fittrans$bestpeak)) 
-      { 
-        oneyrpred=14*fittrans$bestpeak[k]*dnorm(1:400,mean=fittrans$bestpeakday[k],sd=fittrans$bestSD)
-        lines(1:400,oneyrpred,col=k,lwd=2) 
-      } 
-      #mtext(side=3, text=species, font=3,line=0.75, cex=1.5)   
-    }  
+      
     if(i == 4){
       plot(spdata$julian,spdata$quantity,pch=16,ylim=c(0,max(fittrans$bestpeak)),axes=F,xlab="years",ylab="number of seeds")
       jan=tojulian(pst('01/01/',min(unique(spdata$year)):(max(unique(spdata$year))+1)))
       #axis(side=1, at=jan, labels= c(min(unique(spdata$year)):max(unique(spdata$year))))
-      axis(side=1, at=jan, labels= jan)
+      years = c(min(unique(spdata$year)):(max(unique(spdata$year))+1))
+      axis(side=1, at = jan, labels= years)
       axis(2)
       Dj=round(ifelse(bgy<182.5,bgy,bgy-366),0)
       lines(spdata2$julian[inc2]+Dj,fitset$model)  
@@ -687,13 +735,15 @@ figure5 = function(file = nourage,  beginyearfile = beginyearfile, filename = "f
       jan1=tojulian(pst('01/01/',startv:endv))
       fitpeakjulian=jan1+fittrans$bestpeakday 
       points(fitpeakjulian,fittrans$bestpeak,col='red',pch=16)
-      mtext(side=2, text="number of seeds", font=1,line=3,adj=0, las=0,cex=2)   
-      mtext(side=3, text=species, font=3,line=0.5, cex=1.5)
+      mtext(side=2, text=expression(paste("number of seeds (seeds*80 ",m^-2, ")", sep = " ")), font=1,line = 4,adj=0, las=0,cex=2)   
+      mtext(side=3, text=species, font = 3, line = 0, cex=1.5)
       
       maxyr=which.max(fittrans$bestpeak)
       oneyrpred=14*fittrans$bestpeak[maxyr]*dnorm(1:400,mean=fittrans$bestpeakday[maxyr],sd=fittrans$bestSD)
-      plot(1:400,oneyrpred,type='l',ylab='',xlab='',lwd=2,ylim=c(0,max(oneyrpred+1)),bty="l")
-      mtext(side=2, text="biweekly seedfall", font=1,line=3,adj=0, las=0,cex=2)
+      plot(1:400,oneyrpred,type='l',ylab='',xlab='',lwd=2,ylim=c(0,max(oneyrpred+1)),bty="l", axes = F)
+      axis(1)
+      axis(2)
+      mtext(side=2, text = expression(paste("biweekly seedfall (seeds*80 ",m^-2, ")", sep = " ")), font = 1, line = 3.7, adj = 0, las = 0, cex = 2)
       for(k in 1:length(fittrans$bestpeak)) 
       { 
         oneyrpred=14*fittrans$bestpeak[k]*dnorm(1:400,mean=fittrans$bestpeakday[k],sd=fittrans$bestSD)
