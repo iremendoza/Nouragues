@@ -173,7 +173,7 @@ figure2 = function(trfile = "Nouragues results hyperparameters.txt", longnames =
   
   #x11(height=9,width=9)
   tiff(filename=filename, height = 1200,width=2000,res=300)
-  par(mar=c(3,3,3,1),oma=c(2,2,2,2))
+  par(mar=c(3,3,1,1),oma=c(2,2,1,2))
   tr = read.delim(file = trfile)
   tr$mu2=tr$mu
   tr$mu2[which(tr$mu<=0)]= tr$mu[which(tr$mu<=0)]+365.25
@@ -198,14 +198,14 @@ figure2 = function(trfile = "Nouragues results hyperparameters.txt", longnames =
   maxyr=which.max(tr$logmu)
   
   oneyrpred=14*exp(tr$logmu[maxyr])*dnorm(1:365,mean=tr$mu2[maxyr],sd=tr$bestSD[maxyr])
-  plot(1:365,oneyrpred,type='l',ylab='',xlab='',ylim=c(-0.5,max(oneyrpred+1)),lwd=1.25, cex=1, axes=F)
+  plot(1:365,oneyrpred,type='l',ylab='',xlab='',ylim=c(-0.5,max(oneyrpred+3)),lwd=1.25, cex=1, axes=F)
   axis(side=2, las=2, at = seq(0,35,5), labels = round(seq(0,35,5)/80,2))
   axis(side=1, at=c(1,32,60,92,122,152,183,214,245,275,306,336,366), labels=c("J", "F", "M", "A","M", "J", "J", "A", "S","O","N","D","J"))
   #polygon(c(248,341,341,248),c(0,0,3,3),col = "#FF000020", border = NA)
   #polygon(c(0,248,248,0),c(0,0,3,3),col = "#0000FF20", border = NA)
   polygon(c(212,334,334,212),c(0,0,30,30),col = "grey80", border = NA)
   #polygon(c(341,400,400,341),c(0,0,3,3),col = "#0000FF20", border = NA)
-  mtext(3, text="Nouragues (2001-2011)",line=2,cex=1.5)
+  #mtext(3, text="Nouragues (2001-2011)",line=2,cex=1.5)
   mtext(text = expression(paste("biweekly seedfall (seeds* ",m^-2, ")", sep = " ")), 2, las = 3, line = 3, cex = 1)
    mtext(1,text="month of the year",line=3,cex=1)
   for (i in 1:dim(tr)[1])
@@ -215,7 +215,7 @@ figure2 = function(trfile = "Nouragues results hyperparameters.txt", longnames =
   }
   
   lines(1:365, 14*mean(exp(tr$logmu))*dnorm(1:365,mean=mean(tr$mu2),sd=mean(tr$bestSD)),col="black",lwd=4)
-  legend(10,37,lty=c(1,1),col=c("black","red","blue"),legend=c("community","biotic","abiotic"),bty="n",cex=0.8,horiz=T,lwd=2)
+  legend(10,39,lty=c(1,1),col=c("black","red","blue"),legend=c("community","biotic","abiotic"),bty="n",cex= 1.2,horiz=T,lwd=2)
   dev.off()
   
   #### contingency test associated with figure 2: we test the Ho that the peaks of fruit production were uniform through the year####
