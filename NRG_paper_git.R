@@ -118,7 +118,7 @@ figure1 = function(datfile = c("new", "old"), graphname="figure1.tif", est = est
   sdbio = aggregate(data.frame(fruit=biomass$fruits,flower=biomass$flowers), by=list(month=biomass$month), sd)
   
   #x11(height=10,width=6) 
-  tiff(filename=graphname,width = 1900, height = 3000,pointsize=12, res=300)
+  tiff(filename= graphname,width = 1900, height = 3000,pointsize=12, res=300)
   par(las = 1, bty = "o", tcl = 0.2, mar = c(2, 5, 1, 5), oma=c(2,3,1,1), mgp = c(0.25, 0.25, 0),cex.axis=1.5,lwd=1.5)
   par(mfrow=c(3,1))
   
