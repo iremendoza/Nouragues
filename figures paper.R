@@ -24,9 +24,10 @@ figure1 = function(graphname="figure1.tif", est = est, biomass = biomass, newman
   
     dat = read.delim(newman)
     dry = aggregate(data.frame(rain=dat$raine), by = list(Month=dat$Month,Year=dat$Year), sum,na.rm=T)
+    dry$lack <- NA
     for (k in 1:dim(dry)[1]){   
       dry$lack[k]=length(which(is.na(dat$raine[dat$Year==dry$Year[k]&dat$Month==dry$Month[k]])==T))
-    
+    }
     # we establish a threshold of 4 days for keeping rainfall data of that month
     dry2 = dry[-which(dry$lack>4),]
     monthrain = aggregate(data.frame(rain=dry2$rain),by=list(month=dry2$Month),mean)
@@ -34,7 +35,7 @@ figure1 = function(graphname="figure1.tif", est = est, biomass = biomass, newman
     
     means <- data.frame(aggregate(data.frame(tmin=dat[,16],tmax=dat[,17]), by = list(month = dat$Month), mean,na.rm=T),rain=monthrain$rain)
     sds  <- data.frame(aggregate(data.frame(tmin=dat[,16],tmax=dat[,17]), by = list(month = dat$Month), sd,na.rm=T),rain=sdrain$rain)
-    }
+    
   
   labels <- c("J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D")
   
